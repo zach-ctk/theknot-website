@@ -1,0 +1,74 @@
+---
+// src/components/ProratedMembershipPrice.astro
+---
+
+<span class="prorated-price-inline">
+    <span data-prorated-price>$XX</span>
+    <span class="prorated-tax">+ tax</span>
+</span>
+<style>
+    .prorated-price-inline {
+        font: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        color: #5eebff;
+    }
+
+    .prorated-tax {
+        font-size: 0.45em;
+        color: #aaa;
+        font-weight: 400;
+        white-space: nowrap;
+        text-transform: none;
+    }
+</style>
+<script>
+    function getNewYorkDateParts() {
+        const formatter = new Intl.DateTimeFormat("en-US", {
+            timeZone: "America/New_York",
+            year: "numeric",
+            month: "numeric",
+            day: "numeric",
+        });
+
+        const parts = formatter.formatToParts(new Date());
+
+        return {
+            year: Number(parts.find((part) => part.type === "year")?.value),
+            month: Number(parts.find((part) => part.type === "month")?.value),
+            day: Number(parts.find((part) => part.type === "day")?.value),
+        };
+    }
+
+    function calculateProratedPrice() {
+        const monthlyPrice = 80;
+        const { year, month, day } = getNewYorkDateParts();
+
+        const totalDaysInMonth = new Date(year, month, 0).getDate();
+        const daysLeftInMonth = totalDaysInMonth - day + 1;
+
+        return monthlyPrice * (daysLeftInMonth / totalDaysInMonth);
+    }
+
+    function renderProratedPrice() {
+        const priceEl = document.querySelector<HTMLElement>(
+            "[data-prorated-price]",
+        );
+
+        if (!priceEl) {
+            return;
+        }
+
+        const price = calculateProratedPrice();
+        const roundedDownPrice = Math.floor(price);
+
+        priceEl.textContent = roundedDownPrice.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+        });
+    }
+
+    renderProratedPrice();
+</script>
