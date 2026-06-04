@@ -1,8 +1,13 @@
 ---
 // src/components/ProratedMembershipPrice.astro
+interface Props {
+    color?: string;
+}
+
+const { color = "#5eebff" } = Astro.props;
 ---
 
-<span class="prorated-price-inline">
+<span class="prorated-price-inline" style={`color: ${color};`}>
     <span data-prorated-price>$XX</span>
     <span class="prorated-tax">+ tax</span>
 </span>
@@ -12,7 +17,6 @@
         font-size: inherit;
         font-weight: inherit;
         line-height: inherit;
-        color: #5eebff;
     }
 
     .prorated-tax {

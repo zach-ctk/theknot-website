@@ -9,13 +9,7 @@ import path from 'node:path';
 // Load home page content from Keystatic
 let homeContent;
 try {
-  const homePathCandidates = [
-    path.join(process.cwd(), 'src/content/pages/home.json'),
-    path.join(process.cwd(), 'src/content/pages/home/index.json'),
-  ];
-  const homePagePath =
-    homePathCandidates.find((candidatePath) => fs.existsSync(candidatePath)) ||
-    homePathCandidates[0];
+  const homePagePath = path.join(process.cwd(), 'src/content/pages/home.json');
   const raw = fs.readFileSync(homePagePath, 'utf-8');
   homeContent = JSON.parse(raw);
 } catch (e) {

@@ -50,12 +50,12 @@ export default config({
   storage:
     process.env.NODE_ENV === 'production'
       ? {
-          kind: 'github',
-          repo: 'Superdude22/theknot-website',
-        }
+        kind: 'github',
+        repo: 'Superdude22/theknot-website',
+      }
       : {
-          kind: 'local',
-        },
+        kind: 'local',
+      },
 
   singletons: {
     // =========================================
@@ -1035,7 +1035,10 @@ export default config({
       format: { data: 'json' },
       schema: {
         name: fields.slug({ name: { label: 'Product Name' } }),
-        price: fields.text({ label: 'Price', description: 'e.g., $29.99' }),
+        price: fields.text({
+          label: 'Price',
+          description: 'e.g., $29.99. Optional — leave blank if not known yet (displays as "none").',
+        }),
         description: fields.text({ label: 'Description', multiline: true }),
         imageLibraryPaths: fields.array(
           imageLibraryField('Product Image (Media Library)', 'Select an existing image from the shared media library.'),
@@ -1090,9 +1093,9 @@ export default config({
       format: { data: 'json' },
       schema: {
         label: fields.slug({ name: { label: 'Card Label' } }),
-        description: fields.text({ label: 'Description', multiline: true }),
-        buttonText: fields.text({ label: 'Button Text' }),
-        buttonLink: fields.text({ label: 'Button Link' }),
+        description: fields.text({ label: 'Description', multiline: true, validation: { length: { min: 1 } } }),
+        buttonText: fields.text({ label: 'Button Text', validation: { length: { min: 1 } } }),
+        buttonLink: fields.text({ label: 'Button Link', validation: { length: { min: 1 } } }),
         imageLibraryPath: imageLibraryField(
           'Card Image (Media Library)',
           'Select an existing image from the shared media library.'

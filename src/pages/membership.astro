@@ -5,6 +5,7 @@ import { getCollection } from "astro:content";
 import fs from "node:fs";
 import path from "node:path";
 import ProratedMembershipPrice from "@/components/ProratedMembershipPrice.astro";
+import { colors } from "@content/brand.json";
 
 interface LocalPartner {
   name: string;
@@ -283,7 +284,7 @@ const bottomCta = membershipPage.bottomCta;
       <div class="pricing-info">
         <h2 class="pricing-heading">
           {pricing.headline || "START YOUR MEMBERSHIP TODAY FOR"}
-          <ProratedMembershipPrice />
+          <ProratedMembershipPrice color={colors.coral} />
         </h2>
         <a
           href={pricing.buttonUrl ||

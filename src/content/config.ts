@@ -23,11 +23,11 @@ const events = defineCollection({
   type: 'data',
   schema: z.object({
     title: z.string(),
-    date: z.string().optional(),
+    date: z.string().nullish().transform((v) => v ?? undefined),
     time: z.string().optional(),
     description: z.string().optional(),
-    imageLibraryPath: z.string().optional(),
-    image: z.string().optional(),
+    imageLibraryPath: z.string().nullish().transform((v) => v ?? undefined),
+    image: z.string().nullish(),
     registrationLink: z.string().optional(),
     isFeatured: z.boolean().default(false),
     isRecurring: z.boolean().default(false),
@@ -71,7 +71,13 @@ const products = defineCollection({
   type: 'data',
   schema: z.object({
     name: z.string(),
-    price: z.string(),
+    // Optional in Keystatic: a product can be added before its price is known.
+    // Keystatic writes a blank text field as "", which Zod's .default() would
+    // NOT catch (it only fires on undefined), so coerce empty/missing -> "none".
+    price: z
+      .string()
+      .optional()
+      .transform((v) => (v && v.trim() ? v : 'none')),
     description: z.string().optional(),
     imageLibraryPaths: z.array(z.string()).optional(),
     images: z.array(z.string()).optional(),
@@ -90,8 +96,8 @@ const notReadyCards = defineCollection({
     description: z.string(),
     buttonText: z.string(),
     buttonLink: z.string(),
-    imageLibraryPath: z.string().optional(),
-    image: z.string().optional(),
+    imageLibraryPath: z.string().nullish().transform((v) => v ?? undefined),
+    image: z.string().nullish(),
     order: z.number().default(99),
   }),
 });

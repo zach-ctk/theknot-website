@@ -9,13 +9,7 @@ import path from 'node:path';
 // Load about page content from Keystatic
 let aboutPage;
 try {
-  const aboutPathCandidates = [
-    path.join(process.cwd(), 'src/content/pages/about/index.json'),
-    path.join(process.cwd(), 'src/content/pages/about.json'),
-  ];
-  const aboutPagePath =
-    aboutPathCandidates.find((candidatePath) => fs.existsSync(candidatePath)) ||
-    aboutPathCandidates[0];
+  const aboutPagePath = path.join(process.cwd(), 'src/content/pages/about.json');
   const raw = fs.readFileSync(aboutPagePath, 'utf-8');
   aboutPage = JSON.parse(raw);
 } catch (e) {
