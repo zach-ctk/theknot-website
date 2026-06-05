@@ -6,3 +6,11 @@ pages_build_output_dir = "./dist"
 binding = "SESSION"
 id = "a134e104017c4111af5973a85d7d43de"
 preview_id = "9ced4b54c59f43b4aee1c310dae6a798"
+
+# Schedule snapshot, written by the cron Worker (worker/) and read by the
+# /api/classes.json endpoint. Same namespace must be bound in worker/wrangler.toml.
+# Create it with: wrangler kv namespace create SCHEDULE_KV
+[[kv_namespaces]]
+binding = "SCHEDULE_KV"
+id = "REPLACE_WITH_SCHEDULE_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_SCHEDULE_KV_PREVIEW_ID"
