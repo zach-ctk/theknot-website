@@ -11,7 +11,7 @@ export default defineConfig({
   adapter: cloudflare({
     routes: {
       // Include keystatic routes for SSR
-      include: ['/keystatic/*', '/api/keystatic/*'],
+      include: ['/keystatic/*', '/api/keystatic/*', '/api/classes.json'],
     },
   }),
   integrations: [

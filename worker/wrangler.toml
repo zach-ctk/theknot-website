@@ -19,7 +19,7 @@ crons = ["0 */3 * * *", "30 1-23/3 * * *"]
 # Fill in the id from: wrangler kv namespace create SCHEDULE_KV
 [[kv_namespaces]]
 binding = "SCHEDULE_KV"
-id = "REPLACE_WITH_SCHEDULE_KV_NAMESPACE_ID"
+id = "77b4a83eeaad458e82b4fc09e4bd6248"
 
 # RPHQ_ORG, RPHQ_API_TOKEN (and optionally REFRESH_KEY) are secrets — set with:
 #   wrangler secret put RPHQ_ORG       --config worker/wrangler.toml

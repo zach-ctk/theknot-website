@@ -12,5 +12,5 @@ preview_id = "9ced4b54c59f43b4aee1c310dae6a798"
 # Create it with: wrangler kv namespace create SCHEDULE_KV
 [[kv_namespaces]]
 binding = "SCHEDULE_KV"
-id = "REPLACE_WITH_SCHEDULE_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_SCHEDULE_KV_PREVIEW_ID"
+id = "77b4a83eeaad458e82b4fc09e4bd6248"
+preview_id = "8b1dff75dd974f67b38978399c8ff5cd"

@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "WebWorker"],
+    "types": [],
+    "noEmit": true,
+    "moduleResolution": "Bundler"
+  },
+  "include": ["index.ts", "../src/lib/rphq.ts", "../src/lib/schedule.ts"]
+}

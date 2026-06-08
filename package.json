@@ -21,10 +21,13 @@
     "guardrails:validate": "node ./scripts/validate-prd-contract.mjs",
     "guardrails:fidelity": "node ./scripts/validate-canva-fidelity.mjs",
     "guardrails:quality": "npm run guardrails:validate && npm run guardrails:fidelity && npm run cms:audit && npm run check && npm run build",
+    "test:rphq": "node --env-file=.env scripts/test-rphq.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "preview:local": "astro preview --host 127.0.0.1 --port 4326 --strictPort",
-    "astro": "astro"
+    "astro": "astro",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml --test-scheduled",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",

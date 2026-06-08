@@ -84,8 +84,8 @@ const scheduleData = [
 
   <!-- Class Schedule Section -->
   <section class="schedule-section">
-    <h2 class="section-heading">WEEKLY SCHEDULE</h2>
-    <div class="schedule-grid">
+    <h2 class="section-heading">UPCOMING SCHEDULE</h2>
+    <div class="schedule-grid" data-schedule-grid>
       {scheduleData.map((daySchedule) => (
         <div class="schedule-day">
           <h3 class="day-name">{daySchedule.day}</h3>
@@ -101,6 +101,57 @@ const scheduleData = [
       * Schedule subject to change. Check our portal for the most up-to-date times.
     </p>
   </section>
+
+  <script>
+    // Replace the build-time fallback schedule with live data from the
+    // "ProgramsNext30Days" report (served by /api/classes.json). The bearer
+    // token never reaches the browser — the SSR endpoint proxies the GraphQL
+    // call. Each entry is a real calendar date with that day's sessions.
+    interface DaySchedule {
+      date: string;
+      label: string;
+      classes: string[];
+    }
+
+    async function loadLiveSchedule() {
+      const grid = document.querySelector<HTMLElement>('[data-schedule-grid]');
+      if (!grid) return;
+
+      try {
+        const res = await fetch('/api/classes.json');
+        if (!res.ok) return; // keep the static fallback on failure
+        const data = (await res.json()) as { ok: boolean; schedule?: DaySchedule[] };
+        if (!data.ok || !Array.isArray(data.schedule) || data.schedule.length === 0) return;
+
+        grid.replaceChildren(
+          ...data.schedule.map((daySchedule) => {
+            const day = document.createElement('div');
+            day.className = 'schedule-day';
+
+            const heading = document.createElement('h3');
+            heading.className = 'day-name';
+            heading.textContent = daySchedule.label;
+
+            const list = document.createElement('ul');
+            list.className = 'class-list';
+            for (const classItem of daySchedule.classes) {
+              const li = document.createElement('li');
+              li.className = 'class-item';
+              li.textContent = classItem;
+              list.appendChild(li);
+            }
+
+            day.append(heading, list);
+            return day;
+          }),
+        );
+      } catch {
+        // Network/parse error — leave the static fallback in place.
+      }
+    }
+
+    loadLiveSchedule();
+  </script>
 
   <!-- Class Types Section -->
   <section class="class-types-section">

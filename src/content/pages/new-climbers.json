@@ -1,8 +1,8 @@
 {
   "hero": {
     "headline": "NEW CLIMBERS",
-    "backgroundImage": "/images/canva-final/newclimbers-hero-photo.jpg",
-    "backgroundImageLibraryPath": "public/images/canva-final/newclimbers-hero-photo.jpg"
+    "backgroundImageLibraryPath": "public/images/canva-final/newclimbers-hero-photo.jpg",
+    "backgroundImage": "/images/canva-final/hero/backgroundImage.jpg"
   },
   "welcome": {
     "headline": "HI, WELCOME IN!",
@@ -11,15 +11,15 @@
       "The Knot is a locally owned climbing gym in Gainesville, Florida that strives to cultivate a community-centered approach to fitness.",
       "Check out our video to learn more about our facility and getting started on the wall or swing by to chat with our staff!"
     ],
-    "image": "/images/canva-final/newclimbers-welcome.jpg",
-    "imageLibraryPath": "public/images/canva-final/newclimbers-welcome.jpg"
+    "imageLibraryPath": "public/images/canva-final/newclimbers-welcome.jpg",
+    "image": "/images/canva-final/welcome/image.jpg"
   },
   "dayPass": {
     "headline": "DAY PASSES",
     "price": "$25",
     "gearText": "+ GEAR",
     "paragraphs": [
-      "Although we are primarily a members-focused gym, we offer day passes during limited hours.",
+      "Although we are primarily a members-focused gym, we offer day passes during some hours.",
       "If you don't have your own gear, you can rent ours for $5 extra; includes chalk, shoes, & a harness if you're belay certified."
     ],
     "hoursTitle": "DAY PASS HOURS",
@@ -27,8 +27,8 @@
       "Day passes are only sold Monday through Friday from 10AM - 3PM.",
       "Must be purchased at the front desk - come check us out!"
     ],
-    "image": "/images/canva-final/newclimbers-daypass-1440.jpg",
-    "imageLibraryPath": "public/images/canva-final/newclimbers-daypass-1440.jpg"
+    "imageLibraryPath": "public/images/canva-final/newclimbers-daypass-1440.jpg",
+    "image": "/images/canva-final/dayPass/image.jpg"
   },
   "activitiesHeadline": "ACTIVITIES",
   "activitiesIntro": "Never climbed before? No problem! We have a variety of walls & classes for all skill levels.\n\nAt our facility, bouldering is the most accessible activity for beginners - pop in for a quick orientation & you'll be on the wall in no time.",
@@ -38,8 +38,8 @@
       "description": "Six areas of bouldering spread across 7,000 square feet. Each area is unique, offering a variety of angles and roofs.\n\nPerfect for beginners or seasoned pros. Need a little more instruction? Take a peek at our Intro to Climbing class",
       "buttonText": "INTRO CLASS",
       "buttonLink": "https://portal.climbtheknot.com/gnv/services/intro-class",
-      "image": "/images/canva-final/home-card-intro-climbing.jpg",
       "imageLibraryPath": "public/images/canva-final/home-card-intro-climbing.jpg",
+      "image": "/images/canva-final/activityCards/0/image.jpg",
       "imageAlt": "Climber getting started on the wall"
     },
     {
@@ -47,8 +47,8 @@
       "description": "17 top-rope anchors with over 30 unique routes to choose from.\n\nTop-roping is a partner activity that requires belay-certification prior to participation. Want to reach new heights? Check out our belay class with a member or schedule one of our private belayers.",
       "buttonText": "PRIVATE BELAYER",
       "buttonLink": "https://portal.climbtheknot.com/gnv/services/private-belayer",
-      "image": "/images/canva-final/home-card-private-belayer.jpg",
       "imageLibraryPath": "public/images/canva-final/home-card-private-belayer.jpg",
+      "image": "/images/canva-final/activityCards/1/image.jpg",
       "imageAlt": "Private belayer support session"
     },
     {
@@ -56,8 +56,8 @@
       "description": "Learn climbing basics, get in a quick workout, or tap in to your flow with one of our many class offerings.\n\nCheck out our full schedule for class times & more info!",
       "buttonText": "SCHEDULE",
       "buttonLink": "https://portal.climbtheknot.com/gnv/calendar",
-      "image": "/images/canva-final/home-card-day-passes.jpg",
       "imageLibraryPath": "public/images/canva-final/home-card-day-passes.jpg",
+      "image": "/images/canva-final/activityCards/2/image.jpg",
       "imageAlt": "Climbers during gym activities"
     }
   ]
