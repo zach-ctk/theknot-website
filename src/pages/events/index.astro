@@ -70,7 +70,7 @@ const toPublicUrl = (libraryPath?: string) =>
     : undefined;
 
 const eventImage = (event: (typeof allEvents)[number]) =>
-  toPublicUrl(event.data.imageLibraryPath) || event.data.image || hillsPlaceholder;
+  event.data.image || toPublicUrl(event.data.imageLibraryPath) || hillsPlaceholder;
 
 const eventTypeItems = [
   {

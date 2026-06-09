@@ -6,6 +6,8 @@ interface Props {
   buttonLink?: string;
   backgroundVideo?: string;
   backgroundImage?: string;
+  objectPositionX?: number;
+  objectPositionY?: number;
   variant?: 'home' | 'page-cover';
 }
 
@@ -16,8 +18,12 @@ const {
   buttonLink,
   backgroundVideo,
   backgroundImage = '/images/canva-final/home-hero-bg.jpg',
+  objectPositionX = 50,
+  objectPositionY = 50,
   variant = 'home',
 } = Astro.props;
+
+const heroObjectPosition = `${objectPositionX}% ${objectPositionY}%`;
 
 const isPageCover = variant === 'page-cover';
 ---
@@ -40,6 +46,7 @@ const isPageCover = variant === 'page-cover';
         src={backgroundImage}
         alt=""
         class="hero__image"
+        style={`object-position: ${heroObjectPosition};`}
         loading="eager"
         fetchpriority="high"
         decoding="async"

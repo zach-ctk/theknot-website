@@ -17,6 +17,8 @@ let newClimbersPage: {
     headline?: string;
     backgroundImage?: string;
     backgroundImageLibraryPath?: string;
+    objectPositionX?: number;
+    objectPositionY?: number;
   };
   welcome?: {
     headline?: string;
@@ -52,6 +54,8 @@ const newClimberFallback: {
     headline: string;
     backgroundImage: string;
     backgroundImageLibraryPath?: string;
+    objectPositionX?: number;
+    objectPositionY?: number;
   };
   welcome: {
     headline: string;
@@ -154,16 +158,17 @@ const heroContent = newClimbersPage.hero || newClimberFallback.hero;
 const welcomeContent = newClimbersPage.welcome || newClimberFallback.welcome;
 const dayPassContent = newClimbersPage.dayPass || newClimberFallback.dayPass;
 const heroImage =
-  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   heroContent.backgroundImage ||
+  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   '/images/canva-final/newclimbers-hero-photo.jpg';
+const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 const welcomeImage =
-  toPublicUrl(welcomeContent.imageLibraryPath) ||
   welcomeContent.image ||
+  toPublicUrl(welcomeContent.imageLibraryPath) ||
   '/images/canva-final/newclimbers-welcome.jpg';
 const dayPassImage =
-  toPublicUrl(dayPassContent.imageLibraryPath) ||
   dayPassContent.image ||
+  toPublicUrl(dayPassContent.imageLibraryPath) ||
   '/images/canva-final/newclimbers-daypass-1440.jpg';
 const welcomeParagraphs =
   Array.isArray(welcomeContent.paragraphs) && welcomeContent.paragraphs.length > 0
@@ -187,8 +192,8 @@ const activitiesCards =
         buttonText: card.buttonText || 'LEARN MORE',
         buttonHref: card.buttonLink || '#',
         imageSrc:
-          toPublicUrl(card.imageLibraryPath) ||
           card.image ||
+          toPublicUrl(card.imageLibraryPath) ||
           '/images/canva-final/canva-hills-background.jpg',
         imageAlt: card.imageAlt || card.buttonText || 'Activity card image',
       }))
@@ -213,6 +218,7 @@ const activitiesCards =
         sizes="100vw"
         alt="New climbers hero image"
         class="hero-video"
+        style={`object-position: ${heroObjectPosition};`}
         loading="eager"
         fetchpriority="high"
         decoding="async"

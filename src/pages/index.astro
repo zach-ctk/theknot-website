@@ -56,18 +56,18 @@ const toPublicUrl = (libraryPath?: string) =>
     ? `/${libraryPath.slice('public/'.length)}`
     : undefined;
 
-const heroImageFromCms = toPublicUrl(heroContent?.backgroundImageLibraryPath) || heroContent?.backgroundImage;
+const heroImageFromCms = heroContent?.backgroundImage || toPublicUrl(heroContent?.backgroundImageLibraryPath);
 const homeHeroImage =
   heroImageFromCms === '/images/canva-final/home-hero-bg.jpg'
     ? '/images/canva-final/home-hero-bg-1366.jpg'
     : (heroImageFromCms || '/images/canva-final/home-hero-bg-1366.jpg');
 const membershipImageFromCms =
-  toPublicUrl(membershipContent?.imageLibraryPath) || membershipContent?.image;
+  membershipContent?.image || toPublicUrl(membershipContent?.imageLibraryPath);
 const membershipPromoImage =
   membershipImageFromCms === '/images/canva-final/home-hero-bg.jpg'
     ? '/images/canva-final/home-hero-bg-1366.jpg'
     : (membershipImageFromCms || '/images/canva-final/home-hero-bg-1366.jpg');
-const heroVideoPath = toPublicUrl(heroContent?.backgroundVideoLibraryPath) || heroContent?.backgroundVideo;
+const heroVideoPath = heroContent?.backgroundVideo || toPublicUrl(heroContent?.backgroundVideoLibraryPath);
 
 const richTextToPlainText = (value: unknown): string => {
   if (!value) return '';
@@ -203,8 +203,8 @@ try {
         buttonText: card.data.buttonText,
         buttonLink: card.data.buttonLink,
         image:
-          toPublicUrl(card.data.imageLibraryPath) ||
           card.data.image ||
+          toPublicUrl(card.data.imageLibraryPath) ||
           '/images/canva-final/canva-hills-background.jpg',
         order: card.data.order,
       }))
@@ -224,6 +224,8 @@ try {
     buttonLink={heroContent.buttonLink}
     backgroundVideo={heroVideoPath}
     backgroundImage={homeHeroImage}
+    objectPositionX={heroContent?.objectPositionX}
+    objectPositionY={heroContent?.objectPositionY}
   />
 
   <!-- Membership Pricing CTA Section -->

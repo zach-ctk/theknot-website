@@ -138,6 +138,8 @@ const pages = defineCollection({
       backgroundImageLibraryPath: z.string().optional(),
       backgroundVideo: z.string().optional(),
       backgroundVideoLibraryPath: z.string().optional(),
+      objectPositionX: z.number().optional(),
+      objectPositionY: z.number().optional(),
       subtext: z.any().optional(),
       buttonText: z.string().optional(),
       buttonLink: z.string().optional(),

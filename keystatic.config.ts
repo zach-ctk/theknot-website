@@ -46,6 +46,39 @@ function videoLibraryField(label: string, description?: string) {
   });
 }
 
+function objectPositionXField() {
+  return fields.integer({
+    label: 'Focal Point — Horizontal (%)',
+    description:
+      'Where on the image (left-to-right) the hero should anchor when cropped. 0 = far left edge, 50 = center, 100 = far right edge. Try 50 first; lower the number to keep more of the LEFT side visible, raise it to keep more of the RIGHT side visible.',
+    defaultValue: 50,
+    validation: { min: 0, max: 100 },
+  });
+}
+
+function objectPositionYField() {
+  return fields.integer({
+    label: 'Focal Point — Vertical (%)',
+    description:
+      'Where on the image (top-to-bottom) the hero should anchor when cropped. 0 = very top edge, 50 = middle, 100 = very bottom edge. Try 50 first; lower the number to keep more of the TOP visible (good for faces/skylines), raise it to keep more of the BOTTOM visible (good for foregrounds).',
+    defaultValue: 50,
+    validation: { min: 0, max: 100 },
+  });
+}
+
+// Size guidance appended to image/video field descriptions. Soft reminders only —
+// not enforced by upload validation.
+const SIZE_GUIDANCE = {
+  heroImage: 'Recommended: 1600–2400px wide, ≤ 800KB, JPG or WebP.',
+  heroVideo: 'Recommended: 1280–1920px wide, ≤ 5MB, MP4 (H.264).',
+  sectionImage: 'Recommended: 1000–1400px wide, ≤ 500KB.',
+  cardImage: 'Recommended: 800–1200px wide, ≤ 300KB.',
+  pricingImage: 'Recommended: 800–1200px wide, ≤ 300KB.',
+  teamPhoto: 'Recommended: 600–800px, square crop, ≤ 150KB.',
+  eventImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
+  productImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
+} as const;
+
 export default config({
   storage:
     process.env.NODE_ENV === 'production'
@@ -244,17 +277,20 @@ export default config({
             }),
             backgroundVideoLibraryPath: videoLibraryField(
               'Background Video (Media Library)',
-              'Select an existing video from the shared media library.'
+              `Select an existing video from the shared media library. ${SIZE_GUIDANCE.heroVideo}`
             ),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -289,10 +325,11 @@ export default config({
             }),
             imageLibraryPath: imageLibraryField(
               'Section Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
             image: fields.image({
               label: 'Upload New Section Image (optional)',
+              description: SIZE_GUIDANCE.sectionImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -408,13 +445,16 @@ export default config({
             headline: fields.text({ label: 'Headline', defaultValue: 'ABOUT & FAQ' }),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -515,17 +555,20 @@ export default config({
             }),
             backgroundVideoLibraryPath: videoLibraryField(
               'Background Video (Media Library)',
-              'Select an existing video from the shared media library.'
+              `Select an existing video from the shared media library. ${SIZE_GUIDANCE.heroVideo}`
             ),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -560,10 +603,11 @@ export default config({
             }),
             imageLibraryPath: imageLibraryField(
               'Pricing Section Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.pricingImage}`
             ),
             image: fields.image({
               label: 'Upload New Pricing Section Image (optional)',
+              description: SIZE_GUIDANCE.pricingImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -582,10 +626,11 @@ export default config({
         ),
         benefitsImageLibraryPath: imageLibraryField(
           'Benefits Section Image (Media Library)',
-          'Select an existing image from the shared media library.'
+          `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
         ),
         benefitsImage: fields.image({
           label: 'Upload New Benefits Section Image (optional)',
+          description: SIZE_GUIDANCE.sectionImage,
           directory: CMS_IMAGE_DIRECTORY,
           publicPath: CMS_IMAGE_PUBLIC_PATH,
         }),
@@ -605,13 +650,16 @@ export default config({
             headline: fields.text({ label: 'Headline', defaultValue: 'NEW CLIMBERS' }),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -627,10 +675,11 @@ export default config({
             ),
             imageLibraryPath: imageLibraryField(
               'Welcome Section Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
             image: fields.image({
               label: 'Upload New Welcome Section Image (optional)',
+              description: SIZE_GUIDANCE.sectionImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -662,10 +711,11 @@ export default config({
             ),
             imageLibraryPath: imageLibraryField(
               'Day Pass Section Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
             image: fields.image({
               label: 'Upload New Day Pass Section Image (optional)',
+              description: SIZE_GUIDANCE.sectionImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -689,10 +739,11 @@ export default config({
             buttonLink: fields.text({ label: 'Button Link' }),
             imageLibraryPath: imageLibraryField(
               'Card Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
             image: fields.image({
               label: 'Upload New Card Image (optional)',
+              description: SIZE_GUIDANCE.cardImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -719,13 +770,16 @@ export default config({
             headline: fields.text({ label: 'Headline', defaultValue: 'AMENITIES' }),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -750,10 +804,11 @@ export default config({
             imageLabel: fields.text({ label: 'Image Label' }),
             imageLibraryPath: imageLibraryField(
               'Amenity Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
             image: fields.image({
               label: 'Upload New Amenity Image (optional)',
+              description: SIZE_GUIDANCE.cardImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
@@ -789,13 +844,16 @@ export default config({
             headline: fields.text({ label: 'Headline', defaultValue: 'SHOP' }),
             backgroundImageLibraryPath: imageLibraryField(
               'Background Image (Media Library)',
-              'Select an existing image from the shared media library.'
+              `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
             backgroundImage: fields.image({
               label: 'Upload New Background Image (optional)',
+              description: SIZE_GUIDANCE.heroImage,
               directory: CMS_IMAGE_DIRECTORY,
               publicPath: CMS_IMAGE_PUBLIC_PATH,
             }),
+            objectPositionX: objectPositionXField(),
+            objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
         ),
@@ -842,12 +900,12 @@ export default config({
         }),
         photoLibraryPath: imageLibraryField(
           'Photo (Media Library)',
-          'Select an existing file from the shared media library.'
+          `Select an existing file from the shared media library. ${SIZE_GUIDANCE.teamPhoto}`
         ),
         bio: fields.text({ label: 'Bio', multiline: true }),
         photo: fields.image({
           label: 'Upload New Photo (optional)',
-          description: 'Optional upload. Use Media Library above for existing files.',
+          description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.teamPhoto}`,
           directory: CMS_IMAGE_DIRECTORY,
           publicPath: CMS_IMAGE_PUBLIC_PATH,
         }),
@@ -879,11 +937,11 @@ export default config({
         description: fields.text({ label: 'Description', multiline: true }),
         imageLibraryPath: imageLibraryField(
           'Event Image (Media Library)',
-          'Select an existing file from the shared media library.'
+          `Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
         ),
         image: fields.image({
           label: 'Upload New Event Image (optional)',
-          description: 'Optional upload. Use Media Library above for existing files.',
+          description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.eventImage}`,
           directory: CMS_IMAGE_DIRECTORY,
           publicPath: CMS_IMAGE_PUBLIC_PATH,
         }),
@@ -1041,7 +1099,7 @@ export default config({
         }),
         description: fields.text({ label: 'Description', multiline: true }),
         imageLibraryPaths: fields.array(
-          imageLibraryField('Product Image (Media Library)', 'Select an existing image from the shared media library.'),
+          imageLibraryField('Product Image (Media Library)', `Select an existing image from the shared media library. ${SIZE_GUIDANCE.productImage}`),
           {
             label: 'Product Images (Media Library)',
             itemLabel: () => 'Library Image',
@@ -1050,6 +1108,7 @@ export default config({
         images: fields.array(
           fields.image({
             label: 'Upload New Image (optional)',
+            description: SIZE_GUIDANCE.productImage,
             directory: CMS_IMAGE_DIRECTORY,
             publicPath: CMS_IMAGE_PUBLIC_PATH,
           }),
@@ -1098,10 +1157,11 @@ export default config({
         buttonLink: fields.text({ label: 'Button Link', validation: { length: { min: 1 } } }),
         imageLibraryPath: imageLibraryField(
           'Card Image (Media Library)',
-          'Select an existing image from the shared media library.'
+          `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
         ),
         image: fields.image({
           label: 'Upload New Card Image (optional)',
+          description: SIZE_GUIDANCE.cardImage,
           directory: CMS_IMAGE_DIRECTORY,
           publicPath: CMS_IMAGE_PUBLIC_PATH,
         }),

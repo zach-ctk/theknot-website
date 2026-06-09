@@ -55,7 +55,7 @@ const ownersManagers = sortedTeam
   .map(member => ({
     name: member.data.name,
     title: member.data.role,
-    image: toPublicUrl(member.data.photoLibraryPath) || member.data.photo,
+    image: member.data.photo || toPublicUrl(member.data.photoLibraryPath),
   }));
 
 const coordinators = sortedTeam
@@ -63,7 +63,7 @@ const coordinators = sortedTeam
   .map(member => ({
     name: member.data.name,
     title: member.data.role,
-    image: toPublicUrl(member.data.photoLibraryPath) || member.data.photo,
+    image: member.data.photo || toPublicUrl(member.data.photoLibraryPath),
   }));
 
 const deskStaff = sortedTeam
@@ -71,17 +71,18 @@ const deskStaff = sortedTeam
   .map(member => ({
     name: member.data.name,
     title: member.data.role,
-    image: toPublicUrl(member.data.photoLibraryPath) || member.data.photo,
+    image: member.data.photo || toPublicUrl(member.data.photoLibraryPath),
   }));
 
 // Get core values and FAQ from aboutPage singleton
 const coreValuesItems = aboutPage?.coreValues || [];
 const faqItems = aboutPage?.faqItems || [];
-const aboutHeroFromCms = toPublicUrl(aboutPage?.hero?.backgroundImageLibraryPath) || aboutPage?.hero?.backgroundImage;
+const aboutHeroFromCms = aboutPage?.hero?.backgroundImage || toPublicUrl(aboutPage?.hero?.backgroundImageLibraryPath);
 const aboutHeroImage =
   aboutHeroFromCms === '/images/canva-final/about-building-facade.jpg'
     ? '/images/canva-final/about-building-facade-1366.jpg'
     : (aboutHeroFromCms || '/images/canva-final/about-building-facade-1366.jpg');
+const aboutHeroObjectPosition = `${aboutPage?.hero?.objectPositionX ?? 50}% ${aboutPage?.hero?.objectPositionY ?? 50}%`;
 ---
 
 <BaseLayout title="About & FAQ">
@@ -93,6 +94,7 @@ const aboutHeroImage =
         src={aboutHeroImage}
         alt="The Knot Climbing Gym building exterior"
         class="hero-image"
+        style={`object-position: ${aboutHeroObjectPosition};`}
         loading="eager"
         fetchpriority="high"
         decoding="async"

@@ -2,7 +2,9 @@
   "hero": {
     "headline": "NEW CLIMBERS",
     "backgroundImageLibraryPath": "public/images/canva-final/newclimbers-hero-photo.jpg",
-    "backgroundImage": "/images/canva-final/hero/backgroundImage.jpg"
+    "backgroundImage": "/images/canva-final/hero/backgroundImage.jpg",
+    "objectPositionX": 50,
+    "objectPositionY": 25
   },
   "welcome": {
     "headline": "HI, WELCOME IN!",

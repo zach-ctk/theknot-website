@@ -90,6 +90,8 @@ let membershipPage: {
     backgroundImageLibraryPath?: string;
     backgroundVideo?: string;
     backgroundVideoLibraryPath?: string;
+    objectPositionX?: number;
+    objectPositionY?: number;
   };
   portalButton?: { text?: string; url?: string };
   pricing?: {
@@ -160,20 +162,21 @@ const benefits =
     ? membershipPage.benefits
     : benefitsFallback;
 const membershipHeroImage =
-  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   heroContent.backgroundImage ||
+  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   "/images/canva-final/canva-hills-background.jpg";
 const membershipHeroVideo =
-  toPublicUrl(heroContent.backgroundVideoLibraryPath) ||
   heroContent.backgroundVideo ||
+  toPublicUrl(heroContent.backgroundVideoLibraryPath) ||
   "/images/canva-final/membership-hero.mp4";
+const membershipHeroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 const pricingImage =
-  toPublicUrl(pricing.imageLibraryPath) ||
   pricing.image ||
+  toPublicUrl(pricing.imageLibraryPath) ||
   "/images/canva-final/membership-wall-gear-1280.jpg";
 const benefitsImage =
-  toPublicUrl(membershipPage.benefitsImageLibraryPath) ||
   membershipPage.benefitsImage ||
+  toPublicUrl(membershipPage.benefitsImageLibraryPath) ||
   "/images/canva-final/membership-climber-benefits-960.jpg";
 
 type PolicyItem = {
@@ -243,6 +246,7 @@ const bottomCta = membershipPage.bottomCta;
         src={membershipHeroImage}
         alt="Membership hero fallback background"
         class="hero-fallback"
+        style={`object-position: ${membershipHeroObjectPosition};`}
         loading="eager"
         fetchpriority="high"
         decoding="async"

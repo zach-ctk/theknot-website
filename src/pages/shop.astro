@@ -21,6 +21,8 @@ let shopPage: {
     headline?: string;
     backgroundImage?: string;
     backgroundImageLibraryPath?: string;
+    objectPositionX?: number;
+    objectPositionY?: number;
   };
 };
 
@@ -42,9 +44,10 @@ const toPublicUrl = (libraryPath?: string) =>
 
 const heroContent = shopPage.hero || {};
 const heroImage =
-  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   heroContent.backgroundImage ||
+  toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   '/images/canva-final/canva-hills-background.jpg';
+const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 ---
 
 <BaseLayout title="Shop">
@@ -52,7 +55,7 @@ const heroImage =
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-background">
-        <img src={heroImage} alt="" class="hero-bg-image" loading="eager" fetchpriority="high" decoding="async" />
+        <img src={heroImage} alt="" class="hero-bg-image" style={`object-position: ${heroObjectPosition};`} loading="eager" fetchpriority="high" decoding="async" />
       </div>
 
       <div class="hero-content">
