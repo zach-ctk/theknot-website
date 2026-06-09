@@ -1,0 +1,123 @@
+---
+import { resolveImage } from './_utils';
+
+interface Props {
+  headline?: string;
+  subtext?: string;
+  image?: string;
+  imageLibraryPath?: string;
+  backgroundImage?: string;
+  backgroundImageLibraryPath?: string;
+  objectPositionX?: number;
+  objectPositionY?: number;
+}
+
+const {
+  headline,
+  subtext,
+  objectPositionX = 50,
+  objectPositionY = 50,
+  ...imageRefs
+} = Astro.props;
+
+const heroImage = resolveImage(imageRefs);
+const objectPosition = `${objectPositionX}% ${objectPositionY}%`;
+---
+
+<section class="block-hero">
+  {heroImage && (
+    <div class="block-hero__background">
+      <img
+        src={heroImage}
+        alt=""
+        class="block-hero__image"
+        style={`object-position: ${objectPosition};`}
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="block-hero__overlay"></div>
+    </div>
+  )}
+  <div class="block-hero__content">
+    {headline && <h1 class="block-hero__headline">{headline}</h1>}
+    {subtext && <p class="block-hero__subtext">{subtext}</p>}
+  </div>
+</section>
+
+<style>
+  .block-hero {
+    position: relative;
+    min-height: 50vh;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    overflow: hidden;
+    background-color: #000;
+  }
+
+  .block-hero__background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .block-hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .block-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+    z-index: 1;
+  }
+
+  .block-hero__content {
+    position: relative;
+    z-index: 2;
+    padding: 120px 48px 48px;
+    max-width: 900px;
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .block-hero__headline {
+    font-family: var(--font-heading, 'Zing Rust', sans-serif);
+    font-size: 72px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .block-hero__subtext {
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 16px 0 0;
+  }
+
+  @media (max-width: 768px) {
+    .block-hero__content {
+      padding: 100px 24px 24px;
+    }
+
+    .block-hero__headline {
+      font-size: 42px;
+    }
+
+    .block-hero__subtext {
+      font-size: 15px;
+    }
+  }
+</style>

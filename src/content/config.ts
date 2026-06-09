@@ -185,6 +185,31 @@ const pages = defineCollection({
   }).passthrough(),
 });
 
+// Custom pages collection — modular pages built from blocks via Keystatic.
+// The blocks array is a discriminated list; we accept any discriminant and
+// store value as a loose object since the rendering layer (BlockRenderer +
+// per-block components) validates field access at the type/runtime boundary.
+const customPages = defineCollection({
+  type: 'data',
+  schema: z.object({
+    slug: z.string(),
+    title: z.string(),
+    seoDescription: z.string().optional(),
+    isDraft: z.boolean().default(true),
+    showInNav: z.boolean().default(false),
+    navOrder: z.number().default(99),
+    navLabel: z.string().optional(),
+    blocks: z
+      .array(
+        z.object({
+          discriminant: z.string(),
+          value: z.any(),
+        })
+      )
+      .default([]),
+  }),
+});
+
 export const collections = {
   team,
   events,
@@ -193,4 +218,5 @@ export const collections = {
   'not-ready-cards': notReadyCards,
   'media-assets': mediaAssets,
   pages,
+  'custom-pages': customPages,
 };

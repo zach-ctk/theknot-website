@@ -1,0 +1,45 @@
+---
+import HeroBlock from './HeroBlock.astro';
+import RichTextBlock from './RichTextBlock.astro';
+import ImageBlock from './ImageBlock.astro';
+import TwoColumnBlock from './TwoColumnBlock.astro';
+import AccordionBlock from './AccordionBlock.astro';
+import CtaButtonsBlock from './CtaButtonsBlock.astro';
+
+interface Block {
+  discriminant: string;
+  // Value shape varies per block discriminant; each block component validates
+  // its own fields. Optional `any` matches the Zod inference for `z.any()`
+  // (which marks fields as `?` in the output type).
+  value?: any;
+}
+
+interface Props {
+  blocks?: Block[];
+}
+
+const { blocks = [] } = Astro.props;
+
+const BLOCK_MAP = {
+  hero: HeroBlock,
+  richText: RichTextBlock,
+  image: ImageBlock,
+  twoColumn: TwoColumnBlock,
+  accordion: AccordionBlock,
+  ctaButtons: CtaButtonsBlock,
+} as const;
+
+type BlockType = keyof typeof BLOCK_MAP;
+
+function isKnownBlock(type: string): type is BlockType {
+  return type in BLOCK_MAP;
+}
+---
+
+{blocks.map((block) => {
+  if (!isKnownBlock(block.discriminant)) {
+    return null;
+  }
+  const Component = BLOCK_MAP[block.discriminant];
+  return <Component {...((block.value ?? {}) as any)} />;
+})}

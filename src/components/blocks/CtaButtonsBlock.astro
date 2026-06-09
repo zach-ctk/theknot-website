@@ -1,0 +1,130 @@
+---
+interface CtaButton {
+  text?: string;
+  url?: string;
+  style?: 'blue' | 'red';
+}
+
+interface Props {
+  headline?: string;
+  subtext?: string;
+  buttons?: CtaButton[];
+  backgroundColor?: string;
+}
+
+const { headline, subtext, buttons = [], backgroundColor = 'transparent' } = Astro.props;
+
+const validButtons = buttons.filter((b) => b.text && b.url);
+const sectionStyle =
+  backgroundColor && backgroundColor !== 'transparent'
+    ? `background-color: ${backgroundColor};`
+    : '';
+---
+
+<section class="block-cta" style={sectionStyle}>
+  {headline && <h2 class="block-cta__headline">{headline}</h2>}
+  {subtext && <p class="block-cta__subtext">{subtext}</p>}
+  {validButtons.length > 0 && (
+    <div class="block-cta__buttons">
+      {validButtons.map((btn) => (
+        <a
+          href={btn.url}
+          class={`block-cta__button block-cta__button--${btn.style || 'blue'}`}
+          target={btn.url?.startsWith('http') ? '_blank' : undefined}
+          rel={btn.url?.startsWith('http') ? 'noopener noreferrer' : undefined}
+        >
+          {btn.text}
+        </a>
+      ))}
+    </div>
+  )}
+</section>
+
+<style>
+  .block-cta {
+    padding: 64px 24px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .block-cta__headline {
+    font-family: var(--font-heading, 'Zing Rust', sans-serif);
+    font-size: 36px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0 0 16px 0;
+  }
+
+  .block-cta__subtext {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 auto 32px;
+    max-width: 700px;
+  }
+
+  .block-cta__buttons {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .block-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 225px;
+    height: 55px;
+    padding: 0 24px;
+    font-family: var(--font-heading, 'Uniform Pro', sans-serif);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .block-cta__button:hover {
+    opacity: 0.9;
+  }
+
+  .block-cta__button--blue {
+    background-color: var(--color-manatee, #84babf);
+    color: #000;
+  }
+
+  .block-cta__button--red {
+    background-color: var(--color-rust, #b94237);
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .block-cta {
+      padding: 48px 16px;
+    }
+
+    .block-cta__headline {
+      font-size: 26px;
+    }
+
+    .block-cta__subtext {
+      font-size: 16px;
+    }
+
+    .block-cta__buttons {
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .block-cta__button {
+      width: 100%;
+      max-width: 320px;
+    }
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+import { renderMarkdocToHtml } from './_utils';
+
+interface Props {
+  content?: unknown;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
+const { content, backgroundColor = 'transparent', textColor = '#000000' } = Astro.props;
+
+const html = renderMarkdocToHtml(content);
+const sectionStyle = [
+  backgroundColor && backgroundColor !== 'transparent'
+    ? `background-color: ${backgroundColor};`
+    : '',
+  `color: ${textColor};`,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<section class="block-rich-text" style={sectionStyle}>
+  <div class="block-rich-text__inner" set:html={html}></div>
+</section>
+
+<style>
+  .block-rich-text {
+    padding: 64px 24px;
+    width: 100%;
+  }
+
+  .block-rich-text__inner {
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .block-rich-text__inner :global(h1),
+  .block-rich-text__inner :global(h2),
+  .block-rich-text__inner :global(h3),
+  .block-rich-text__inner :global(h4) {
+    font-family: var(--font-heading, 'Zing Rust', sans-serif);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 24px 0;
+  }
+
+  .block-rich-text__inner :global(h1) {
+    font-size: 42px;
+  }
+  .block-rich-text__inner :global(h2) {
+    font-size: 32px;
+  }
+  .block-rich-text__inner :global(h3) {
+    font-size: 24px;
+  }
+  .block-rich-text__inner :global(h4) {
+    font-size: 20px;
+  }
+
+  .block-rich-text__inner :global(p) {
+    margin: 0 0 16px 0;
+  }
+
+  .block-rich-text__inner :global(a) {
+    color: inherit;
+    text-decoration: underline;
+  }
+
+  .block-rich-text__inner :global(ul),
+  .block-rich-text__inner :global(ol) {
+    margin: 0 0 16px 24px;
+    padding: 0;
+  }
+
+  .block-rich-text__inner :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .block-rich-text__inner :global(blockquote) {
+    margin: 16px 0;
+    padding-left: 16px;
+    border-left: 3px solid currentColor;
+    opacity: 0.85;
+    font-style: italic;
+  }
+
+  .block-rich-text__inner :global(hr) {
+    border: none;
+    border-top: 1px solid currentColor;
+    opacity: 0.3;
+    margin: 32px 0;
+  }
+
+  .block-rich-text__inner :global(code) {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.9em;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .block-rich-text {
+      padding: 48px 16px;
+    }
+
+    .block-rich-text__inner {
+      font-size: 16px;
+    }
+
+    .block-rich-text__inner :global(h1) {
+      font-size: 32px;
+    }
+    .block-rich-text__inner :global(h2) {
+      font-size: 26px;
+    }
+    .block-rich-text__inner :global(h3) {
+      font-size: 22px;
+    }
+  }
+</style>

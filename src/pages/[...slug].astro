@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BlockRenderer from '../components/blocks/BlockRenderer.astro';
+import { getCollection } from 'astro:content';
+
+// `getStaticPaths` runs in an isolated scope at build time, so RESERVED_SLUGS
+// is declared inside it. Existing top-level routes the [...slug] rest route
+// must NOT shadow — keeps editors from accidentally publishing a custom page
+// that collides with a hardcoded route.
+export async function getStaticPaths() {
+  const RESERVED_SLUGS = new Set([
+    'about',
+    'amenities',
+    'classes',
+    'index',
+    'membership',
+    'new-climber',
+    'new-climbers',
+    'shop',
+    'events',
+    'keystatic',
+    'api',
+  ]);
+  const entries = await getCollection('custom-pages');
+  return entries
+    .filter((entry) => !entry.data.isDraft)
+    .filter((entry) => !RESERVED_SLUGS.has(entry.data.slug))
+    .map((entry) => ({
+      params: { slug: entry.data.slug },
+      props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { title, seoDescription, blocks } = entry.data;
+---
+
+<BaseLayout title={title} description={seoDescription}>
+  <BlockRenderer blocks={blocks} />
+</BaseLayout>

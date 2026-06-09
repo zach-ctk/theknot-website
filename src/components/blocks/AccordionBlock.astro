@@ -1,0 +1,95 @@
+---
+import Accordion from '../Accordion.tsx';
+
+interface AccordionItem {
+  title?: string;
+  content?: string;
+  buttonText?: string;
+  buttonLink?: string;
+}
+
+interface Props {
+  headline?: string;
+  items?: AccordionItem[];
+  backgroundColor?: string;
+}
+
+const { headline, items = [], backgroundColor = '#000000' } = Astro.props;
+
+const validItems = items
+  .filter((item) => item.title && item.content)
+  .map((item) => ({
+    title: item.title || '',
+    content: item.content || '',
+    buttonText: item.buttonText,
+    buttonLink: item.buttonLink,
+  }));
+
+const isDark = backgroundColor && backgroundColor !== 'transparent' && isDarkColor(backgroundColor);
+const sectionStyle =
+  backgroundColor && backgroundColor !== 'transparent'
+    ? `background-color: ${backgroundColor};`
+    : '';
+
+function isDarkColor(hex: string): boolean {
+  const m = hex.match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return false;
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 0xff;
+  const g = (n >> 8) & 0xff;
+  const b = n & 0xff;
+  return r * 0.299 + g * 0.587 + b * 0.114 < 140;
+}
+---
+
+<section
+  class={`block-accordion ${isDark ? 'block-accordion--dark' : 'block-accordion--light'}`}
+  style={sectionStyle}
+>
+  {headline && <h2 class="block-accordion__headline">{headline}</h2>}
+  <div class="block-accordion__inner">
+    <Accordion client:visible items={validItems} />
+  </div>
+</section>
+
+<style>
+  .block-accordion {
+    padding: 64px 24px;
+    width: 100%;
+  }
+
+  .block-accordion--dark {
+    color: #fff;
+  }
+
+  .block-accordion--light {
+    color: #000;
+  }
+
+  .block-accordion__headline {
+    font-family: var(--font-heading, 'Zing Rust', sans-serif);
+    font-size: 32px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 40px 0;
+    letter-spacing: 2px;
+    color: inherit;
+  }
+
+  .block-accordion__inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .block-accordion {
+      padding: 48px 16px;
+    }
+
+    .block-accordion__headline {
+      font-size: 24px;
+      margin-bottom: 32px;
+    }
+  }
+</style>

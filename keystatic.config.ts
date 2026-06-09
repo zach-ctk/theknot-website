@@ -1143,6 +1143,310 @@ export default config({
     }),
 
     // =========================================
+    // CUSTOM PAGES (Modular pages built from blocks)
+    // =========================================
+    customPages: collection({
+      label: 'Pages',
+      slugField: 'slug',
+      path: 'src/content/custom-pages/*',
+      format: { data: 'json' },
+      schema: {
+        slug: fields.slug({
+          name: { label: 'URL Slug', description: 'The URL path for this page (e.g. "community" → /community).' },
+        }),
+        title: fields.text({
+          label: 'Page Title',
+          description: 'Shown in the browser tab. Also used as the default nav label. Required.',
+          validation: { length: { min: 1 } },
+        }),
+        seoDescription: fields.text({
+          label: 'SEO Description',
+          multiline: true,
+          description: 'Used for search engine results and social shares. Aim for 150–160 characters.',
+        }),
+        isDraft: fields.checkbox({
+          label: 'Draft',
+          description: 'Drafts are NOT rendered on the live site. Uncheck when ready to publish.',
+          defaultValue: true,
+        }),
+        showInNav: fields.checkbox({
+          label: 'Show in main navigation',
+          description: 'When checked, this page appears in the site header nav (after manual nav wiring).',
+          defaultValue: false,
+        }),
+        navOrder: fields.integer({
+          label: 'Nav Order',
+          description: 'Lower numbers appear first in the nav.',
+          defaultValue: 99,
+        }),
+        navLabel: fields.text({
+          label: 'Nav Label (optional)',
+          description: 'Override the title when showing in the nav. Leave blank to use the page title.',
+        }),
+        blocks: fields.blocks(
+          {
+            hero: {
+              label: 'Hero',
+              itemLabel: (props) => `Hero — ${props.fields.headline.value || 'Untitled'}`,
+              schema: fields.object({
+                headline: fields.text({
+                  label: 'Headline',
+                  description: 'Required.',
+                  validation: { length: { min: 1 } },
+                }),
+                subtext: fields.text({
+                  label: 'Subtext (optional)',
+                  multiline: true,
+                  description: 'Short paragraph below the headline.',
+                }),
+                backgroundImageLibraryPath: imageLibraryField(
+                  'Background Image (Media Library)',
+                  `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
+                ),
+                backgroundImage: fields.image({
+                  label: 'Upload New Background Image (optional)',
+                  description: SIZE_GUIDANCE.heroImage,
+                  directory: CMS_IMAGE_DIRECTORY,
+                  publicPath: CMS_IMAGE_PUBLIC_PATH,
+                }),
+                objectPositionX: objectPositionXField(),
+                objectPositionY: objectPositionYField(),
+              }),
+            },
+            richText: {
+              label: 'Rich Text',
+              itemLabel: () => 'Rich Text',
+              schema: fields.object({
+                content: fields.markdoc.inline({
+                  label: 'Content',
+                  options: {
+                    bold: true,
+                    italic: true,
+                    strikethrough: true,
+                    code: true,
+                    link: true,
+                    heading: [1, 2, 3, 4],
+                    blockquote: true,
+                    orderedList: true,
+                    unorderedList: true,
+                    divider: true,
+                  },
+                }),
+                backgroundColor: fields.select({
+                  label: 'Background Color',
+                  options: [
+                    { label: 'None / Transparent', value: 'transparent' },
+                    ...BRAND_COLOR_OPTIONS,
+                  ],
+                  defaultValue: 'transparent',
+                }),
+                textColor: fields.select({
+                  label: 'Text Color',
+                  description: 'Choose a contrasting color for readability on the selected background.',
+                  options: [
+                    { label: 'Default (Black)', value: '#000000' },
+                    { label: 'White', value: '#FFFFFF' },
+                    ...BRAND_COLOR_OPTIONS.filter(
+                      (c) => c.value !== '#000000' && c.value !== '#FFFFFF'
+                    ),
+                  ],
+                  defaultValue: '#000000',
+                }),
+              }),
+            },
+            image: {
+              label: 'Image',
+              itemLabel: (props) => `Image — ${props.fields.alt.value || 'no alt'}`,
+              schema: fields.object({
+                imageLibraryPath: imageLibraryField(
+                  'Image (Media Library)',
+                  `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
+                ),
+                image: fields.image({
+                  label: 'Upload New Image (optional)',
+                  description: SIZE_GUIDANCE.sectionImage,
+                  directory: CMS_IMAGE_DIRECTORY,
+                  publicPath: CMS_IMAGE_PUBLIC_PATH,
+                }),
+                alt: fields.text({
+                  label: 'Alt Text',
+                  description: 'Describes the image for screen readers and SEO. Required.',
+                  validation: { length: { min: 1 } },
+                }),
+                caption: fields.text({
+                  label: 'Caption (optional)',
+                  description: 'Text shown below the image.',
+                }),
+                width: fields.select({
+                  label: 'Width',
+                  options: [
+                    { label: 'Contained (max 1000px, centered)', value: 'contained' },
+                    { label: 'Full-width (edge to edge)', value: 'full' },
+                  ],
+                  defaultValue: 'contained',
+                }),
+                backgroundColor: fields.select({
+                  label: 'Background Color',
+                  options: [
+                    { label: 'None / Transparent', value: 'transparent' },
+                    ...BRAND_COLOR_OPTIONS,
+                  ],
+                  defaultValue: 'transparent',
+                }),
+              }),
+            },
+            twoColumn: {
+              label: 'Two Column (Image + Text)',
+              itemLabel: () => 'Two Column',
+              schema: fields.object({
+                imageLibraryPath: imageLibraryField(
+                  'Image (Media Library)',
+                  `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
+                ),
+                image: fields.image({
+                  label: 'Upload New Image (optional)',
+                  description: SIZE_GUIDANCE.sectionImage,
+                  directory: CMS_IMAGE_DIRECTORY,
+                  publicPath: CMS_IMAGE_PUBLIC_PATH,
+                }),
+                alt: fields.text({
+                  label: 'Image Alt Text',
+                  description: 'Required for accessibility.',
+                  validation: { length: { min: 1 } },
+                }),
+                imageSide: fields.select({
+                  label: 'Image Side',
+                  options: [
+                    { label: 'Image on Left', value: 'left' },
+                    { label: 'Image on Right', value: 'right' },
+                  ],
+                  defaultValue: 'left',
+                }),
+                content: fields.markdoc.inline({
+                  label: 'Text Column Content',
+                  options: {
+                    bold: true,
+                    italic: true,
+                    code: true,
+                    link: true,
+                    heading: [1, 2, 3, 4],
+                    blockquote: true,
+                    orderedList: true,
+                    unorderedList: true,
+                  },
+                }),
+                backgroundColor: fields.select({
+                  label: 'Background Color',
+                  options: [
+                    { label: 'None / Transparent', value: 'transparent' },
+                    ...BRAND_COLOR_OPTIONS,
+                  ],
+                  defaultValue: 'transparent',
+                }),
+                textColor: fields.select({
+                  label: 'Text Color',
+                  options: [
+                    { label: 'Default (Black)', value: '#000000' },
+                    { label: 'White', value: '#FFFFFF' },
+                    ...BRAND_COLOR_OPTIONS.filter(
+                      (c) => c.value !== '#000000' && c.value !== '#FFFFFF'
+                    ),
+                  ],
+                  defaultValue: '#000000',
+                }),
+              }),
+            },
+            accordion: {
+              label: 'Accordion (FAQ / Values list)',
+              itemLabel: (props) =>
+                `Accordion — ${props.fields.headline.value || 'Untitled'}`,
+              schema: fields.object({
+                headline: fields.text({
+                  label: 'Section Headline',
+                  description: 'Required.',
+                  validation: { length: { min: 1 } },
+                }),
+                items: fields.array(
+                  fields.object({
+                    title: fields.text({
+                      label: 'Title / Question',
+                      validation: { length: { min: 1 } },
+                    }),
+                    content: fields.text({
+                      label: 'Content / Answer',
+                      multiline: true,
+                      validation: { length: { min: 1 } },
+                    }),
+                    buttonText: fields.text({ label: 'Button Text (optional)' }),
+                    buttonLink: fields.text({ label: 'Button Link (optional)' }),
+                  }),
+                  {
+                    label: 'Items (at least one required)',
+                    itemLabel: (props) => props.fields.title.value || 'Item',
+                    validation: { length: { min: 1 } },
+                  }
+                ),
+                backgroundColor: fields.select({
+                  label: 'Background Color',
+                  options: [
+                    { label: 'None / Transparent', value: 'transparent' },
+                    ...BRAND_COLOR_OPTIONS,
+                  ],
+                  defaultValue: '#000000',
+                }),
+              }),
+            },
+            ctaButtons: {
+              label: 'CTA Buttons',
+              itemLabel: () => 'CTA Buttons',
+              schema: fields.object({
+                headline: fields.text({ label: 'Headline (optional)' }),
+                subtext: fields.text({
+                  label: 'Subtext (optional)',
+                  multiline: true,
+                }),
+                buttons: fields.array(
+                  fields.object({
+                    text: fields.text({
+                      label: 'Button Text',
+                      validation: { length: { min: 1 } },
+                    }),
+                    url: fields.text({
+                      label: 'Button URL',
+                      validation: { length: { min: 1 } },
+                    }),
+                    style: fields.select({
+                      label: 'Style',
+                      options: [
+                        { label: 'Manatee (Blue)', value: 'blue' },
+                        { label: 'Rust (Red)', value: 'red' },
+                      ],
+                      defaultValue: 'blue',
+                    }),
+                  }),
+                  {
+                    label: 'Buttons (at least one required)',
+                    itemLabel: (props) => props.fields.text.value || 'Button',
+                    validation: { length: { min: 1 } },
+                  }
+                ),
+                backgroundColor: fields.select({
+                  label: 'Background Color',
+                  options: [
+                    { label: 'None / Transparent', value: 'transparent' },
+                    ...BRAND_COLOR_OPTIONS,
+                  ],
+                  defaultValue: 'transparent',
+                }),
+              }),
+            },
+          },
+          { label: 'Page Blocks' }
+        ),
+      },
+    }),
+
+    // =========================================
     // NOT READY TO COMMIT CARDS
     // =========================================
     notReadyCards: collection({
