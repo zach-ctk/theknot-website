@@ -5,6 +5,8 @@ import Accordion from '../components/Accordion.tsx';
 import { getCollection } from 'astro:content';
 import fs from 'node:fs';
 import path from 'node:path';
+import ProratedMembershipPrice from '@/components/ProratedMembershipPrice.astro';
+import { colors } from '@content/brand.json';
 
 // Load home page content from Keystatic
 let homeContent;
@@ -26,7 +28,6 @@ try {
     },
     membership: {
       headline: 'START YOUR MEMBERSHIP TODAY FOR',
-      promoPrice: '$XX',
       monthlyRate: 'Then $80/month, billed on the first of every month.',
       description: 'Only pay for the remaining days of this month, then cancel anytime with no contract or additional fees.',
       buttonText: 'JOIN NOW',
@@ -232,7 +233,7 @@ try {
   <section class="membership-section">
     <h2 class="membership-headline">
       {membershipContent.headline}<br />
-      <span class="price-highlight">{membershipContent.promoPrice}</span>
+      <span class="price-highlight"><ProratedMembershipPrice color={colors.manatee} /></span>
     </h2>
 
     <div class="pricing-container">

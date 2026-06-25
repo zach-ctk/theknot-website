@@ -1,18 +1,18 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Accordion from '../../components/Accordion.tsx';
-import { getCollection } from 'astro:content';
-import fs from 'node:fs';
-import path from 'node:path';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Accordion from "../../components/Accordion.tsx";
+import { getCollection } from "astro:content";
+import fs from "node:fs";
+import path from "node:path";
 
-const hillsPlaceholder = '/images/canva-final/canva-hills-background.jpg';
-const redpointEventsUrl = 'https://portal.climbtheknot.com/gnv/events';
+const hillsPlaceholder = "/images/canva-final/canva-hills-background.jpg";
+const redpointEventsUrl = "https://portal.climbtheknot.com/gnv/events";
 
 // Load business info for events email
-let eventsEmail = 'events@climbtheknot.com';
+let eventsEmail = "events@climbtheknot.com";
 try {
-  const biPath = path.join(process.cwd(), 'src/content/business-info.json');
-  const raw = fs.readFileSync(biPath, 'utf-8');
+  const biPath = path.join(process.cwd(), "src/content/business-info.json");
+  const raw = fs.readFileSync(biPath, "utf-8");
   const parsed = JSON.parse(raw);
   if (parsed?.contact?.eventsEmail) eventsEmail = parsed.contact.eventsEmail;
 } catch (e) {
@@ -27,15 +27,15 @@ function parseDate(value?: string): Date | null {
 
 function formatDate(value?: string): string {
   const parsed = parseDate(value);
-  if (!parsed) return 'Date TBD';
-  return parsed.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  if (!parsed) return "Date TBD";
+  return parsed.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
-const allEvents = (await getCollection('events')).sort((left, right) => {
+const allEvents = (await getCollection("events")).sort((left, right) => {
   const leftDate = parseDate(left.data.date);
   const rightDate = parseDate(right.data.date);
 
@@ -53,62 +53,65 @@ const upcomingEvents = allEvents.filter((event) => {
   return !eventDate || eventDate.getTime() >= now.getTime();
 });
 
-const pastEvents = allEvents.filter((event) => {
-  const eventDate = parseDate(event.data.date);
-  return !!eventDate && eventDate.getTime() < now.getTime();
-});
-
 const featuredEvent =
   upcomingEvents.find((event) => event.data.isFeatured) ??
   upcomingEvents[0] ??
-  allEvents[0] ??
   null;
 
 const toPublicUrl = (libraryPath?: string) =>
-  libraryPath && libraryPath.startsWith('public/')
-    ? `/${libraryPath.slice('public/'.length)}`
+  libraryPath && libraryPath.startsWith("public/")
+    ? `/${libraryPath.slice("public/".length)}`
     : undefined;
 
 const eventImage = (event: (typeof allEvents)[number]) =>
-  event.data.image || toPublicUrl(event.data.imageLibraryPath) || hillsPlaceholder;
+  event.data.image ||
+  toPublicUrl(event.data.imageLibraryPath) ||
+  hillsPlaceholder;
 
 const eventTypeItems = [
   {
-    title: 'BOULDERING ONLY',
+    title: "BOULDERING ONLY",
     content:
-      'Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.',
+      "Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.",
   },
   {
-    title: 'TOP ROPE + BOULDERING',
+    title: "TOP ROPE + BOULDERING",
     content:
-      'Top rope events include harnesses and rope climbing lanes in addition to bouldering zones. Belay support requirements depend on group size.',
+      "Top rope events include harnesses and rope climbing lanes in addition to bouldering zones. Belay support requirements depend on group size.",
   },
   {
-    title: 'STAFF BELAY',
+    title: "STAFF BELAY",
     content:
-      'Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.',
+      "Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.",
   },
   {
-    title: 'YOGA OR FITNESS CLASS',
+    title: "YOGA OR FITNESS CLASS",
     content:
-      'Add yoga or fitness sessions to your event package. Availability depends on instructor schedules and gym staffing.',
+      "Add yoga or fitness sessions to your event package. Availability depends on instructor schedules and gym staffing.",
   },
   {
-    title: 'BELAY CLASS',
+    title: "BELAY CLASS",
     content:
-      'Belay classes can be added for groups that want certification as part of the event experience.',
+      "Belay classes can be added for groups that want certification as part of the event experience.",
   },
   {
-    title: 'KIDS POLICIES',
+    title: "KIDS POLICIES",
     content:
-      'Youth participants must follow age and supervision requirements. Contact staff for current youth policy details before booking.',
+      "Youth participants must follow age and supervision requirements. Contact staff for current youth policy details before booking.",
   },
 ];
 ---
 
 <BaseLayout title="Events">
   <section class="hero-section">
-    <img src={hillsPlaceholder} alt="" class="hero-bg" loading="eager" fetchpriority="high" decoding="async" />
+    <img
+      src={hillsPlaceholder}
+      alt=""
+      class="hero-bg"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
     <h1 class="hero-title">EVENTS</h1>
   </section>
 
@@ -116,64 +119,107 @@ const eventTypeItems = [
     <div class="next-event-grid">
       <div class="next-event-main">
         <h2 class="section-title">OUR NEXT EVENT</h2>
-        {featuredEvent ? (
-          <>
-            <h3 class="event-title">{featuredEvent.data.title}</h3>
-            <p class="event-meta">{formatDate(featuredEvent.data.date)} {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ''}</p>
-            <p class="event-description">{featuredEvent.data.description ?? 'Details coming soon.'}</p>
-          </>
-        ) : (
-          <p class="event-description">No upcoming events posted yet.</p>
-        )}
+        {
+          featuredEvent ? (
+            <>
+              <h3 class="event-title">{featuredEvent.data.title}</h3>
+              <p class="event-meta">
+                {formatDate(featuredEvent.data.date)}{" "}
+                {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ""}
+              </p>
+              <p class="event-description">
+                {featuredEvent.data.description ?? "Details coming soon."}
+              </p>
 
-        <a href={redpointEventsUrl} target="_blank" rel="noopener noreferrer" class="btn-secondary next-event-button">
-          REGISTRATION & MORE INFO
-        </a>
+              <a
+                href={redpointEventsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-secondary next-event-button"
+              >
+                REGISTRATION & MORE INFO
+              </a>
+            </>
+          ) : (
+            <p class="event-description">No upcoming events</p>
+          )
+        }
       </div>
 
-      <img
-        src={featuredEvent ? eventImage(featuredEvent) : hillsPlaceholder}
-        alt={featuredEvent?.data.title || 'Event preview'}
-        class="next-event-image"
-      />
+      {featuredEvent && (
+        <img
+          src={eventImage(featuredEvent)}
+          alt={featuredEvent.data.title}
+          class="next-event-image"
+        />
+      )}
     </div>
   </section>
 
   <section class="calendar-section">
     <h2 class="section-title">EVENT CALENDAR</h2>
-    <p class="section-subtext">We host events almost every month. Click any event to learn more.</p>
+    <p class="section-subtext">
+      We host events almost every month. Click any event to learn more.
+    </p>
 
     <div class="calendar-grid">
-      {upcomingEvents.length > 0 ? (
-        upcomingEvents.map((event) => (
-          <a href={`/events/${event.id}`} class="calendar-card">
-            <img src={eventImage(event)} alt={event.data.title} class="calendar-card-image" loading="lazy" decoding="async" />
-            <div class="calendar-card-body">
-              <h3 class="calendar-card-title">{event.data.title}</h3>
-              <p class="calendar-card-date">{formatDate(event.data.date)}</p>
-            </div>
-          </a>
-        ))
-      ) : (
-        <p class="calendar-empty">No upcoming events yet.</p>
-      )}
+      {
+        upcomingEvents.length > 0 ? (
+          upcomingEvents.map((event) => (
+            <a href={`/events/${event.id}`} class="calendar-card">
+              <img
+                src={eventImage(event)}
+                alt={event.data.title}
+                class="calendar-card-image"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="calendar-card-body">
+                <h3 class="calendar-card-title">{event.data.title}</h3>
+                <p class="calendar-card-date">{formatDate(event.data.date)}</p>
+              </div>
+            </a>
+          ))
+        ) : (
+          <p class="calendar-empty">No upcoming events yet.</p>
+        )
+      }
     </div>
   </section>
 
-  {featuredEvent && (
-    <section class="spotlight-section">
-      <div class="spotlight-card">
-        <img src={eventImage(featuredEvent)} alt={featuredEvent.data.title} class="spotlight-image" loading="lazy" decoding="async" />
-        <div class="spotlight-content">
-          <h2 class="section-title">{featuredEvent.data.title}</h2>
-          <p class="spotlight-date">{formatDate(featuredEvent.data.date)} {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ''}</p>
-          <p class="spotlight-description">{featuredEvent.data.description ?? 'Details coming soon.'}</p>
-          <a href={`/events/${featuredEvent.id}`} class="btn-primary">REGISTRATION</a>
-          <p class="spotlight-address">ADDRESS<br />619 S Main St</p>
+  {
+    featuredEvent && (
+      <section class="spotlight-section">
+        <div class="spotlight-card">
+          <img
+            src={eventImage(featuredEvent)}
+            alt={featuredEvent.data.title}
+            class="spotlight-image"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="spotlight-content">
+            <h2 class="section-title">{featuredEvent.data.title}</h2>
+            <p class="spotlight-date">
+              {formatDate(featuredEvent.data.date)}{" "}
+              {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ""}
+            </p>
+            <p class="spotlight-description">
+              {featuredEvent.data.description ?? "Details coming soon."}
+            </p>
+            <a href={`/events/${featuredEvent.id}`} class="btn-primary">
+              REGISTRATION
+            </a>
+            <p class="spotlight-address">
+              ADDRESS
+              <br />
+              704 S Main St
+            </p>
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   <section class="group-events-section">
     <h2 class="section-title">GROUP EVENTS</h2>
@@ -181,8 +227,9 @@ const eventTypeItems = [
     <h3 class="group-subtitle">EVENT TYPES & PRICING</h3>
     <Accordion items={eventTypeItems} client:visible />
     <p class="group-footnote">
-      Group events must be scheduled at least three weeks in advance. Fill out our inquiry form or shoot us an email to learn more.
-      Group event scheduling is subject to gym and staff availability.
+      Group events must be scheduled at least three weeks in advance. Fill out
+      our inquiry form or shoot us an email to learn more. Group event
+      scheduling is subject to gym and staff availability.
     </p>
     <div class="group-buttons">
       <a
@@ -202,39 +249,36 @@ const eventTypeItems = [
       <div>
         <h2 class="section-title">UPENDING PARKINSONS</h2>
         <p class="event-description">
-          The Knot is partnering with Up ENDing Parkinsons to provide guided climbing sessions for people living with Parkinson&apos;s Disease.
-          Anyone living with PD is welcome to climb, and family members are encouraged to join.
+          The Knot is partnering with Up ENDing Parkinsons to provide guided
+          climbing sessions for people living with Parkinson&apos;s Disease.
+          Anyone living with PD is welcome to climb, and family members are
+          encouraged to join.
         </p>
-        <p class="event-description"><strong>WEDNESDAYS 10AM - 11:30AM</strong></p>
         <p class="event-description">
-          Admission, instruction, and rental gear are provided free of charge. No experience is required.
+          <strong>WEDNESDAYS 10AM - 11:30AM</strong>
         </p>
-        <a href="https://upendingparkinsons.org/" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+        <p class="event-description">
+          Admission, instruction, and rental gear are provided free of charge.
+          No experience is required.
+        </p>
+        <a
+          href="https://upendingparkinsons.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-secondary"
+        >
           REGISTER HERE
         </a>
       </div>
-      <img src={hillsPlaceholder} alt="Event placeholder hills background" class="upending-image" loading="lazy" decoding="async" />
+      <img
+        src={hillsPlaceholder}
+        alt="Event placeholder hills background"
+        class="upending-image"
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   </section>
-
-  {pastEvents.length > 0 && (
-    <section class="past-events-section">
-      <details>
-        <summary class="section-title past-events-summary">PAST EVENTS ({pastEvents.length})</summary>
-        <div class="calendar-grid">
-          {pastEvents.map((event) => (
-            <a href={`/events/${event.id}`} class="calendar-card calendar-card--past">
-              <img src={eventImage(event)} alt={event.data.title} class="calendar-card-image" loading="lazy" decoding="async" />
-              <div class="calendar-card-body">
-                <h3 class="calendar-card-title">{event.data.title}</h3>
-                <p class="calendar-card-date">{formatDate(event.data.date)}</p>
-              </div>
-            </a>
-          ))}
-        </div>
-      </details>
-    </section>
-  )}
 </BaseLayout>
 
 <style>
@@ -270,8 +314,7 @@ const eventTypeItems = [
   .calendar-section,
   .spotlight-section,
   .group-events-section,
-  .upending-section,
-  .past-events-section {
+  .upending-section {
     padding: 48px 24px;
     background: #000;
   }
@@ -362,7 +405,9 @@ const eventTypeItems = [
     overflow: hidden;
     background: #fff;
     color: inherit;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .calendar-card:hover {
@@ -474,19 +519,6 @@ const eventTypeItems = [
     aspect-ratio: 16 / 9;
     object-fit: cover;
     border-radius: 6px;
-  }
-
-  .past-events-summary {
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .past-events-summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .calendar-card--past {
-    opacity: 0.75;
   }
 
   @media (max-width: 900px) {

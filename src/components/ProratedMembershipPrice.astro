@@ -5,10 +5,51 @@ interface Props {
 }
 
 const { color = "#5eebff" } = Astro.props;
+
+const MONTHLY_PRICE = 80;
+
+function getNewYorkDateParts(date: Date) {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+    });
+
+    const parts = formatter.formatToParts(date);
+
+    return {
+        year: Number(parts.find((part) => part.type === "year")?.value),
+        month: Number(parts.find((part) => part.type === "month")?.value),
+        day: Number(parts.find((part) => part.type === "day")?.value),
+    };
+}
+
+function calculateProratedPrice(date: Date) {
+    const { year, month, day } = getNewYorkDateParts(date);
+
+    const totalDaysInMonth = new Date(year, month, 0).getDate();
+    const daysLeftInMonth = totalDaysInMonth - day + 1;
+
+    return MONTHLY_PRICE * (daysLeftInMonth / totalDaysInMonth);
+}
+
+function formatPrice(price: number) {
+    return Math.floor(price).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    });
+}
+
+// Computed at build/SSR time so JS-off, pre-hydration, and crawler views
+// all show a real dollar amount instead of a placeholder. The client script
+// below refreshes it in case the rendered HTML is stale across a day boundary.
+const initialPrice = formatPrice(calculateProratedPrice(new Date()));
 ---
 
 <span class="prorated-price-inline" style={`color: ${color};`}>
-    <span data-prorated-price>$XX</span>
+    <span data-prorated-price>{initialPrice}</span>
     <span class="prorated-tax">+ tax</span>
 </span>
 <style>
@@ -28,6 +69,8 @@ const { color = "#5eebff" } = Astro.props;
     }
 </style>
 <script>
+    const MONTHLY_PRICE = 80;
+
     function getNewYorkDateParts() {
         const formatter = new Intl.DateTimeFormat("en-US", {
             timeZone: "America/New_York",
@@ -46,13 +89,12 @@ const { color = "#5eebff" } = Astro.props;
     }
 
     function calculateProratedPrice() {
-        const monthlyPrice = 80;
         const { year, month, day } = getNewYorkDateParts();
 
         const totalDaysInMonth = new Date(year, month, 0).getDate();
         const daysLeftInMonth = totalDaysInMonth - day + 1;
 
-        return monthlyPrice * (daysLeftInMonth / totalDaysInMonth);
+        return MONTHLY_PRICE * (daysLeftInMonth / totalDaysInMonth);
     }
 
     function renderProratedPrice() {

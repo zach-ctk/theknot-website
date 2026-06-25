@@ -1,11 +1,15 @@
 {
   "title": "EVENT 2",
-  "date": "2026-02-22",
+  "date": "2026-06-22",
   "time": "2:00 PM - 6:00 PM",
   "description": "Info and stuff about event. What do the people need to know",
+  "imageLibraryPath": "public/images/canva-final/event-2/canva-hills-background.jpg",
+  "image": "/images/canva-final/event-2/image.jpg",
   "registrationLink": "https://portal.climbtheknot.com/gnv/events/event-2",
   "isFeatured": false,
   "isRecurring": false,
-  "image": "/images/canva-final/event-2/canva-hills-background.jpg",
-  "imageLibraryPath": "public/images/canva-final/event-2/canva-hills-background.jpg"
+  "competitionDivisions": [],
+  "schedule": [],
+  "faqItems": [],
+  "merchandise": []
 }

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ClassesAccordion from '../components/ClassesAccordion.tsx';
+import ScheduleCalendar from '../components/ScheduleCalendar.tsx';
 
 const classTypes = [
   {
@@ -46,16 +47,6 @@ const classTypes = [
     included: true,
   },
 ];
-
-const scheduleData = [
-  { day: 'Monday', classes: ['Yoga for Climbers (6 PM)', 'Belay Certification (7 PM)'] },
-  { day: 'Tuesday', classes: ['Bouldering Basics (6 PM)', 'Strength & Conditioning (7:30 PM)'] },
-  { day: 'Wednesday', classes: ['Top-Rope Technique (6 PM)', 'Yoga for Climbers (7:30 PM)'] },
-  { day: 'Thursday', classes: ['Intro to Climbing (6 PM)', 'Belay Certification (7 PM)'] },
-  { day: 'Friday', classes: ['Bouldering Basics (5 PM)'] },
-  { day: 'Saturday', classes: ['Intro to Climbing (10 AM)', 'Belay Certification (1 PM)', 'Yoga for Climbers (3 PM)'] },
-  { day: 'Sunday', classes: ['Open Climb - No Classes'] },
-];
 ---
 
 <BaseLayout title="Classes">
@@ -85,73 +76,11 @@ const scheduleData = [
   <!-- Class Schedule Section -->
   <section class="schedule-section">
     <h2 class="section-heading">UPCOMING SCHEDULE</h2>
-    <div class="schedule-grid" data-schedule-grid>
-      {scheduleData.map((daySchedule) => (
-        <div class="schedule-day">
-          <h3 class="day-name">{daySchedule.day}</h3>
-          <ul class="class-list">
-            {daySchedule.classes.map((classItem) => (
-              <li class="class-item">{classItem}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
+    <ScheduleCalendar client:only="react" />
     <p class="schedule-note">
       * Schedule subject to change. Check our portal for the most up-to-date times.
     </p>
   </section>
-
-  <script>
-    // Replace the build-time fallback schedule with live data from the
-    // "ProgramsNext30Days" report (served by /api/classes.json). The bearer
-    // token never reaches the browser — the SSR endpoint proxies the GraphQL
-    // call. Each entry is a real calendar date with that day's sessions.
-    interface DaySchedule {
-      date: string;
-      label: string;
-      classes: string[];
-    }
-
-    async function loadLiveSchedule() {
-      const grid = document.querySelector<HTMLElement>('[data-schedule-grid]');
-      if (!grid) return;
-
-      try {
-        const res = await fetch('/api/classes.json');
-        if (!res.ok) return; // keep the static fallback on failure
-        const data = (await res.json()) as { ok: boolean; schedule?: DaySchedule[] };
-        if (!data.ok || !Array.isArray(data.schedule) || data.schedule.length === 0) return;
-
-        grid.replaceChildren(
-          ...data.schedule.map((daySchedule) => {
-            const day = document.createElement('div');
-            day.className = 'schedule-day';
-
-            const heading = document.createElement('h3');
-            heading.className = 'day-name';
-            heading.textContent = daySchedule.label;
-
-            const list = document.createElement('ul');
-            list.className = 'class-list';
-            for (const classItem of daySchedule.classes) {
-              const li = document.createElement('li');
-              li.className = 'class-item';
-              li.textContent = classItem;
-              list.appendChild(li);
-            }
-
-            day.append(heading, list);
-            return day;
-          }),
-        );
-      } catch {
-        // Network/parse error — leave the static fallback in place.
-      }
-    }
-
-    loadLiveSchedule();
-  </script>
 
   <!-- Class Types Section -->
   <section class="class-types-section">
@@ -274,48 +203,8 @@ const scheduleData = [
     text-align: center;
   }
 
-  .schedule-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 16px;
-    max-width: 1000px;
-    margin: 0 auto 24px;
-  }
-
-  .schedule-day {
-    background: #fff;
-    padding: 20px;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
-  }
-
-  .day-name {
-    font-family: var(--font-heading, 'Uniform Pro', sans-serif);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--color-rust, #B94237);
-    text-transform: uppercase;
-    margin: 0 0 12px 0;
-    letter-spacing: 1px;
-  }
-
-  .class-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .class-item {
-    font-family: var(--font-body, 'Rubik', sans-serif);
-    font-size: 14px;
-    color: #555;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--color-sand, #FAF9F5);
-  }
-
-  .class-item:last-child {
-    border-bottom: none;
-  }
+  /* The schedule calendar is rendered by the ScheduleCalendar island
+     (src/components/ScheduleCalendar.tsx), which carries its own styles. */
 
   .schedule-note {
     font-family: var(--font-body, 'Rubik', sans-serif);
@@ -476,10 +365,6 @@ const scheduleData = [
 
     .schedule-section {
       padding: 40px 5%;
-    }
-
-    .schedule-grid {
-      grid-template-columns: 1fr;
     }
 
     .pricing-cards {

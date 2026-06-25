@@ -300,11 +300,6 @@ export default config({
               label: 'Section Headline',
               defaultValue: 'START YOUR MEMBERSHIP TODAY FOR',
             }),
-            promoPrice: fields.text({
-              label: 'Promo Price',
-              defaultValue: '$XX',
-              description: 'The highlighted price (e.g., $XX, $29)',
-            }),
             monthlyRate: fields.text({
               label: 'Monthly Rate Text',
               defaultValue: 'Then $80/month, billed on the first of every month.',
@@ -588,7 +583,6 @@ export default config({
               label: 'Pricing Headline',
               defaultValue: 'START YOUR MEMBERSHIP TODAY FOR',
             }),
-            promoPrice: fields.text({ label: 'Promo Price', defaultValue: '$XX' }),
             monthlyPrice: fields.text({ label: 'Monthly Price', defaultValue: '$80/month' }),
             billingText: fields.text({
               label: 'Billing/Prorate Text',
@@ -634,6 +628,67 @@ export default config({
           directory: CMS_IMAGE_DIRECTORY,
           publicPath: CMS_IMAGE_PUBLIC_PATH,
         }),
+        localDiscounts: fields.object(
+          {
+            headline: fields.text({
+              label: 'Section Headline',
+              defaultValue: 'LOCAL DISCOUNTS',
+            }),
+            intro: fields.text({
+              label: 'Intro Text',
+              multiline: true,
+              description: 'Paragraph shown below the headline.',
+            }),
+            partners15: fields.array(
+              fields.object({
+                name: fields.text({ label: 'Business Name' }),
+                handle: fields.text({ label: 'Social Handle (optional)' }),
+                description: fields.text({ label: 'Description (optional)', multiline: true }),
+                address: fields.text({ label: 'Address (optional)' }),
+                hours: fields.text({ label: 'Hours (optional)' }),
+              }),
+              {
+                label: '15% Off Partners',
+                itemLabel: (props) => props.fields.name.value || 'Partner',
+              }
+            ),
+            partners10: fields.array(
+              fields.object({
+                name: fields.text({ label: 'Business Name' }),
+                handle: fields.text({ label: 'Social Handle (optional)' }),
+                description: fields.text({ label: 'Description (optional)', multiline: true }),
+                address: fields.text({ label: 'Address (optional)' }),
+                hours: fields.text({ label: 'Hours (optional)' }),
+              }),
+              {
+                label: '10% Off Partners',
+                itemLabel: (props) => props.fields.name.value || 'Partner',
+              }
+            ),
+          },
+          { label: 'Local Discounts Section' }
+        ),
+        bottomCta: fields.object(
+          {
+            headline: fields.text({
+              label: 'Headline',
+              defaultValue: 'START YOUR MEMBERSHIP TODAY',
+            }),
+            description: fields.text({
+              label: 'Description',
+              multiline: true,
+            }),
+            buttonText: fields.text({
+              label: 'Button Text',
+              defaultValue: 'REDPOINT MEMBER PORTAL',
+            }),
+            buttonUrl: fields.text({
+              label: 'Button URL',
+              defaultValue: 'https://portal.climbtheknot.com',
+            }),
+          },
+          { label: 'Bottom CTA Section' }
+        ),
       },
     }),
 

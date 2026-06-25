@@ -87,15 +87,12 @@ function parseLocalDatetime(
  * day's classes by start time.
  */
 export function toSchedule(rows: ReportRow[]): DaySchedule[] {
-  // Each row is one session. Output includes course title + start time (and may
-  // include the instructor's name, which is public and shown in the calendar).
-  // The instructor's CUSTOMER ID is the only PII in the report and must never be
-  // copied into the output. One label is emitted per session row — no dedup, so
-  // two distinct same-time sessions (e.g. different instructors) are preserved.
-  const byDate = new Map<
-    string,
-    { label: string; items: Array<{ sort: number; text: string }> }
-  >();
+  // Each row is one session, but the report can emit duplicates (same course at
+  // the same start time on the same day). We collapse those to a single entry
+  // per date, keyed by the "Course (time)" label. We read ONLY the course title
+  // and start time; the instructor's customer id (the report's only PII) is
+  // never copied into the output.
+  const byDate = new Map<string, { label: string; items: Map<string, number> }>();
 
   for (const row of rows) {
     const name = pick(row, [
@@ -112,11 +109,10 @@ export function toSchedule(rows: ReportRow[]): DaySchedule[] {
     const parsed = parseLocalDatetime(start);
     if (!parsed) continue;
 
-    if (!byDate.has(parsed.dateKey)) byDate.set(parsed.dateKey, { label: parsed.label, items: [] });
-    byDate.get(parsed.dateKey)!.items.push({
-      sort: parsed.minutesOfDay,
-      text: `${name} (${parsed.time})`,
-    });
+    const entry = byDate.get(parsed.dateKey) ?? { label: parsed.label, items: new Map() };
+    const text = `${name} (${parsed.time})`;
+    if (!entry.items.has(text)) entry.items.set(text, parsed.minutesOfDay); // dedupe: first wins
+    byDate.set(parsed.dateKey, entry);
   }
 
   return [...byDate.entries()]
@@ -124,6 +120,6 @@ export function toSchedule(rows: ReportRow[]): DaySchedule[] {
     .map(([date, { label, items }]) => ({
       date,
       label,
-      classes: items.sort((x, y) => x.sort - y.sort).map((i) => i.text),
+      classes: [...items.entries()].sort((a, b) => a[1] - b[1]).map(([text]) => text),
     }));
 }
