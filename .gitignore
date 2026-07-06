@@ -39,3 +39,4 @@ reports/
 # Local working docs (not part of the deployed site)
 DEPLOYMENT.md
 KEYSTATIC-CLEANUP.md
+Oddities.txt

@@ -79,6 +79,44 @@ const SIZE_GUIDANCE = {
   productImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
 } as const;
 
+// 30-minute time slots covering a full day. Value is 24h "HH:MM" (stable, easy to
+// sort/format); label is a friendly 12-hour string shown in the dropdown.
+const TIME_SLOT_OPTIONS = Array.from({ length: 48 }, (_, index) => {
+  const hour24 = Math.floor(index / 2);
+  const minute = index % 2 === 0 ? 0 : 30;
+  const period = hour24 < 12 ? 'AM' : 'PM';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    label: `${hour12}:${pad(minute)} ${period}`,
+    value: `${pad(hour24)}:${pad(minute)}`,
+  };
+});
+
+// One conditional checkbox per weekday. When the day is checked, start/end time
+// dropdowns (30-minute intervals) appear, keeping schedule formatting consistent
+// across all events.
+function recurringDayField(dayLabel: string) {
+  return fields.conditional(
+    fields.checkbox({ label: dayLabel, defaultValue: false }),
+    {
+      false: fields.empty(),
+      true: fields.object({
+        start: fields.select({
+          label: 'Start Time',
+          options: TIME_SLOT_OPTIONS,
+          defaultValue: '17:00',
+        }),
+        end: fields.select({
+          label: 'End Time',
+          options: TIME_SLOT_OPTIONS,
+          defaultValue: '20:00',
+        }),
+      }),
+    }
+  );
+}
+
 export default config({
   storage:
     process.env.NODE_ENV === 'production'
@@ -988,7 +1026,16 @@ export default config({
       schema: {
         title: fields.slug({ name: { label: 'Event Title' } }),
         date: fields.date({ label: 'Event Date' }),
-        time: fields.text({ label: 'Time', description: 'e.g., 6:00 PM - 9:00 PM' }),
+        endDate: fields.date({
+          label: 'End Date',
+          description:
+            'Optional. For multi-day (non-recurring) events — the page shows the range as "start – end". Leave blank for single-day events.',
+        }),
+        time: fields.text({
+          label: 'Time',
+          description:
+            'e.g., 6:00 PM - 9:00 PM. Only use this if the event is NOT a recurring event — leave blank otherwise.',
+        }),
         description: fields.text({ label: 'Description', multiline: true }),
         imageLibraryPath: imageLibraryField(
           'Event Image (Media Library)',
@@ -1004,40 +1051,111 @@ export default config({
           label: 'Registration Link',
           description: 'URL for event registration (optional)',
         }),
+        eventPage: fields.conditional(
+          fields.checkbox({
+            label: 'Has a Dedicated Event Page',
+            description:
+              'When checked, this event gets its own full page (linked from the event’s info block on the Events page), and you can add a flyer image below. Leave unchecked to show only the info block when a card is clicked.',
+            defaultValue: false,
+          }),
+          {
+            false: fields.empty(),
+            true: fields.object(
+              {
+                flyerLibraryPath: imageLibraryField(
+                  'Flyer Image (Media Library)',
+                  `Shown beside the event details on the dedicated page. Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
+                ),
+                flyer: fields.image({
+                  label: 'Upload New Flyer (optional)',
+                  description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.eventImage}`,
+                  directory: CMS_IMAGE_DIRECTORY,
+                  publicPath: CMS_IMAGE_PUBLIC_PATH,
+                }),
+              },
+              {
+                label: 'Dedicated Event Page',
+                description: 'Settings shown only on this event’s own page.',
+              }
+            ),
+          }
+        ),
         isFeatured: fields.checkbox({
           label: 'Featured Event',
+          description:
+            'Checking this includes the event in the candidates for "Our Next Event" at the top of the Events page.',
           defaultValue: false,
         }),
-        isRecurring: fields.checkbox({
-          label: 'Recurring Event',
-          defaultValue: false,
-        }),
-        recurringSchedule: fields.text({
-          label: 'Recurring Schedule',
-          description: 'e.g., "Every Tuesday" (only if recurring)',
-        }),
+        recurring: fields.conditional(
+          fields.checkbox({ label: 'Recurring Event', defaultValue: false }),
+          {
+            false: fields.empty(),
+            true: fields.object(
+              {
+                monday: recurringDayField('Monday'),
+                tuesday: recurringDayField('Tuesday'),
+                wednesday: recurringDayField('Wednesday'),
+                thursday: recurringDayField('Thursday'),
+                friday: recurringDayField('Friday'),
+                saturday: recurringDayField('Saturday'),
+                sunday: recurringDayField('Sunday'),
+              },
+              {
+                label: 'Recurring Schedule',
+                description:
+                  'Check each day this event repeats on, then choose start and end times.',
+              }
+            ),
+          }
+        ),
         address: fields.text({
           label: 'Event Address',
-          description: 'Venue address if different from gym (e.g., 619 S Main St)',
+          description: 'Venue address if different from gym (e.g., 704 S Main St)',
         }),
         competitionDivisions: fields.array(
           fields.object({
             name: fields.text({ label: 'Division Name' }),
             description: fields.text({ label: 'Description', multiline: true }),
+            buttons: fields.array(
+              fields.object({
+                text: fields.text({ label: 'Button Text' }),
+                url: fields.text({
+                  label: 'Button Link',
+                  description: 'URL the button opens. Leave blank to hide this button.',
+                }),
+              }),
+              {
+                label: 'Buttons',
+                description:
+                  'Buttons shown under this division (e.g. a registration link). A button with no link is hidden.',
+                itemLabel: (props) => props.fields.text.value || 'Button',
+              }
+            ),
           }),
           {
-            label: 'Competition Divisions',
+            label: 'Divisions',
             itemLabel: (props) => props.fields.name.value || 'Division',
           }
         ),
         schedule: fields.array(
           fields.object({
-            time: fields.text({ label: 'Time' }),
-            activity: fields.text({ label: 'Activity' }),
+            title: fields.text({ label: 'Section Title', description: 'e.g., "Climbing", "Finals"' }),
+            content: fields.text({
+              label: 'Content',
+              multiline: true,
+              description:
+                'The block of text shown when this section is expanded. Line breaks are preserved. Wrap text in **double asterisks** to make it bold (e.g. **8:15 - 8:40AM**).',
+            }),
+            openByDefault: fields.checkbox({
+              label: 'Open by Default',
+              description: 'When checked, this section starts expanded on the page.',
+              defaultValue: false,
+            }),
           }),
           {
             label: 'Event Schedule',
-            itemLabel: (props) => `${props.fields.time.value}: ${props.fields.activity.value}`,
+            description: 'Each item is a collapsible section with a title and a block of text.',
+            itemLabel: (props) => props.fields.title.value || 'Schedule Section',
           }
         ),
         faqItems: fields.array(

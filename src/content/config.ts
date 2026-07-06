@@ -18,32 +18,96 @@ const team = defineCollection({
   }),
 });
 
+// One weekday in a recurring schedule. Keystatic serializes its conditional
+// checkbox field as { discriminant, value }; value is present only when checked.
+const recurringDaySchema = z
+  .object({
+    discriminant: z.boolean(),
+    value: z
+      .object({
+        start: z.string(),
+        end: z.string(),
+      })
+      .nullish(),
+  })
+  .optional();
+
+// Normalize an externally-provided link so it's always treated as an absolute
+// URL. A value like "portal.climbtheknot.com/x" (no scheme) would otherwise be
+// resolved relative to the current page, prepending the site URL to the href.
+// Values that already have a scheme (https:, mailto:, tel:) or are
+// protocol-relative ("//…") are left exactly as given.
+function normalizeExternalUrl(url?: string | null): string | undefined {
+  const trimmed = url?.trim();
+  if (!trimmed) return undefined;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed) || trimmed.startsWith('//')) return trimmed;
+  return `https://${trimmed}`;
+}
+
 // Events collection
 const events = defineCollection({
   type: 'data',
   schema: z.object({
     title: z.string(),
     date: z.string().nullish().transform((v) => v ?? undefined),
+    endDate: z.string().nullish().transform((v) => v ?? undefined),
     time: z.string().optional(),
     description: z.string().optional(),
     imageLibraryPath: z.string().nullish().transform((v) => v ?? undefined),
     image: z.string().nullish(),
-    registrationLink: z.string().optional(),
+    registrationLink: z.string().nullish().transform(normalizeExternalUrl),
+    // Keystatic conditional: the "Has a Dedicated Event Page" checkbox is the
+    // discriminant; when checked, `value` may carry a flyer image.
+    eventPage: z
+      .object({
+        discriminant: z.boolean(),
+        value: z
+          .object({
+            flyerLibraryPath: z.string().nullish(),
+            flyer: z.string().nullish(),
+          })
+          .nullish(),
+      })
+      .optional(),
     isFeatured: z.boolean().default(false),
-    isRecurring: z.boolean().default(false),
-    recurringSchedule: z.string().optional(),
+    // Keystatic conditional: the "Recurring Event" checkbox is the discriminant,
+    // and the per-day schedule (value) only exists when it's checked. Each day is
+    // itself { discriminant, value?: { start, end } } with times as 24h "HH:MM".
+    recurring: z
+      .object({
+        discriminant: z.boolean(),
+        value: z
+          .object({
+            monday: recurringDaySchema,
+            tuesday: recurringDaySchema,
+            wednesday: recurringDaySchema,
+            thursday: recurringDaySchema,
+            friday: recurringDaySchema,
+            saturday: recurringDaySchema,
+            sunday: recurringDaySchema,
+          })
+          .partial()
+          .nullish(),
+      })
+      .optional(),
     address: z.string().optional(),
     competitionDivisions: z.array(z.object({
       name: z.string(),
       description: z.string().optional(),
+      buttons: z.array(z.object({
+        text: z.string().optional(),
+        url: z.string().nullish().transform(normalizeExternalUrl),
+      })).optional(),
     })).optional(),
     schedule: z.array(z.object({
-      time: z.string(),
-      activity: z.string(),
+      title: z.string().optional(),
+      content: z.string().optional(),
+      openByDefault: z.boolean().default(false),
     })).optional(),
+    // Keystatic omits empty text fields from the JSON, so both are optional.
     faqItems: z.array(z.object({
-      question: z.string(),
-      answer: z.string(),
+      question: z.string().optional(),
+      answer: z.string().optional(),
     })).optional(),
     merchandise: z.array(z.object({
       name: z.string(),

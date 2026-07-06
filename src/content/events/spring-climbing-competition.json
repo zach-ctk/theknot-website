@@ -1,59 +1,75 @@
 {
   "title": "Spring Climbing Competition",
-  "date": "2026-03-15",
-  "time": "",
-  "description": "",
+  "date": "2026-07-29",
+  "imageLibraryPath": "public/images/canva-final/aaron/staff-aaron.png",
+  "image": "/images/canva-final/spring-climbing-competition/image.jpg",
   "registrationLink": "https://portal.climbtheknot.com/gnv/events/spring-competition",
+  "eventPage": {
+    "discriminant": true,
+    "value": {
+      "flyerLibraryPath": "public/images/canva-final/about-building-facade-1366.jpg",
+      "flyer": "/images/canva-final/spring-climbing-competition/eventPage/value/flyer.png"
+    }
+  },
   "isFeatured": true,
-  "isRecurring": false,
-  "image": "/images/canva-final/spring-climbing-competition/canva-hills-background.jpg",
-  "imageLibraryPath": "public/images/canva-final/spring-climbing-competition/canva-hills-background.jpg",
-  "address": "619 S Main St",
+  "recurring": {
+    "discriminant": false
+  },
+  "address": "704 S Main St",
   "competitionDivisions": [
     {
       "name": "COMPETITIVE DIVISION",
       "description": "This division is broken into two categories: Advanced and Open. Only the top 5 hardest routes you send count towards your score, so this division is for climbers looking to try as hard as they can. The six highest scoring men/NB & six highest scoring women/NB in the Open Division will get to climb in Finals for a chance to win $500! Prizes will also be awarded to the top 3 in Finals & in the Advanced Division. Review the rulebook below before registering to see if this is the division for you.",
       "buttons": [
-        { "text": "COMPETITIVE RULEBOOK", "url": "" },
-        { "text": "COMPETITIVE REGISTRATION", "url": "" }
+        {
+          "text": "COMPETITIVE RULEBOOK"
+        },
+        {
+          "text": "COMPETITIVE REGISTRATION"
+        }
       ]
     },
     {
       "name": "CASUAL DIVISION",
       "description": "If you compete in the Casual Division, your goal is to climb as many routes as possible in the time allotted. Harder problems are worth more points. You'll rack up points for every route that you successfully climb and the 5 hardest routes you send will be worth double points! If you're looking for something a bit different and in a more relaxed environment, the Casual Division might be for you. Review the rulebook below before signing up.",
       "buttons": [
-        { "text": "CASUAL RULEBOOK", "url": "" },
-        { "text": "CASUAL REGISTRATION", "url": "" }
+        {
+          "text": "CASUAL RULEBOOK"
+        },
+        {
+          "text": "CASUAL REGISTRATION"
+        }
       ]
     }
   ],
   "schedule": [
-    { "time": "8:15 - 8:40AM", "activity": "Check in for Competitive Division climbers and last minute registration" },
-    { "time": "8:45 - 9:00AM", "activity": "Rules breakdown and review. This is mandatory for all climbers who wish to compete in this division." },
-    { "time": "9:00AM - 12:00PM", "activity": "Climb time for Competitive Division" },
-    { "time": "12:30 - 12:55PM", "activity": "Check in for Casual Division climbers and last minute registration" },
-    { "time": "1:00 - 1:15PM", "activity": "Rules breakdown and review. This is mandatory for all climbers who wish to compete in this division." },
-    { "time": "1:15 - 4:15PM", "activity": "Climb time for Casual Division" },
-    { "time": "4:15 - 6:30PM", "activity": "Finals pregame. Drinks, food, music, good vibes!" },
-    { "time": "5:30 - 6:30PM", "activity": "Finals rules breakdown and review. Isolation begins for finalists. This is mandatory for all climbers who wish to compete in this division. Spectators are encouraged to join for the rules breakdown as well." },
-    { "time": "6:30 - 8:30PM", "activity": "Finals for the Competitive Division" },
-    { "time": "8:30 - 9:00PM", "activity": "Winners for all competition divisions will be announced and prizes will be awarded" },
-    { "time": "9:00 - 11:00PM", "activity": "Afterparty at Humble Wood Fire & Grand Scheme Brewing across the street from the gym. All are welcome! Climbing open to members & guests until 10pm." }
+    {
+      "title": "Climbing",
+      "content": "Casual division competitors will not be permitted to spectate during the competitive division. Please do not arrive prior to 12:30pm if you are competing in Casual.\n\n**8:15 - 8:40AM** Check in for Competitive Division climbers and last minute registration\n\n**8:45 - 9:00AM** Rules breakdown and review.\nThis is mandatory for all climbers who wish to compete in this division.\n\n**9:00AM - 12:00PM** Climb time for Competitive Division\n\n**12:30 - 12:55PM** Check in for Casual Division climbers and last minute registration\n\n**1:00 - 1:15PM** Rules breakdown and review.\nThis is mandatory for all climbers who wish to compete in this division.\n\n**1:15 - 4:15PM** Climb time for Casual Division",
+      "openByDefault": true
+    },
+    {
+      "title": "Finals",
+      "content": "**4:15 - 6:30PM** Finals pregame. Drinks, food, music, good vibes!\n\n**5:30 - 6:30PM** Finals rules breakdown and review. Isolation begins for finalists.\nThis is mandatory for all climbers who wish to compete in this division. Spectators are encouraged to join for the rules breakdown as well.\n\n**6:30 - 8:30PM** Finals for the Competitive Division\n\n**8:30 - 9:00PM** Winners for all competition divisions will be announced and prizes will be awarded\n\n**9:00 - 11:00PM** Afterparty at Humble Wood Fire & Grand Scheme Brewing across the street from the gym. All are welcome! Climbing open to members & guests until 10pm.",
+      "openByDefault": true
+    }
   ],
-  "scheduleNote": "Casual division competitors will not be permitted to spectate during the competitive division. Please do not arrive prior to 12:30pm if you are competing in Casual.",
   "faqItems": [
-    { "question": "WHAT'S THE DIFFERENCE BETWEEN CASUAL & COMPETITIVE?", "answer": "" },
-    { "question": "WHAT ARE THE PRIZES?", "answer": "" },
-    { "question": "CAN I COME IN TO SPECTATE DURING THE COMPETITION?", "answer": "" }
+    {
+      "question": "WHAT'S THE DIFFERENCE BETWEEN CASUAL & COMPETITIVE?"
+    },
+    {
+      "question": "WHAT ARE THE PRIZES?"
+    },
+    {
+      "question": "CAN I COME IN TO SPECTATE DURING THE COMPETITION?"
+    }
   ],
-  "faqIntro": "Don't see your an answer to your Q? Send us an email info@climbtheknot.com",
   "merchandise": [
     {
       "name": "T-SHIRT PREORDER",
       "description": "$25 - AVAILABLE FOR PICK-UP STARTING 10/12\n\nPre-sale for t-shirts is closed! Limited sizes will be available for purchase at the gym the day of the comp (Saturday, 10/11)\n\nIf you pre-ordered a shirt, it will be available for pick-up starting 10/11 & shipped orders will be mailed on 10/14",
-      "price": "$25",
-      "sizes": ["S", "M", "L", "XL", "XXL"],
-      "preorderLink": ""
+      "price": "$25"
     }
   ]
 }

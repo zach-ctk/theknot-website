@@ -4,6 +4,10 @@ import Accordion from "../../components/Accordion.tsx";
 import { getCollection } from "astro:content";
 import fs from "node:fs";
 import path from "node:path";
+import {
+  isRecurringSchedule,
+  recurringScheduleLines,
+} from "../../lib/eventSchedule";
 
 const hillsPlaceholder = "/images/canva-final/canva-hills-background.jpg";
 const redpointEventsUrl = "https://portal.climbtheknot.com/gnv/events";
@@ -35,6 +39,12 @@ function formatDate(value?: string): string {
   });
 }
 
+// Render a single date, or a "start – end" range when an end date is set.
+function formatDateRange(start?: string, end?: string): string {
+  if (!end) return formatDate(start);
+  return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
 const allEvents = (await getCollection("events")).sort((left, right) => {
   const leftDate = parseDate(left.data.date);
   const rightDate = parseDate(right.data.date);
@@ -48,7 +58,17 @@ const allEvents = (await getCollection("events")).sort((left, right) => {
 const now = new Date();
 now.setHours(0, 0, 0, 0);
 
+const isRecurring = (event: (typeof allEvents)[number]) =>
+  isRecurringSchedule(event.data.recurring);
+
+// Recurring events render as Upending-style blocks at the bottom of the page,
+// not as calendar cards, and show regardless of their start date.
+const recurringEvents = allEvents.filter(isRecurring);
+
+// One-time, upcoming events only — these become the calendar cards and the
+// "Our Next Event" feature. Recurring events are excluded here.
 const upcomingEvents = allEvents.filter((event) => {
+  if (isRecurring(event)) return false;
   const eventDate = parseDate(event.data.date);
   return !eventDate || eventDate.getTime() >= now.getTime();
 });
@@ -58,7 +78,7 @@ const featuredEvent =
   upcomingEvents[0] ??
   null;
 
-const toPublicUrl = (libraryPath?: string) =>
+const toPublicUrl = (libraryPath?: string | null) =>
   libraryPath && libraryPath.startsWith("public/")
     ? `/${libraryPath.slice("public/".length)}`
     : undefined;
@@ -67,6 +87,22 @@ const eventImage = (event: (typeof allEvents)[number]) =>
   event.data.image ||
   toPublicUrl(event.data.imageLibraryPath) ||
   hillsPlaceholder;
+
+// The flyer is the primary image everywhere on the events index (cards, next
+// event, detail blocks). Falls back to the event image, then the placeholder.
+// The event image itself is only used as the hero on the dedicated event page.
+const cardImage = (event: (typeof allEvents)[number]) => {
+  const flyer = event.data.eventPage?.value;
+  return (
+    flyer?.flyer || toPublicUrl(flyer?.flyerLibraryPath) || eventImage(event)
+  );
+};
+
+const eventParagraphs = (description?: string) =>
+  (description ?? "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 
 const eventTypeItems = [
   {
@@ -124,7 +160,7 @@ const eventTypeItems = [
             <>
               <h3 class="event-title">{featuredEvent.data.title}</h3>
               <p class="event-meta">
-                {formatDate(featuredEvent.data.date)}{" "}
+                {formatDateRange(featuredEvent.data.date, featuredEvent.data.endDate)}{" "}
                 {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ""}
               </p>
               <p class="event-description">
@@ -148,7 +184,7 @@ const eventTypeItems = [
 
       {featuredEvent && (
         <img
-          src={eventImage(featuredEvent)}
+          src={cardImage(featuredEvent)}
           alt={featuredEvent.data.title}
           class="next-event-image"
         />
@@ -157,6 +193,7 @@ const eventTypeItems = [
   </section>
 
   <section class="calendar-section">
+    <div class="section-inner">
     <h2 class="section-title">EVENT CALENDAR</h2>
     <p class="section-subtext">
       We host events almost every month. Click any event to learn more.
@@ -166,9 +203,15 @@ const eventTypeItems = [
       {
         upcomingEvents.length > 0 ? (
           upcomingEvents.map((event) => (
-            <a href={`/events/${event.id}`} class="calendar-card">
+            <button
+              type="button"
+              class="calendar-card"
+              data-event-target={event.id}
+              aria-expanded="false"
+              aria-controls={`event-detail-${event.id}`}
+            >
               <img
-                src={eventImage(event)}
+                src={cardImage(event)}
                 alt={event.data.title}
                 class="calendar-card-image"
                 loading="lazy"
@@ -176,52 +219,73 @@ const eventTypeItems = [
               />
               <div class="calendar-card-body">
                 <h3 class="calendar-card-title">{event.data.title}</h3>
-                <p class="calendar-card-date">{formatDate(event.data.date)}</p>
+                <p class="calendar-card-date">{formatDateRange(event.data.date, event.data.endDate)}</p>
               </div>
-            </a>
+            </button>
           ))
         ) : (
           <p class="calendar-empty">No upcoming events yet.</p>
         )
       }
     </div>
+
+    {upcomingEvents.length > 0 && (
+      <div class="event-detail-panel">
+        {upcomingEvents.map((event) => (
+          <article id={`event-detail-${event.id}`} class="event-detail" hidden>
+            <button
+              type="button"
+              class="event-detail-close"
+              data-event-close
+              aria-label="Close event details"
+            >
+              &times;
+            </button>
+            <div class="event-detail-inner">
+              <img
+                src={cardImage(event)}
+                alt={event.data.title}
+                class="event-detail-image"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="event-detail-body">
+                <h3 class="event-detail-title">{event.data.title}</h3>
+                <p class="event-detail-meta">
+                  {formatDateRange(event.data.date, event.data.endDate)}{" "}
+                  {event.data.time ? `| ${event.data.time}` : ""}
+                </p>
+                {eventParagraphs(event.data.description).map((paragraph) => (
+                  <p class="event-detail-description">{paragraph}</p>
+                ))}
+                <div class="event-detail-actions">
+                  {event.data.eventPage?.discriminant && (
+                    <a href={`/events/${event.id}`} class="btn-secondary">
+                      VIEW EVENT PAGE
+                    </a>
+                  )}
+                  {event.data.registrationLink && (
+                    <a
+                      href={event.data.registrationLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn-primary"
+                    >
+                      REGISTRATION & MORE INFO
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+    </div>
   </section>
 
-  {
-    featuredEvent && (
-      <section class="spotlight-section">
-        <div class="spotlight-card">
-          <img
-            src={eventImage(featuredEvent)}
-            alt={featuredEvent.data.title}
-            class="spotlight-image"
-            loading="lazy"
-            decoding="async"
-          />
-          <div class="spotlight-content">
-            <h2 class="section-title">{featuredEvent.data.title}</h2>
-            <p class="spotlight-date">
-              {formatDate(featuredEvent.data.date)}{" "}
-              {featuredEvent.data.time ? `| ${featuredEvent.data.time}` : ""}
-            </p>
-            <p class="spotlight-description">
-              {featuredEvent.data.description ?? "Details coming soon."}
-            </p>
-            <a href={`/events/${featuredEvent.id}`} class="btn-primary">
-              REGISTRATION
-            </a>
-            <p class="spotlight-address">
-              ADDRESS
-              <br />
-              704 S Main St
-            </p>
-          </div>
-        </div>
-      </section>
-    )
-  }
-
   <section class="group-events-section">
+    <div class="section-inner">
     <h2 class="section-title">GROUP EVENTS</h2>
     <p class="section-subtext">Host your next event with The Knot!</p>
     <h3 class="group-subtitle">EVENT TYPES & PRICING</h3>
@@ -242,7 +306,45 @@ const eventTypeItems = [
       </a>
       <a href={`mailto:${eventsEmail}`} class="btn-primary">CONTACT US</a>
     </div>
+    </div>
   </section>
+
+  {
+    recurringEvents.map((event) => (
+      <section class="upending-section">
+        <div class="upending-grid">
+          <div>
+            <h2 class="section-title">{event.data.title}</h2>
+            {eventParagraphs(event.data.description).map((paragraph) => (
+              <p class="event-description">{paragraph}</p>
+            ))}
+            {recurringScheduleLines(event.data.recurring, " ").map((line) => (
+              <p class="event-description">
+                <strong>{line.toUpperCase()}</strong>
+              </p>
+            ))}
+            {event.data.registrationLink && (
+              <a
+                href={event.data.registrationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-secondary"
+              >
+                REGISTER HERE
+              </a>
+            )}
+          </div>
+          <img
+            src={cardImage(event)}
+            alt={event.data.title}
+            class="upending-image"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </section>
+    ))
+  }
 
   <section class="upending-section">
     <div class="upending-grid">
@@ -281,6 +383,37 @@ const eventTypeItems = [
   </section>
 </BaseLayout>
 
+<script>
+  const cards = document.querySelectorAll<HTMLButtonElement>("[data-event-target]");
+  const panels = document.querySelectorAll<HTMLElement>(".event-detail");
+
+  function closeAll() {
+    panels.forEach((panel) => (panel.hidden = true));
+    cards.forEach((card) => card.setAttribute("aria-expanded", "false"));
+  }
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const id = card.getAttribute("data-event-target");
+      const panel = document.getElementById(`event-detail-${id}`);
+      if (!panel) return;
+
+      // Clicking the active card again collapses it.
+      const wasOpen = !panel.hidden;
+      closeAll();
+      if (!wasOpen) {
+        panel.hidden = false;
+        card.setAttribute("aria-expanded", "true");
+        panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>(".event-detail-close").forEach((button) => {
+    button.addEventListener("click", () => closeAll());
+  });
+</script>
+
 <style>
   .hero-section {
     position: relative;
@@ -312,16 +445,21 @@ const eventTypeItems = [
 
   .next-event-section,
   .calendar-section,
-  .spotlight-section,
   .group-events-section,
   .upending-section {
     padding: 48px 24px;
     background: #000;
   }
 
-  .calendar-section,
-  .spotlight-section {
+  .calendar-section {
     background: #fff;
+  }
+
+  /* Centers a section's content in the same 1200px column the grids use, so
+     titles, subtext, and group-events content all share the page's alignment. */
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .section-title {
@@ -334,8 +472,7 @@ const eventTypeItems = [
     line-height: 1.1;
   }
 
-  .calendar-section .section-title,
-  .spotlight-section .section-title {
+  .calendar-section .section-title {
     color: #000;
   }
 
@@ -410,9 +547,107 @@ const eventTypeItems = [
       box-shadow 0.2s ease;
   }
 
+  button.calendar-card {
+    width: 100%;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
   .calendar-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  .event-detail-panel {
+    max-width: 1200px;
+    margin: 24px auto 0;
+  }
+
+  .event-detail {
+    position: relative;
+    border: 1px solid #dadada;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .event-detail-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .event-detail-image {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .event-detail-body {
+    padding: 24px 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .event-detail-title {
+    margin: 0;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: clamp(20px, 4vw, 28px);
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .event-detail-meta {
+    margin: 0;
+    color: #666;
+    font-family: var(--font-body);
+    font-size: 14px;
+  }
+
+  .event-detail-description {
+    margin: 0;
+    color: #333;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .event-detail-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .event-detail-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  @media (max-width: 900px) {
+    .event-detail-inner {
+      grid-template-columns: 1fr;
+    }
   }
 
   .calendar-card-image {
@@ -445,41 +680,6 @@ const eventTypeItems = [
     margin: 0;
     color: #4d4d4d;
     font-family: var(--font-body);
-  }
-
-  .spotlight-card {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    border: 1px solid #dadada;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  .spotlight-image {
-    width: 100%;
-    height: 100%;
-    min-height: 260px;
-    object-fit: cover;
-  }
-
-  .spotlight-content {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .spotlight-date,
-  .spotlight-description,
-  .spotlight-address {
-    margin: 0;
-    color: #333;
-    font-family: var(--font-body);
-    line-height: 1.6;
   }
 
   .group-subtitle {
@@ -523,7 +723,6 @@ const eventTypeItems = [
 
   @media (max-width: 900px) {
     .next-event-grid,
-    .spotlight-card,
     .upending-grid {
       grid-template-columns: 1fr;
     }

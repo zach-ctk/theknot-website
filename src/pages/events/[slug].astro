@@ -1,13 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { isRecurringSchedule, recurringScheduleLines } from '../../lib/eventSchedule';
 
 export async function getStaticPaths() {
   const events = await getCollection('events');
-  return events.map((event) => ({
-    params: { slug: event.id },
-    props: { event },
-  }));
+  // Only events the editor has opted into get a dedicated page; others show
+  // only their inline info block on the Events index.
+  return events
+    .filter((event) => event.data.eventPage?.discriminant === true)
+    .map((event) => ({
+      params: { slug: event.id },
+      props: { event },
+    }));
 }
 
 const { event } = Astro.props;
@@ -18,10 +23,18 @@ if (!event) {
 
 const eventData = event.data;
 const eventTitle = eventData.title;
-const eventImage =
-  (eventData.imageLibraryPath && eventData.imageLibraryPath.startsWith('public/')
-    ? `/${eventData.imageLibraryPath.slice('public/'.length)}`
-    : undefined) || eventData.image;
+
+const toPublicUrl = (libraryPath?: string | null) =>
+  libraryPath && libraryPath.startsWith('public/')
+    ? `/${libraryPath.slice('public/'.length)}`
+    : undefined;
+
+const eventImage = toPublicUrl(eventData.imageLibraryPath) || eventData.image;
+
+const flyerData = eventData.eventPage?.value;
+// A freshly uploaded flyer takes precedence over a previously chosen Media
+// Library image, so uploading a new file overrides the old selection.
+const flyerImage = flyerData?.flyer || toPublicUrl(flyerData?.flyerLibraryPath) || undefined;
 
 function formatDate(dateString: string | undefined): string {
   if (!dateString) return 'Date TBD';
@@ -34,7 +47,30 @@ function formatDate(dateString: string | undefined): string {
   });
 }
 
+// Render a single date, or a "start – end" range when an end date is set.
+function formatDateRange(start: string | undefined, end?: string): string {
+  if (!end) return formatDate(start);
+  return `${formatDate(start)} – ${formatDate(end)}`;
+}
+
+const isRecurring = isRecurringSchedule(eventData.recurring);
+// End date applies to non-recurring events only.
+const eventEndDate = isRecurring ? undefined : eventData.endDate;
+const recurringLines = recurringScheduleLines(eventData.recurring);
+
 const hasRegistration = !!eventData.registrationLink;
+
+// Render a plain text block with simple **bold** support. HTML is escaped first
+// so staff-entered content can't inject markup; line breaks are preserved by the
+// `white-space: pre-line` style on the container.
+function renderRichText(text?: string): string {
+  if (!text) return '';
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
 ---
 
 <BaseLayout title={eventTitle}>
@@ -66,13 +102,62 @@ const hasRegistration = !!eventData.registrationLink;
     </div>
     <div class="hero-content">
       <h1 class="hero-headline">{eventTitle.toUpperCase()}</h1>
-      <p class="hero-date">{formatDate(eventData.date)}</p>
+      <p class="hero-date">{formatDateRange(eventData.date, eventEndDate)}</p>
       {eventData.time && <p class="hero-time">{eventData.time}</p>}
     </div>
   </section>
 
-  <!-- Event Details Section -->
-  <section class="details-section">
+  <!-- Flyer + Details Block (dedicated-page events with a flyer image) -->
+  {flyerImage && (
+    <section class="flyer-section">
+      <div class="flyer-card">
+        <img
+          src={flyerImage}
+          alt={`${eventTitle} flyer`}
+          class="flyer-image"
+          loading="lazy"
+          decoding="async"
+        />
+        <div class="flyer-content">
+          <h2 class="flyer-title">{eventTitle.toUpperCase()}</h2>
+          <p class="flyer-meta">
+            {formatDateRange(eventData.date, eventEndDate)}{" "}
+            {eventData.time ? `| ${eventData.time}` : ""}
+          </p>
+          {eventData.description && (
+            <p class="flyer-description">{eventData.description}</p>
+          )}
+          {isRecurring && recurringLines.length > 0 && (
+            <div class="recurring-info">
+              <span class="recurring-badge">Recurring Event</span>
+              {recurringLines.map((line) => <p>{line}</p>)}
+            </div>
+          )}
+          {hasRegistration && (
+            <div class="flyer-actions">
+              <a
+                href={eventData.registrationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flyer-button"
+              >
+                REGISTRATION
+              </a>
+            </div>
+          )}
+          <p class="flyer-address">
+            <strong>ADDRESS</strong>
+            <br />
+            {eventData.address ? eventData.address : "704 S Main St, Gainesville, FL 32601"}
+          </p>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Event Details Section (when there's no flyer block) -->
+  {!flyerImage && (
+    <section class="details-section">
     <div class="details-container">
       <div class="event-description">
         {eventData.description && (
@@ -81,10 +166,10 @@ const hasRegistration = !!eventData.registrationLink;
           </div>
         )}
 
-        {eventData.isRecurring && eventData.recurringSchedule && (
+        {isRecurring && recurringLines.length > 0 && (
           <div class="recurring-info">
             <span class="recurring-badge">Recurring Event</span>
-            <p>{eventData.recurringSchedule}</p>
+            {recurringLines.map((line) => <p>{line}</p>)}
           </div>
         )}
       </div>
@@ -94,8 +179,8 @@ const hasRegistration = !!eventData.registrationLink;
           <h3>Event Details</h3>
           
           <div class="info-item">
-            <span class="info-label">Date</span>
-            <span class="info-value">{formatDate(eventData.date)}</span>
+            <span class="info-label">{isRecurring ? 'Start Date' : 'Date'}</span>
+            <span class="info-value">{formatDateRange(eventData.date, eventEndDate)}</span>
           </div>
 
           {eventData.time && (
@@ -107,7 +192,7 @@ const hasRegistration = !!eventData.registrationLink;
 
           <div class="info-item">
             <span class="info-label">Location</span>
-            <span class="info-value">The Knot Climbing Gym<br />{eventData.address ? eventData.address : '619 S Main St, Gainesville, FL 32601'}</span>
+            <span class="info-value">The Knot Climbing Gym<br />{eventData.address ? eventData.address : '704 S Main St, Gainesville, FL 32601'}</span>
           </div>
 
           {hasRegistration && (
@@ -123,20 +208,43 @@ const hasRegistration = !!eventData.registrationLink;
         </div>
       </div>
     </div>
-  </section>
+    </section>
+  )}
 
   <!-- Optional Extended Sections -->
   {eventData.competitionDivisions && eventData.competitionDivisions.length > 0 && (
     <section class="extended-section">
       <div class="extended-container">
-        <h2 class="extended-heading">DIVISIONS</h2>
-        <div class="divisions-grid">
-          {eventData.competitionDivisions.map((div: { name: string; description?: string }) => (
-            <div class="division-card">
-              <h3 class="division-name">{div.name}</h3>
-              {div.description && <p class="division-description">{div.description}</p>}
-            </div>
-          ))}
+        <div class="divisions-list">
+          {eventData.competitionDivisions.map((div: { name: string; description?: string; buttons?: { text?: string; url?: string }[] }) => {
+            const divButtons = (div.buttons ?? []).filter((button) => button.url);
+            return (
+              <div class="division-card">
+                <div class="division-header">
+                  <h3 class="division-name">{div.name}</h3>
+                </div>
+                {(div.description || divButtons.length > 0) && (
+                  <div class="division-body">
+                    {div.description && <p class="division-description">{div.description}</p>}
+                    {divButtons.length > 0 && (
+                      <div class="division-buttons">
+                        {divButtons.map((button) => (
+                          <a
+                            href={button.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="division-button"
+                          >
+                            {button.text || 'REGISTER'}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -145,13 +253,28 @@ const hasRegistration = !!eventData.registrationLink;
   {eventData.schedule && eventData.schedule.length > 0 && (
     <section class="extended-section">
       <div class="extended-container">
-        <h2 class="extended-heading">SCHEDULE</h2>
-        <div class="schedule-list">
-          {eventData.schedule.map((item: { time: string; activity: string }) => (
-            <div class="schedule-item">
-              <span class="schedule-time">{item.time}</span>
-              <span class="schedule-activity">{item.activity}</span>
-            </div>
+        <h2 class="extended-heading">EVENT SCHEDULE</h2>
+        <div class="schedule-accordion">
+          {eventData.schedule.map((section: { title?: string; content?: string; openByDefault?: boolean }) => (
+            <details class="schedule-section" open={section.openByDefault}>
+              <summary class="schedule-summary">
+                <span class="schedule-section-title">{section.title}</span>
+                <span class="schedule-chevron" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M6 9L12 15L18 9"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </summary>
+              {section.content && (
+                <div class="schedule-section-body" set:html={renderRichText(section.content)} />
+              )}
+            </details>
           ))}
         </div>
       </div>
@@ -163,11 +286,26 @@ const hasRegistration = !!eventData.registrationLink;
       <div class="extended-container">
         <h2 class="extended-heading">FAQ</h2>
         <div class="faq-list">
-          {eventData.faqItems.map((faq: { question: string; answer: string }) => (
-            <div class="faq-item">
-              <h3 class="faq-question">{faq.question}</h3>
-              <p class="faq-answer">{faq.answer}</p>
-            </div>
+          {eventData.faqItems.map((faq: { question?: string; answer?: string }) => (
+            <details class="faq-item">
+              <summary class="faq-summary">
+                <span class="faq-question">{faq.question}</span>
+                <span class="faq-chevron" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M6 9L12 15L18 9"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </summary>
+              {faq.answer && (
+                <div class="faq-answer" set:html={renderRichText(faq.answer)} />
+              )}
+            </details>
           ))}
         </div>
       </div>
@@ -209,12 +347,16 @@ const hasRegistration = !!eventData.registrationLink;
   .hero-section {
     position: relative;
     height: 50vh;
-    min-height: 350px;
-    max-height: 500px;
+    min-height: 430px;
+    max-height: 540px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     overflow: hidden;
+    /* Clear the fixed announcement banner + nav header so the hero text
+       (anchored to the bottom) can't slide up underneath them. The background
+       image is absolutely positioned, so it stays full-bleed regardless. */
+    padding-top: 160px;
   }
 
   .hero-background {
@@ -285,6 +427,97 @@ const hasRegistration = !!eventData.registrationLink;
     margin: 0;
     opacity: 0.9;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Flyer + Details Block */
+  .flyer-section {
+    padding: 60px 5%;
+    background: #000;
+  }
+
+  .flyer-card {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 3fr 7fr;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--color-sand);
+  }
+
+  .flyer-image {
+    width: 100%;
+    height: 100%;
+    min-height: 360px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .flyer-content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .flyer-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 900;
+    color: var(--color-graphite);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .flyer-meta {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-rust);
+  }
+
+  .flyer-description {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--color-graphite);
+  }
+
+  .flyer-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .flyer-button {
+    display: inline-block;
+    padding: 14px 28px;
+    background: var(--color-rust);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .flyer-button:hover {
+    opacity: 0.9;
+  }
+
+  .flyer-address {
+    margin: auto 0 0;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--color-graphite);
   }
 
   /* Details Section */
@@ -454,27 +687,36 @@ const hasRegistration = !!eventData.registrationLink;
   }
 
   /* Divisions */
-  .divisions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  .divisions-list {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
   }
 
   .division-card {
-    background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
-    padding: 24px;
+    overflow: hidden;
+  }
+
+  .division-header {
+    background: #2b2b2b;
+    padding: 14px 24px;
   }
 
   .division-name {
     font-family: var(--font-heading);
     font-size: 18px;
     font-weight: 700;
-    color: #84babf;
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin: 0 0 8px 0;
+    margin: 0;
+  }
+
+  .division-body {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .division-description {
@@ -485,52 +727,116 @@ const hasRegistration = !!eventData.registrationLink;
     margin: 0;
   }
 
-  /* Schedule */
-  .schedule-list {
+  .division-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .division-button {
+    display: inline-block;
+    padding: 14px 28px;
+    background: var(--color-rust);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .division-button:hover {
+    opacity: 0.9;
+  }
+
+  /* Schedule (accordion) */
+  .schedule-accordion {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 12px;
   }
 
-  .schedule-item {
+  .schedule-section {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .schedule-summary {
     display: flex;
-    gap: 20px;
-    align-items: baseline;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: #2b2b2b;
+    cursor: pointer;
+    list-style: none;
   }
 
-  .schedule-item:last-child {
-    border-bottom: none;
+  .schedule-summary::-webkit-details-marker {
+    display: none;
   }
 
-  .schedule-time {
+  .schedule-section-title {
     font-family: var(--font-heading);
-    font-size: 15px;
-    font-weight: 700;
-    color: #84babf;
-    min-width: 100px;
-    text-transform: uppercase;
-  }
-
-  .schedule-activity {
-    font-family: var(--font-body);
     font-size: 16px;
+    font-weight: 700;
     color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
-  /* FAQ */
+  .schedule-chevron {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    transition: transform 0.3s ease;
+  }
+
+  .schedule-section[open] .schedule-chevron {
+    transform: rotate(180deg);
+  }
+
+  .schedule-section-body {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.04);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: #fff;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  /* FAQ (accordion) */
   .faq-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
   }
 
   .faq-item {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
-    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .faq-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 24px;
+    background: #2b2b2b;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-summary::-webkit-details-marker {
+    display: none;
   }
 
   .faq-question {
@@ -539,15 +845,27 @@ const hasRegistration = !!eventData.registrationLink;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
-    margin: 0 0 8px 0;
+  }
+
+  .faq-chevron {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item[open] .faq-chevron {
+    transform: rotate(180deg);
   }
 
   .faq-answer {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
     font-size: 15px;
-    color: #ddd;
-    line-height: 1.6;
-    margin: 0;
+    color: #fff;
+    line-height: 1.7;
+    white-space: pre-line;
   }
 
   /* Merchandise */
@@ -627,7 +945,8 @@ const hasRegistration = !!eventData.registrationLink;
   @media (max-width: 768px) {
     .hero-section {
       height: 45vh;
-      min-height: 300px;
+      min-height: 360px;
+      padding-top: 130px;
     }
 
     .hero-headline {
@@ -649,6 +968,14 @@ const hasRegistration = !!eventData.registrationLink;
 
     .details-section {
       padding: 40px 5%;
+    }
+
+    .flyer-card {
+      grid-template-columns: 1fr;
+    }
+
+    .flyer-content {
+      padding: 28px;
     }
 
     .event-info-card {

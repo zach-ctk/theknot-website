@@ -1,0 +1,44 @@
+{
+  "title": "Comp spring",
+  "date": "2026-07-20",
+  "endDate": "2026-07-26",
+  "description": "Some description",
+  "imageLibraryPath": "public/images/canva-final/ashley-marcone/team-ashley-marcone.jpg",
+  "registrationLink": "www.google.com",
+  "eventPage": {
+    "discriminant": true,
+    "value": {
+      "flyerLibraryPath": "public/images/canva-final/spring-climbing-competition/eventPage/value/flyer.png"
+    }
+  },
+  "isFeatured": true,
+  "recurring": {
+    "discriminant": false
+  },
+  "competitionDivisions": [
+    {
+      "name": "Competitive",
+      "description": "comp text",
+      "buttons": [
+        {
+          "text": "Competitive Registration",
+          "url": "www.google.com"
+        }
+      ]
+    },
+    {
+      "name": "Casual",
+      "description": "Casual text",
+      "buttons": []
+    }
+  ],
+  "schedule": [
+    {
+      "title": "Check In",
+      "content": "**8:30 AM - 9:30 AM** Check in for casual division begins",
+      "openByDefault": true
+    }
+  ],
+  "faqItems": [],
+  "merchandise": []
+}

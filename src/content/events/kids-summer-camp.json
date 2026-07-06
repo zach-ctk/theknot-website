@@ -1,0 +1,20 @@
+{
+  "title": "Kids summer camp",
+  "date": "2026-07-01",
+  "endDate": "2026-07-07",
+  "time": "9:00 am - 2:00 pm",
+  "eventPage": {
+    "discriminant": true,
+    "value": {
+      "flyerLibraryPath": "public/images/canva-final/aaron/staff-aaron.png"
+    }
+  },
+  "isFeatured": true,
+  "recurring": {
+    "discriminant": false
+  },
+  "competitionDivisions": [],
+  "schedule": [],
+  "faqItems": [],
+  "merchandise": []
+}
