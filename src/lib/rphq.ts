@@ -22,6 +22,12 @@ export interface RphqEnv {
    * the code falls back to discovering the id by name.
    */
   RPHQ_REPORT_ID?: string;
+  /**
+   * Optional. Custom report id for the capacity (check-in/out) report. Same
+   * self-healing fallback as RPHQ_REPORT_ID: if unset or stale, the id is
+   * discovered by name.
+   */
+  RPHQ_CAPACITY_REPORT_ID?: string;
 }
 
 /**
@@ -45,6 +51,7 @@ export function resolveRphqEnv(runtimeEnv?: Record<string, unknown>): Required<R
     RPHQ_API_TOKEN: pick('RPHQ_API_TOKEN'),
     RPHQ_FACILITY: pick('RPHQ_FACILITY'),
     RPHQ_REPORT_ID: pick('RPHQ_REPORT_ID'),
+    RPHQ_CAPACITY_REPORT_ID: pick('RPHQ_CAPACITY_REPORT_ID'),
   };
 }
 
@@ -125,12 +132,14 @@ interface ReportsData {
 }
 
 const PROGRAMS_REPORT_NAME = 'ProgramsNext30Days';
+/** Report powering the live gym-capacity counter (see src/lib/capacity.ts). */
+export const CAPACITY_REPORT_NAME = 'Check In/Out count & check-ins without checkouts';
 
 /**
- * Page through customReports and return the id of the report named "Programs".
- * Matching is case-insensitive on an exact trimmed name.
+ * Page through customReports and return the id of the report with the given
+ * name. Matching is case-insensitive on an exact trimmed name.
  */
-export async function findProgramsReportId(env: Required<RphqEnv>): Promise<string> {
+export async function findReportIdByName(env: Required<RphqEnv>, name: string): Promise<string> {
   let after: string | null = null;
   for (let page = 0; page < 50; page++) {
     const data: ReportsData = await rphqQuery<ReportsData>(env, REPORTS_QUERY, {
@@ -138,7 +147,7 @@ export async function findProgramsReportId(env: Required<RphqEnv>): Promise<stri
       after,
     });
     const match = data.customReports.edges.find(
-      (e) => e.node.name?.trim().toLowerCase() === PROGRAMS_REPORT_NAME.toLowerCase(),
+      (e) => e.node.name?.trim().toLowerCase() === name.toLowerCase(),
     );
     if (match) return match.node.id;
 
@@ -146,7 +155,12 @@ export async function findProgramsReportId(env: Required<RphqEnv>): Promise<stri
     after = data.customReports.pageInfo.endCursor;
     if (!after) break;
   }
-  throw new RphqError(`No custom report named "${PROGRAMS_REPORT_NAME}" was found`);
+  throw new RphqError(`No custom report named "${name}" was found`);
+}
+
+/** Convenience wrapper for the "Programs" schedule report. */
+export function findProgramsReportId(env: Required<RphqEnv>): Promise<string> {
+  return findReportIdByName(env, PROGRAMS_REPORT_NAME);
 }
 
 // ---------------------------------------------------------------------------
@@ -266,29 +280,45 @@ async function executeReportById(
 }
 
 /**
- * End-to-end: execute the report and normalize the rows.
+ * End-to-end: execute a report (identified by name) and normalize the rows.
  *
- * Fast path uses RPHQ_REPORT_ID when configured. If that id no longer resolves
+ * Fast path uses `directId` when provided. If that id no longer resolves
  * (report recreated under a new id) the call self-heals by discovering the id
- * by name. With no RPHQ_REPORT_ID set, it goes straight to name discovery.
+ * by name. With no `directId`, it goes straight to name discovery.
  */
-export async function fetchProgramsReport(
-  runtimeEnv?: Record<string, unknown>,
+async function fetchReportByName(
+  env: Required<RphqEnv>,
+  name: string,
+  directId?: string,
 ): Promise<ProgramsReport> {
-  const env = resolveRphqEnv(runtimeEnv);
-
   // 1. Direct execute via the configured id.
-  if (env.RPHQ_REPORT_ID) {
-    const report = await executeReportById(env, env.RPHQ_REPORT_ID);
+  if (directId) {
+    const report = await executeReportById(env, directId);
     if (report) return report;
     // else: id didn't resolve — fall through to discovery.
   }
 
   // 2. Discover the id by name, then execute.
-  const reportId = await findProgramsReportId(env);
+  const reportId = await findReportIdByName(env, name);
   const report = await executeReportById(env, reportId);
   if (!report) {
-    throw new RphqError(`Report "${PROGRAMS_REPORT_NAME}" (id ${reportId}) did not resolve`);
+    throw new RphqError(`Report "${name}" (id ${reportId}) did not resolve`);
   }
   return report;
+}
+
+/** Execute the "Programs" schedule report (see fetchReportByName). */
+export function fetchProgramsReport(runtimeEnv?: Record<string, unknown>): Promise<ProgramsReport> {
+  const env = resolveRphqEnv(runtimeEnv);
+  return fetchReportByName(env, PROGRAMS_REPORT_NAME, env.RPHQ_REPORT_ID || undefined);
+}
+
+/**
+ * Execute the "Check In/Out count & check-ins without checkouts" report that
+ * powers the live gym-capacity counter. Shape the rows with
+ * `toCurrentCapacity` from src/lib/capacity.ts.
+ */
+export function fetchCapacityReport(runtimeEnv?: Record<string, unknown>): Promise<ProgramsReport> {
+  const env = resolveRphqEnv(runtimeEnv);
+  return fetchReportByName(env, CAPACITY_REPORT_NAME, env.RPHQ_CAPACITY_REPORT_ID || undefined);
 }

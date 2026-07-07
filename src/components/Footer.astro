@@ -2,10 +2,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-interface Props {
-  currentCapacity?: number;
-}
-
 // Load business info from Keystatic singleton
 let businessInfo = {
   contact: { phone: '(352) 322-2402', phoneRaw: '3523222402', email: 'info@climbtheknot.com', eventsEmail: 'events@climbtheknot.com' },
@@ -29,9 +25,10 @@ try {
   // Use defaults
 }
 
-const { currentCapacity = 65 } = Astro.props;
+// The capacity meter is populated live on the client from /api/capacity.json
+// (real-time RPHQ check-in/out count). We render a neutral loading state here;
+// maxCapacity is the meter's denominator and comes from business-info.
 const maxCapacity = businessInfo.gym.capacityMax;
-const capacityPercent = Math.max(0, Math.min(100, Math.round((currentCapacity / maxCapacity) * 100)));
 const addressQuery = encodeURIComponent(`${businessInfo.address.street}, ${businessInfo.address.city}, ${businessInfo.address.state}`);
 ---
 
@@ -92,9 +89,9 @@ const addressQuery = encodeURIComponent(`${businessInfo.address.street}, ${busin
 
     <div class="footer__column footer__column--center">
       <h3 class="footer__heading">Gym Capacity</h3>
-      <p class="footer__capacity-number">{currentCapacity} / {maxCapacity}</p>
-      <div class="footer__capacity-track" role="progressbar" aria-valuenow={capacityPercent} aria-valuemin="0" aria-valuemax="100" aria-label={`${capacityPercent}% capacity`}>
-        <div class="footer__capacity-fill" style={`width: ${capacityPercent}%`}></div>
+      <p class="footer__capacity-number" id="footer-capacity-number">&mdash; / {maxCapacity}</p>
+      <div class="footer__capacity-track" id="footer-capacity-track" data-max={maxCapacity} role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Loading gym capacity">
+        <div class="footer__capacity-fill" id="footer-capacity-fill" style="width: 0%"></div>
       </div>
     </div>
 
@@ -360,6 +357,30 @@ const addressQuery = encodeURIComponent(`${businessInfo.address.street}, ${busin
     const yearElement = document.getElementById('footer-year');
     if (yearElement) {
       yearElement.textContent = new Date().getFullYear().toString();
+    }
+
+    // Live gym-capacity meter. Fetch the real check-in/out count from the SSR
+    // endpoint and fill in the number + progress bar. On any failure we leave
+    // the neutral loading state ("— / max") rather than show a bogus number.
+    const numberEl = document.getElementById('footer-capacity-number');
+    const trackEl = document.getElementById('footer-capacity-track');
+    const fillEl = document.getElementById('footer-capacity-fill');
+    if (numberEl && trackEl && fillEl) {
+      const max = Number(trackEl.getAttribute('data-max')) || 100;
+      fetch('/api/capacity.json')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data || !data.ok || typeof data.currentCapacity !== 'number') return;
+          const current = Math.max(0, Math.round(data.currentCapacity));
+          const percent = Math.max(0, Math.min(100, Math.round((current / max) * 100)));
+          numberEl.textContent = current + ' / ' + max;
+          fillEl.style.width = percent + '%';
+          trackEl.setAttribute('aria-valuenow', String(percent));
+          trackEl.setAttribute('aria-label', percent + '% capacity');
+        })
+        .catch(() => {
+          /* leave the loading state on network error */
+        });
     }
   })();
 </script>

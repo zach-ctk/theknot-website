@@ -231,14 +231,15 @@ const bottomCta = membershipPage.bottomCta;
   <section class="hero-section">
     <div class="hero-background">
       <video
-        data-membership-hero-video
+        autoplay
         muted
         loop
         playsinline
-        preload="none"
+        preload="metadata"
         poster={membershipHeroImage}
         class="hero-video"
       >
+        <source src={membershipHeroVideo} type="video/mp4" />
       </video>
       <img
         src={membershipHeroImage}
@@ -471,45 +472,6 @@ const bottomCta = membershipPage.bottomCta;
     )
   }
 
-  <script is:inline define:vars={{ membershipHeroVideo }}>
-    (() => {
-      const video = document.querySelector("[data-membership-hero-video]");
-      if (!video) return;
-      const source = membershipHeroVideo;
-
-      const hydrateVideo = () => {
-        if (video.dataset.loaded === "true") return;
-        const sourceEl = document.createElement("source");
-        sourceEl.src = source;
-        sourceEl.type = "video/mp4";
-        video.appendChild(sourceEl);
-        video.load();
-        const playPromise = video.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {});
-        }
-        video.dataset.loaded = "true";
-      };
-
-      const scheduleHydration = () => {
-        window.setTimeout(hydrateVideo, 3500);
-      };
-
-      if (document.readyState === "complete") {
-        scheduleHydration();
-      } else {
-        window.addEventListener("load", scheduleHydration, { once: true });
-      }
-
-      // If user interacts early, hydrate immediately to avoid perceived delay.
-      ["pointerdown", "keydown", "touchstart"].forEach((eventName) => {
-        window.addEventListener(eventName, hydrateVideo, {
-          once: true,
-          passive: true,
-        });
-      });
-    })();
-  </script>
 </BaseLayout>
 
 <style>

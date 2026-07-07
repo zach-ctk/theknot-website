@@ -4,8 +4,7 @@
     "subtext": "Make changes to or start your membership on the Redpoint Member Portal!\n\nPurchase a membership, update contact information or billing, temporarily freeze your account or request to cancel.",
     "backgroundVideo": "/images/canva-final/membership-hero.mp4",
     "backgroundVideoLibraryPath": "public/images/canva-final/membership-hero.mp4",
-    "backgroundImage": "/images/canva-final/canva-hills-background.jpg",
-    "backgroundImageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+    "backgroundImageLibraryPath": "public/images/canva-final/membership-hero-poster.jpg"
   },
   "portalButton": {
     "text": "REDPOINT MEMBER PORTAL",
@@ -14,12 +13,12 @@
   "pricing": {
     "headline": "START YOUR MEMBERSHIP TODAY FOR ONLY",
     "monthlyPrice": "$80/month",
-    "cancelText": "Cancel anytime",
     "billingText": "We prorate your first month of membership, which means you're only paying for the remaining days of the month. Then, it's just $80/month, billed on the first of every month.\n\nThere's no contracts, start-up or cancellation fees - so cancel anytime, no strings attached. Cancellation requests will go into effect prior to the next billing cycle. You can enjoy your membership for the remainder of the month, with no worries about it charging you for the next month. All change requests must be submitted at least 5 days prior to billing (usually the 25th of the month), to ensure that we're able to process them in time.\n\nIf you're planning on taking a break, consider our Freeze option instead. Freezing is only $8/month and allows you to easily restart your membership anytime - just pay for the rest of the month & you're good to go!\n\nWe only prorate once, so Cancelled members will have to pay the full membership price when they reactivate their account",
+    "cancelText": "Cancel anytime",
     "buttonText": "REDPOINT MEMBER PORTAL",
     "buttonUrl": "https://portal.climbtheknot.com",
-    "image": "/images/canva-final/membership-wall-gear-1280.jpg",
-    "imageLibraryPath": "public/images/canva-final/membership-wall-gear-1280.jpg"
+    "imageLibraryPath": "public/images/canva-final/membership-wall-gear-1280.jpg",
+    "image": "/images/canva-final/pricing/image.jpg"
   },
   "benefits": [
     {
@@ -31,28 +30,25 @@
       "description": "Additional guest passes available for $15 each. Bring up to 3 guests at one time"
     },
     {
-      "title": "FREE BELAY CLASS + CERTIFICATION",
-      "description": ""
+      "title": "FREE BELAY CLASS + CERTIFICATION"
     },
     {
       "title": "FREE YOGA + FITNESS CLASSES",
       "description": "At least one class offered every single day"
     },
     {
-      "title": "UNLIMITED CLIMBING DURING BUSINESS HOURS",
-      "description": ""
+      "title": "UNLIMITED CLIMBING DURING BUSINESS HOURS"
     },
     {
-      "title": "20% OFF ALL PRODUCTS IN OUR GEAR SHOP",
-      "description": ""
+      "title": "20% OFF ALL PRODUCTS IN OUR GEAR SHOP"
     },
     {
       "title": "MEMBER KEY TAG FOR SPECIAL DISCOUNTS AT LOCAL BUSINESSES",
       "description": "Check out all of the spots below!"
     }
   ],
-  "benefitsImage": "/images/canva-final/membership-climber-benefits-960.jpg",
   "benefitsImageLibraryPath": "public/images/canva-final/membership-climber-benefits-960.jpg",
+  "benefitsImage": "/images/canva-final/benefitsImage.jpg",
   "localDiscounts": {
     "headline": "LOCAL DISCOUNTS",
     "intro": "Bring your member key tag to any of our local partners for a discount on your order! Click on the icons for address, hours, and more info.",
@@ -65,34 +61,27 @@
         "hours": "Everyday 7:30AM - 3PM"
       },
       {
-        "name": "Frenchmen Street Food",
-        "description": ""
+        "name": "Frenchmen Street Food"
       },
       {
-        "name": "Lloyd Clark Sports",
-        "description": ""
+        "name": "Lloyd Clark Sports"
       }
     ],
     "partners10": [
       {
-        "name": "Afternoon Restaurant",
-        "description": ""
+        "name": "Afternoon Restaurant"
       },
       {
-        "name": "Humble Wood Fire (Pizza)",
-        "description": ""
+        "name": "Humble Wood Fire (Pizza)"
       },
       {
-        "name": "Humble Wood Fire (Bagels)",
-        "description": ""
+        "name": "Humble Wood Fire (Bagels)"
       },
       {
-        "name": "Cry Baby's",
-        "description": ""
+        "name": "Cry Baby's"
       },
       {
-        "name": "Baby J's",
-        "description": ""
+        "name": "Baby J's"
       }
     ]
   },
