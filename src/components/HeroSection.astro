@@ -130,7 +130,20 @@ const isPageCover = variant === 'page-cover';
   }
 
   .hero--home .hero__content {
-    margin-left: 48px;
+    width: 100%;
+    max-width: 1296px;
+    margin: 0 auto;
+  }
+
+  /* Keep hero copy in a readable column while the content box
+     aligns to the shared page container edge. */
+  .hero--home .hero__headline {
+    max-width: 960px;
+    font-size: clamp(50px, 5.6vw, 80px);
+  }
+
+  .hero--home .hero__subtext {
+    max-width: 760px;
   }
 
   .hero--page-cover .hero__content {
@@ -182,7 +195,6 @@ const isPageCover = variant === 'page-cover';
   /* Tablet */
   @media (max-width: 1024px) {
     .hero--home .hero__content {
-      margin-left: 32px;
       padding: 100px 32px 60px;
     }
 
@@ -213,7 +225,7 @@ const isPageCover = variant === 'page-cover';
     }
 
     .hero__content {
-      padding: 100px 20px 60px;
+      padding: 100px 24px 60px;
       margin-left: 0;
       margin-right: 0;
       text-align: center;
@@ -238,6 +250,13 @@ const isPageCover = variant === 'page-cover';
     .hero__button {
       width: 100%;
       max-width: 280px;
+    }
+  }
+
+  @media (max-width: 375px) {
+    .hero--home .hero__content {
+      padding-left: 16px;
+      padding-right: 16px;
     }
   }
 </style>

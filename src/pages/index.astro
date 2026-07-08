@@ -1,46 +1,47 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroSection from '../components/HeroSection.astro';
-import Accordion from '../components/Accordion.tsx';
-import { getCollection } from 'astro:content';
-import fs from 'node:fs';
-import path from 'node:path';
-import ProratedMembershipPrice from '@/components/ProratedMembershipPrice.astro';
-import { colors } from '@content/brand.json';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HeroSection from "../components/HeroSection.astro";
+import Accordion from "../components/Accordion.tsx";
+import { getCollection } from "astro:content";
+import fs from "node:fs";
+import path from "node:path";
+import ProratedMembershipPrice from "@/components/ProratedMembershipPrice.astro";
+import { colors } from "@content/brand.json";
 
 // Load home page content from Keystatic
 let homeContent;
 try {
-  const homePagePath = path.join(process.cwd(), 'src/content/pages/home.json');
-  const raw = fs.readFileSync(homePagePath, 'utf-8');
+  const homePagePath = path.join(process.cwd(), "src/content/pages/home.json");
+  const raw = fs.readFileSync(homePagePath, "utf-8");
   homeContent = JSON.parse(raw);
 } catch (e) {
   // Fallback content if file doesn't exist
   homeContent = {
     hero: {
-      headline: 'CLIMB. TRAIN. LEARN.',
+      headline: "CLIMB. TRAIN. LEARN.",
       subtext: [
         "Built by climbers, The Knot is Gainesville's hub for the climbing community.",
-        "Want to pick up a new exciting hobby that can take you on adventures around the world? Want to stay in shape through a fun, community-focused sport? Whatever your climbing goals, we've got you covered with a variety of climbing surfaces, training equipment, classes, on-site gear store, and yoga."
+        "Want to pick up a new exciting hobby that can take you on adventures around the world? Want to stay in shape through a fun, community-focused sport? Whatever your climbing goals, we've got you covered with a variety of climbing surfaces, training equipment, classes, on-site gear store, and yoga.",
       ],
-      buttonText: 'START CLIMBING',
-      buttonLink: '/new-climbers',
+      buttonText: "START CLIMBING",
+      buttonLink: "/new-climbers",
     },
     membership: {
-      headline: 'START YOUR MEMBERSHIP TODAY FOR',
-      monthlyRate: 'Then $80/month, billed on the first of every month.',
-      description: 'Only pay for the remaining days of this month, then cancel anytime with no contract or additional fees.',
-      buttonText: 'JOIN NOW',
-      buttonLink: 'https://portal.climbtheknot.com/gnv/memberships/join',
+      headline: "START YOUR MEMBERSHIP TODAY FOR",
+      monthlyRate: "Then $80/month, billed on the first of every month.",
+      description:
+        "Only pay for the remaining days of this month, then cancel anytime with no contract or additional fees.",
+      buttonText: "JOIN NOW",
+      buttonLink: "https://portal.climbtheknot.com/gnv",
     },
     notReadySection: {
-      headline: 'NOT READY TO COMMIT? NO PROBLEM!',
+      headline: "NOT READY TO COMMIT? NO PROBLEM!",
     },
-    ratesPoliciesHeadline: 'RATES & POLICIES',
+    ratesPoliciesHeadline: "RATES & POLICIES",
     codeOfConduct: {
-      headline: 'CODE OF CONDUCT',
+      headline: "CODE OF CONDUCT",
       paragraphs: [
-        'At The Knot Climbing Gym, we are committed to providing a welcoming, inclusive, and safe environment for all of our climbers and staff. We believe that everyone deserves to feel respected and valued while enjoying their time in our facility.',
+        "At The Knot Climbing Gym, we are committed to providing a welcoming, inclusive, and safe environment for all of our climbers and staff. We believe that everyone deserves to feel respected and valued while enjoying their time in our facility.",
         "As such, we have a zero-tolerance policy for any form of harassment, discrimination, violence, suggestion of violence, hate speech, or any other unwanted behavior that makes others feel uncomfortable. This policy may (at management's sole discretion) be applied to behavior both inside and outside The Knot Climbing Gym.",
       ],
     },
@@ -53,26 +54,30 @@ const membershipContent = homeContent.membership;
 const notReadySectionContent = homeContent.notReadySection;
 const ratesPoliciesHeadline = homeContent.ratesPoliciesHeadline;
 const toPublicUrl = (libraryPath?: string) =>
-  libraryPath && libraryPath.startsWith('public/')
-    ? `/${libraryPath.slice('public/'.length)}`
+  libraryPath && libraryPath.startsWith("public/")
+    ? `/${libraryPath.slice("public/".length)}`
     : undefined;
 
-const heroImageFromCms = heroContent?.backgroundImage || toPublicUrl(heroContent?.backgroundImageLibraryPath);
+const heroImageFromCms =
+  heroContent?.backgroundImage ||
+  toPublicUrl(heroContent?.backgroundImageLibraryPath);
 const homeHeroImage =
-  heroImageFromCms === '/images/canva-final/home-hero-bg.jpg'
-    ? '/images/canva-final/home-hero-bg-1366.jpg'
-    : (heroImageFromCms || '/images/canva-final/home-hero-bg-1366.jpg');
+  heroImageFromCms === "/images/canva-final/home-hero-bg.jpg"
+    ? "/images/canva-final/home-hero-bg-1366.jpg"
+    : heroImageFromCms || "/images/canva-final/home-hero-bg-1366.jpg";
 const membershipImageFromCms =
   membershipContent?.image || toPublicUrl(membershipContent?.imageLibraryPath);
 const membershipPromoImage =
-  membershipImageFromCms === '/images/canva-final/home-hero-bg.jpg'
-    ? '/images/canva-final/home-hero-bg-1366.jpg'
-    : (membershipImageFromCms || '/images/canva-final/home-hero-bg-1366.jpg');
-const heroVideoPath = heroContent?.backgroundVideo || toPublicUrl(heroContent?.backgroundVideoLibraryPath);
+  membershipImageFromCms === "/images/canva-final/home-hero-bg.jpg"
+    ? "/images/canva-final/home-hero-bg-1366.jpg"
+    : membershipImageFromCms || "/images/canva-final/home-hero-bg-1366.jpg";
+const heroVideoPath =
+  heroContent?.backgroundVideo ||
+  toPublicUrl(heroContent?.backgroundVideoLibraryPath);
 
 const richTextToPlainText = (value: unknown): string => {
-  if (!value) return '';
-  if (typeof value === 'string') return value;
+  if (!value) return "";
+  if (typeof value === "string") return value;
 
   const blocks = Array.isArray(value)
     ? value
@@ -82,19 +87,21 @@ const richTextToPlainText = (value: unknown): string => {
 
   return blocks
     .map((block) => {
-      const children = Array.isArray((block as { children?: unknown[] }).children)
+      const children = Array.isArray(
+        (block as { children?: unknown[] }).children,
+      )
         ? (block as { children?: unknown[] }).children || []
         : [];
       return children
         .map((child) =>
-          typeof (child as { text?: unknown }).text === 'string'
-            ? ((child as { text?: string }).text || '')
-            : ''
+          typeof (child as { text?: unknown }).text === "string"
+            ? (child as { text?: string }).text || ""
+            : "",
         )
-        .join('');
+        .join("");
     })
     .filter(Boolean)
-    .join('\n\n');
+    .join("\n\n");
 };
 
 // Load policies for home accordion.
@@ -104,10 +111,10 @@ let policies = [];
 const singletonPolicies = Array.isArray(homeContent?.ratesPoliciesItems)
   ? homeContent.ratesPoliciesItems
       .map((item: any) => ({
-        title: item?.title || '',
-        content: item?.content || '',
-        buttonText: item?.buttonText || '',
-        buttonLink: item?.buttonLink || '',
+        title: item?.title || "",
+        content: item?.content || "",
+        buttonText: item?.buttonText || "",
+        buttonLink: item?.buttonLink || "",
         order: item?.order,
       }))
       .filter((item: any) => item.title && item.content)
@@ -118,7 +125,7 @@ if (singletonPolicies.length > 0) {
   policies = singletonPolicies;
 } else {
   try {
-    const policiesCollection = await getCollection('policies');
+    const policiesCollection = await getCollection("policies");
     policies = policiesCollection
       .map((p) => ({
         title: p.data.title,
@@ -131,39 +138,41 @@ if (singletonPolicies.length > 0) {
       .sort((a, b) => (a.order || 99) - (b.order || 99));
 
     if (policies.length === 0) {
-      throw new Error('No usable policy entries found in collection');
+      throw new Error("No usable policy entries found in collection");
     }
   } catch {
     policies = [
       {
-        title: 'BILLING & PAYMENTS',
+        title: "BILLING & PAYMENTS",
         content: `Payments & billing changes processed on the 1st of each month.\n\nSubmit all change requests by the 25th to ensure they'll be processed before billing.`,
-        buttonText: 'UPDATE BILLING',
-        buttonLink: 'https://portal.climbtheknot.com/gnv/account/billing',
+        buttonText: "UPDATE BILLING",
+        buttonLink: "https://portal.climbtheknot.com/gnv/account/billing",
       },
       {
-        title: 'MEMBERSHIP FREEZE',
+        title: "MEMBERSHIP FREEZE",
         content: `Freeze for $8/month (Minimum 1 month).\n\nLocks in your rate - even if we change pricing!\n\nEasy restart - just pay the prorated amount & resume billing.`,
-        buttonText: 'FREEZE YOUR MEMBERSHIP',
-        buttonLink: 'https://portal.climbtheknot.com/gnv/account/change-request',
+        buttonText: "FREEZE YOUR MEMBERSHIP",
+        buttonLink:
+          "https://portal.climbtheknot.com/gnv/account/change-request",
       },
       {
-        title: 'CANCELLATIONS',
+        title: "CANCELLATIONS",
         content: `Cancel anytime - Cancellations go into effect prior to billing on the first of the following month.\n\nPlanning on returning? Check out our Freeze option instead to come back on the Prorated amount.`,
-        buttonText: 'TERMINATE YOUR MEMBERSHIP',
-        buttonLink: 'https://portal.climbtheknot.com/gnv/account/change-request',
+        buttonText: "TERMINATE YOUR MEMBERSHIP",
+        buttonLink:
+          "https://portal.climbtheknot.com/gnv/account/change-request",
       },
       {
-        title: 'KIDS POLICIES',
+        title: "KIDS POLICIES",
         content: `We're excited to welcome kids and youth climbers into our space. To keep the gym safe and fun for everyone, we have a few important policies in place:\n\n- Children under 5 are not permitted to climb in our facility.\n- Children 12 and under must be actively supervised by an adult at all times. We follow a 1:1 adult-to-child ratio.\n- For youth ages 13-15, we require at least one adult for every four climbers (4:1 ratio).\n\nIMPORTANT NOTE: The gym can get crowded during peak hours. We recommend that climbers 12 and under plan to finish their sessions before 6 PM on busy evenings.`,
-        buttonText: 'KIDS POLICIES',
-        buttonLink: 'https://portal.climbtheknot.com/gnv/policies/kids',
+        buttonText: "KIDS POLICIES",
+        buttonLink: "https://portal.climbtheknot.com/gnv/policies/kids",
       },
       {
-        title: 'YOUTH MEMBERSHIPS',
+        title: "YOUTH MEMBERSHIPS",
         content: `Kids & Youth memberships must be attached to a full-price adult membership ($80/month) and do not receive full member benefits.\n\n- Kids Membership (Ages 5 - 12): $25/month\n- Youth Membership (Ages 13 - 17): $45/month`,
-        buttonText: 'MEMBERSHIP PAGE',
-        buttonLink: '/membership#benefits',
+        buttonText: "MEMBERSHIP PAGE",
+        buttonLink: "/membership#benefits",
       },
     ];
   }
@@ -171,31 +180,35 @@ if (singletonPolicies.length > 0) {
 
 const fallbackNotReadyCards = [
   {
-    label: 'Day Passes',
-    description: 'Try it out just for the day! Available Mon - Fri from 10am - 3pm',
-    buttonText: 'MORE INFO',
-    buttonLink: '/new-climbers#day-passes',
-    image: '/images/canva-final/home-card-day-passes.jpg',
+    label: "Day Passes",
+    description:
+      "Try it out just for the day! Available Mon - Fri from 10am - 3pm",
+    buttonText: "MORE INFO",
+    buttonLink: "/new-climbers#day-passes",
+    image: "/images/canva-final/home-card-day-passes.jpg",
   },
   {
-    label: 'Private Belayer',
-    description: 'Hire a staff member to hold the ropes for you! Available by appointment only.',
-    buttonText: 'SCHEDULE',
-    buttonLink: 'https://portal.climbtheknot.com/gnv/services/private-belayer',
-    image: '/images/canva-final/home-card-private-belayer.jpg',
+    label: "Private Belayer",
+    description:
+      "Hire a staff member to hold the ropes for you! Available by appointment only.",
+    buttonText: "SCHEDULE",
+    buttonLink: "https://portal.climbtheknot.com/gnv/programs/private-belaying",
+    image: "/images/canva-final/home-card-private-belayer.jpg",
   },
   {
-    label: 'Intro to Climbing',
-    description: 'Learn the basics to get started with bouldering. Sign up for our next class!',
-    buttonText: 'REGISTRATION',
-    buttonLink: 'https://portal.climbtheknot.com/gnv/services/intro-class',
-    image: '/images/canva-final/home-card-intro-climbing.jpg',
+    label: "Intro to Climbing",
+    description:
+      "Learn the basics to get started with bouldering. Sign up for our next class!",
+    buttonText: "REGISTRATION",
+    buttonLink:
+      "https://portal.climbtheknot.com/gnv/programs/intro-to-climbing",
+    image: "/images/canva-final/home-card-intro-climbing.jpg",
   },
 ];
 
 let notReadyCards = [...fallbackNotReadyCards];
 try {
-  const cardsCollection = await getCollection('not-ready-cards');
+  const cardsCollection = await getCollection("not-ready-cards");
   if (cardsCollection.length > 0) {
     notReadyCards = cardsCollection
       .map((card) => ({
@@ -206,7 +219,7 @@ try {
         image:
           card.data.image ||
           toPublicUrl(card.data.imageLibraryPath) ||
-          '/images/canva-final/canva-hills-background.jpg',
+          "/images/canva-final/canva-hills-background.jpg",
         order: card.data.order,
       }))
       .sort((a, b) => (a.order || 99) - (b.order || 99));
@@ -231,108 +244,108 @@ try {
 
   <!-- Membership Pricing CTA Section -->
   <section class="membership-section">
-    <h2 class="membership-headline">
-      {membershipContent.headline}<br />
-      <span class="price-highlight"><ProratedMembershipPrice color={colors.manatee} /></span>
-    </h2>
-
-    <div class="pricing-container">
-      <div class="pricing-image">
-        <img
-          src={membershipPromoImage}
-          alt="Climber reaching for hold at The Knot"
-          loading="lazy"
-          width="500"
-          height="281"
-          decoding="async"
-        />
-      </div>
-
-      <div class="pricing-info">
-        <p class="pricing-note">{membershipContent.monthlyRate}</p>
-        <p class="pricing-subtext">{membershipContent.description}</p>
-        <a
-          href={membershipContent.buttonLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn-blue join-button"
+    <div class="home-container">
+      <h2 class="membership-headline">
+        {membershipContent.headline}{" "}
+        <span class="price-highlight"
+          ><ProratedMembershipPrice color={colors.manatee} /></span
         >
-          {membershipContent.buttonText}
-        </a>
+      </h2>
+
+      <div class="pricing-container">
+        <div class="pricing-image">
+          <img
+            src={membershipPromoImage}
+            alt="Climber reaching for hold at The Knot"
+            loading="lazy"
+            width="500"
+            height="281"
+            decoding="async"
+          />
+        </div>
+
+        <div class="pricing-info">
+          <p class="pricing-note">{membershipContent.monthlyRate}</p>
+          <p class="pricing-subtext">{membershipContent.description}</p>
+          <a
+            href={membershipContent.buttonLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-blue join-button"
+          >
+            {membershipContent.buttonText}
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Rates & Policies Accordion -->
   <section class="policies-section">
-    <h2 class="policies-heading">{ratesPoliciesHeadline}</h2>
-    <Accordion client:visible items={policies} />
+    <div class="home-container">
+      <h2 class="policies-heading">{ratesPoliciesHeadline}</h2>
+      <Accordion client:visible items={policies} />
+    </div>
   </section>
 
   <!-- Not Ready to Commit - Three Card Section -->
   <section class="not-ready-section">
     <div class="not-ready-container">
-      <h2 class="not-ready-heading">{notReadySectionContent?.headline || 'NOT READY TO COMMIT? NO PROBLEM!'}</h2>
+      <h2 class="not-ready-heading">
+        {notReadySectionContent?.headline || "NOT READY TO COMMIT? NO PROBLEM!"}
+      </h2>
       <div class="not-ready-grid">
-        {notReadyCards.map((card) => (
-          <article class="not-ready-card">
-            <img
-              src={card.image || '/images/canva-final/canva-hills-background.jpg'}
-              alt={card.label}
-              class="not-ready-image"
-              loading="lazy"
-              decoding="async"
-              width="565"
-              height="260"
-            />
-            <h3 class="not-ready-title">{card.label}</h3>
-            <p class="not-ready-copy">{card.description}</p>
-            <a
-              href={card.buttonLink}
-              class="btn-red not-ready-button"
-              target={card.buttonLink.startsWith('http') ? '_blank' : undefined}
-              rel={card.buttonLink.startsWith('http') ? 'noopener noreferrer' : undefined}
-            >
-              {card.buttonText}
-            </a>
-          </article>
-        ))}
+        {
+          notReadyCards.map((card) => (
+            <article class="not-ready-card">
+              <img
+                src={
+                  card.image || "/images/canva-final/canva-hills-background.jpg"
+                }
+                alt={card.label}
+                class="not-ready-image"
+                loading="lazy"
+                decoding="async"
+                width="565"
+                height="260"
+              />
+              <h3 class="not-ready-title">{card.label}</h3>
+              <p class="not-ready-copy">{card.description}</p>
+              <a
+                href={card.buttonLink}
+                class="btn-red not-ready-button"
+                target={
+                  card.buttonLink.startsWith("http") ? "_blank" : undefined
+                }
+                rel={
+                  card.buttonLink.startsWith("http")
+                    ? "noopener noreferrer"
+                    : undefined
+                }
+              >
+                {card.buttonText}
+              </a>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
 
   <!-- CTA Section with both button types -->
-  {(homeContent.ctaSection?.enabled !== false) && (
-    <section class="cta-section">
-      <h2 class="cta-headline">{homeContent.ctaSection?.headline || 'READY TO GET STARTED?'}</h2>
-      <p class="cta-subtext">{homeContent.ctaSection?.subtext || 'Join the climbing community today and start your journey.'}</p>
-      <div class="cta-buttons">
-        {(homeContent.ctaSection?.buttons && homeContent.ctaSection.buttons.length > 0) ? (
-          homeContent.ctaSection.buttons.map((btn: any) => (
-            <a
-              href={btn.url}
-              target={btn.url.startsWith('http') ? '_blank' : undefined}
-              rel={btn.url.startsWith('http') ? 'noopener noreferrer' : undefined}
-              class={btn.style === 'red' ? 'btn-red' : 'btn-blue'}
-            >
-              {btn.text}
-            </a>
-          ))
-        ) : (
-          <>
-            <a href="https://portal.climbtheknot.com/gnv/memberships/join" target="_blank" rel="noopener noreferrer" class="btn-blue">BECOME A MEMBER</a>
-            <a href="/new-climbers" class="btn-red">LEARN MORE</a>
-          </>
-        )}
-      </div>
-    </section>
-  )}
-
 </BaseLayout>
 
 <style>
+  /* Shared content wrapper — keeps every block's left/right edges aligned
+     with the hero and with each other across all viewport widths. */
+  .home-container {
+    max-width: 1296px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
   .membership-section {
-    padding: 64px 48px 40px;
+    padding: 64px 0 40px;
     background: #000;
   }
 
@@ -341,7 +354,7 @@ try {
     color: #fff;
     text-align: center;
     font-family: var(--font-heading);
-    font-size: clamp(42px, 5.4vw, 76px);
+    font-size: clamp(40px, 4.9vw, 70px);
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -349,12 +362,10 @@ try {
   }
 
   .price-highlight {
-    color: #84BABF;
+    color: #84babf;
   }
 
   .pricing-container {
-    max-width: 1200px;
-    margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 56px;
@@ -403,7 +414,7 @@ try {
   }
 
   .policies-section {
-    padding: 0 48px 56px;
+    padding: 0 0 56px;
     background: #000;
   }
 
@@ -411,7 +422,7 @@ try {
     margin: 0 0 24px;
     color: #fff;
     font-family: var(--font-heading);
-    font-size: clamp(42px, 5vw, 68px);
+    font-size: clamp(40px, 4.9vw, 70px);
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -424,7 +435,7 @@ try {
   }
 
   .not-ready-container {
-    max-width: 1320px;
+    max-width: 1296px;
     margin: 0 auto;
     padding: 0 48px;
   }
@@ -434,7 +445,7 @@ try {
     color: #fff;
     text-align: center;
     font-family: var(--font-heading);
-    font-size: clamp(42px, 5vw, 72px);
+    font-size: clamp(40px, 4.9vw, 70px);
     font-weight: 900;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -508,7 +519,7 @@ try {
   }
 
   .cta-section {
-    padding: 80px 48px;
+    padding: 80px 0;
     background-color: #111;
     text-align: center;
   }
@@ -544,10 +555,13 @@ try {
     text-decoration: none;
   }
 
-
   @media (max-width: 1024px) {
+    .home-container {
+      padding: 0 32px;
+    }
+
     .membership-section {
-      padding: 52px 32px 32px;
+      padding: 52px 0 32px;
     }
 
     .pricing-container {
@@ -573,13 +587,17 @@ try {
     }
 
     .cta-section {
-      padding: 64px 32px;
+      padding: 64px 0;
     }
   }
 
   @media (max-width: 768px) {
+    .home-container {
+      padding: 0 24px;
+    }
+
     .membership-section {
-      padding: 48px 24px 28px;
+      padding: 48px 0 28px;
     }
 
     .pricing-container {
@@ -601,7 +619,7 @@ try {
     }
 
     .policies-section {
-      padding: 0 16px 44px;
+      padding: 0 0 44px;
     }
 
     .not-ready-section {
@@ -622,7 +640,7 @@ try {
     }
 
     .cta-section {
-      padding: 48px 24px;
+      padding: 48px 0;
     }
 
     .cta-buttons {
@@ -636,14 +654,11 @@ try {
       width: 100%;
       max-width: 320px;
     }
-
   }
 
   @media (max-width: 375px) {
-    .membership-section,
-    .cta-section {
-      padding-left: 16px;
-      padding-right: 16px;
+    .home-container {
+      padding: 0 16px;
     }
 
     .not-ready-container {

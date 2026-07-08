@@ -2,7 +2,7 @@
   "label": "Private Belayer",
   "description": "Hire a staff member to hold the ropes for you! Available by appointment only.",
   "buttonText": "SCHEDULE",
-  "buttonLink": "https://portal.climbtheknot.com/gnv/services/private-belayer",
+  "buttonLink": "https://portal.climbtheknot.com/gnv/programs/private-belaying",
   "imageLibraryPath": "public/images/canva-final/home-card-private-belayer.jpg",
   "image": "/images/canva-final/home-card-private-belayer.jpg",
   "order": 2

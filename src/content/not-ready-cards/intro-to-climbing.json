@@ -2,7 +2,7 @@
   "label": "Intro to Climbing",
   "description": "Learn the basics to get started with bouldering. Sign up for our next class!",
   "buttonText": "REGISTRATION",
-  "buttonLink": "https://portal.climbtheknot.com/gnv/services/intro-class",
+  "buttonLink": "https://portal.climbtheknot.com/gnv/programs/intro-to-climbing",
   "imageLibraryPath": "public/images/canva-final/home-card-intro-climbing.jpg",
   "image": "/images/canva-final/home-card-intro-climbing.jpg",
   "order": 3
