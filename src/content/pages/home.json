@@ -16,8 +16,7 @@
     "description": "Only pay for the remaining days of this month, then cancel anytime with no contract or additional fees.",
     "buttonText": "JOIN NOW",
     "buttonLink": "https://portal.climbtheknot.com/gnv",
-    "imageLibraryPath": "public/images/canva-final/home-membership-cta.jpg",
-    "image": "/images/canva-final/membership/image.jpg"
+    "imageLibraryPath": "public/images/canva-final/photos/home-membership-section.jpg"
   },
   "notReadySection": {
     "headline": "NOT READY TO COMMIT? NO PROBLEM!"

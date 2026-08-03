@@ -1,31 +1,26 @@
 {
   "hero": {
     "headline": "ABOUT & FAQ",
-    "backgroundImage": "/images/canva-final/about-building-facade.jpg",
-    "backgroundImageLibraryPath": "public/images/canva-final/about-building-facade.jpg"
+    "backgroundImageLibraryPath": "public/images/canva-final/photos/about-hero.jpg",
+    "objectPositionY": 25
   },
   "aboutIntro": "Opened in 2021, The Knot Climbing Gym is a full-service indoor rock climbing gym that offers climbing, yoga, and other forms of fitness.\n\nWe aim to provide an experience that is accessible and enriches the lives of members, guests, and the surrounding community.\n\nClimbing is at the heart of everything we do. We strive to create a memorable experience for all who visit our facility. At the heart of our brand is a team of skilled, passionate routesetters, instructors, and staff who are here to help you reach your climbing goals.",
   "coreValuesHeadline": "CORE VALUES",
   "coreValues": [
     {
-      "title": "CONSCIOUSLY AWARE",
-      "content": ""
+      "title": "CONSCIOUSLY AWARE"
     },
     {
-      "title": "RADICALLY BOLD",
-      "content": ""
+      "title": "RADICALLY BOLD"
     },
     {
-      "title": "IMPACT DRIVEN",
-      "content": ""
+      "title": "IMPACT DRIVEN"
     },
     {
-      "title": "REMAIN AUTHENTIC",
-      "content": ""
+      "title": "REMAIN AUTHENTIC"
     },
     {
-      "title": "GET STOKED, STAY STOKED",
-      "content": ""
+      "title": "GET STOKED, STAY STOKED"
     }
   ],
   "meetTheTeamHeadline": "MEET THE TEAM",

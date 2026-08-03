@@ -1,4 +1,5 @@
 import { config, fields, collection, singleton } from '@keystatic/core';
+import { createElement, Fragment, type FunctionComponent } from 'react';
 
 const CMS_IMAGE_DIRECTORY = 'public/images/canva-final';
 const CMS_IMAGE_PUBLIC_PATH = '/images/canva-final/';
@@ -66,18 +67,111 @@ function objectPositionYField() {
   });
 }
 
-// Size guidance appended to image/video field descriptions. Soft reminders only —
-// not enforced by upload validation.
+// Size guidance appended to image/video field descriptions. These are the sizes
+// to aim for; the hard ceiling that's actually enforced is MAX_UPLOAD_KB below.
 const SIZE_GUIDANCE = {
   heroImage: 'Recommended: 1600–2400px wide, ≤ 800KB, JPG or WebP.',
   heroVideo: 'Recommended: 1280–1920px wide, ≤ 5MB, MP4 (H.264).',
   sectionImage: 'Recommended: 1000–1400px wide, ≤ 500KB.',
   cardImage: 'Recommended: 800–1200px wide, ≤ 300KB.',
+  partnerLogo: 'Recommended: square crop, 400–600px, ≤ 100KB, JPG, PNG, or WebP.',
   pricingImage: 'Recommended: 800–1200px wide, ≤ 300KB.',
   teamPhoto: 'Recommended: 600–800px, square crop, ≤ 150KB.',
   eventImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
   productImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
 } as const;
+
+// Hard upload ceilings, enforced by imageUploadField. Set well above the
+// SIZE_GUIDANCE targets on purpose: the job here is to stop a full-resolution
+// camera original (10–20MB) from reaching the site, not to reject a reasonable
+// export that lands a little over target. Raise or lower per slot as needed.
+// Values are multiples of 1024 so they render as round numbers (2.5MB, not 2.4MB).
+const MAX_UPLOAD_KB = {
+  heroImage: 2560,
+  sectionImage: 2048,
+  cardImage: 1536,
+  pricingImage: 1536,
+  eventImage: 1536,
+  productImage: 1536,
+  teamPhoto: 1024,
+  partnerLogo: 1024,
+} as const;
+
+type ImageKind = keyof typeof MAX_UPLOAD_KB;
+
+function formatBytes(bytes: number) {
+  return bytes >= 1024 * 1024
+    ? `${(bytes / (1024 * 1024)).toFixed(1)}MB`
+    : `${Math.round(bytes / 1024)}KB`;
+}
+
+// Keystatic's fields.image only validates `isRequired`, so a size limit has to be
+// layered on top. Two halves, both needed: `validate` is what actually blocks the
+// save, and `Input` renders the reason inline — Keystatic only console.warns
+// validation errors, so without the message the save button would just fail
+// silently and look broken.
+function imageUploadField(label: string, kind: ImageKind, descriptionPrefix = '') {
+  const maxBytes = MAX_UPLOAD_KB[kind] * 1024;
+  const base = fields.image({
+    label,
+    description: `${descriptionPrefix}${SIZE_GUIDANCE[kind]} Files over ${formatBytes(maxBytes)} are rejected.`,
+    directory: CMS_IMAGE_DIRECTORY,
+    publicPath: CMS_IMAGE_PUBLIC_PATH,
+  });
+
+  type Value = Parameters<typeof base.validate>[0];
+  type InputProps = Parameters<typeof base.Input>[0];
+  const oversize = (value: Value) => !!value && value.data.byteLength > maxBytes;
+
+  // Keystatic's types resolve against a nested @types/react@19 while this project
+  // pins @types/react@18, so their ReactElement types are structurally
+  // incompatible. There's a single React 18 at runtime (Keystatic peers on
+  // ^18.2.0 || ^19.0.0), so these two casts are type-only bridges, not behaviour.
+  const BaseInput = base.Input as unknown as FunctionComponent<InputProps>;
+
+  return {
+    ...base,
+    Input(props: InputProps) {
+      return createElement(
+        Fragment,
+        null,
+        createElement(BaseInput, props),
+        oversize(props.value)
+          ? createElement(
+              'div',
+              {
+                style: {
+                  marginTop: 8,
+                  padding: '8px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #d64545',
+                  background: '#fdeaea',
+                  color: '#8b1f1f',
+                  fontSize: 13,
+                  lineHeight: 1.4,
+                },
+              },
+              `This image is ${formatBytes(
+                props.value!.data.byteLength
+              )} — too large to publish (limit ${formatBytes(maxBytes)}). ${
+                SIZE_GUIDANCE[kind]
+              } Shrink it with a free tool like squoosh.app or tinypng.com, then upload again.`
+            )
+          : null
+      ) as unknown as ReturnType<typeof base.Input>;
+    },
+    validate(value: Value) {
+      if (oversize(value)) {
+        throw new Error(
+          `${label}: image is ${formatBytes(value!.data.byteLength)}, over the ${formatBytes(
+            maxBytes
+          )} limit.`
+        );
+      }
+      return base.validate(value);
+    },
+  };
+}
 
 // 30-minute time slots covering a full day. Value is 24h "HH:MM" (stable, easy to
 // sort/format); label is a friendly 12-hour string shown in the dropdown.
@@ -321,12 +415,7 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -360,12 +449,7 @@ export default config({
               'Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Section Image (optional)',
-              description: SIZE_GUIDANCE.sectionImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField('Upload New Section Image (optional)', 'sectionImage'),
           },
           { label: 'Membership Section' }
         ),
@@ -480,12 +564,7 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -594,16 +673,23 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
           { label: 'Hero Section' }
+        ),
+        manageSection: fields.object(
+          {
+            headline: fields.text({
+              label: 'Section Headline',
+              defaultValue: 'MANAGE YOUR MEMBERSHIP',
+            }),
+          },
+          {
+            label: 'Manage Membership Section',
+            description: 'Body copy for this section comes from the Hero Subtext field.',
+          }
         ),
         portalButton: fields.object(
           {
@@ -617,34 +703,30 @@ export default config({
         ),
         pricing: fields.object(
           {
+            sectionHeading: fields.text({
+              label: 'Section Headline',
+              defaultValue: 'BILLING',
+            }),
             headline: fields.text({
               label: 'Pricing Headline',
-              defaultValue: 'START YOUR MEMBERSHIP TODAY FOR',
+              description: 'Type $XX where the live prorated price should appear.',
+              defaultValue: 'START YOUR MEMBERSHIP TODAY FOR ONLY $XX',
             }),
-            monthlyPrice: fields.text({ label: 'Monthly Price', defaultValue: '$80/month' }),
             billingText: fields.text({
               label: 'Billing/Prorate Text',
               multiline: true,
               description: 'Full paragraph about proration and billing details.',
             }),
-            cancelText: fields.text({ label: 'Cancel Text', defaultValue: 'Cancel anytime' }),
-            buttonText: fields.text({ label: 'CTA Button Text', defaultValue: 'JOIN NOW' }),
-            buttonUrl: fields.text({
-              label: 'CTA Button URL',
-              defaultValue: 'https://portal.climbtheknot.com/gnv/memberships/join',
-            }),
             imageLibraryPath: imageLibraryField(
-              'Pricing Section Image (Media Library)',
+              'Manage Membership Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.pricingImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Pricing Section Image (optional)',
-              description: SIZE_GUIDANCE.pricingImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField(
+              'Upload New Manage Membership Section Image (optional)',
+              'pricingImage'
+            ),
           },
-          { label: 'Pricing Section' }
+          { label: 'Billing Section' }
         ),
         benefits: fields.array(
           fields.object({
@@ -660,12 +742,7 @@ export default config({
           'Benefits Section Image (Media Library)',
           `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
         ),
-        benefitsImage: fields.image({
-          label: 'Upload New Benefits Section Image (optional)',
-          description: SIZE_GUIDANCE.sectionImage,
-          directory: CMS_IMAGE_DIRECTORY,
-          publicPath: CMS_IMAGE_PUBLIC_PATH,
-        }),
+        benefitsImage: imageUploadField('Upload New Benefits Section Image (optional)', 'sectionImage'),
         localDiscounts: fields.object(
           {
             headline: fields.text({
@@ -684,6 +761,7 @@ export default config({
                 description: fields.text({ label: 'Description (optional)', multiline: true }),
                 address: fields.text({ label: 'Address (optional)' }),
                 hours: fields.text({ label: 'Hours (optional)' }),
+                image: imageUploadField('Logo / Photo (optional)', 'partnerLogo'),
               }),
               {
                 label: '15% Off Partners',
@@ -697,6 +775,7 @@ export default config({
                 description: fields.text({ label: 'Description (optional)', multiline: true }),
                 address: fields.text({ label: 'Address (optional)' }),
                 hours: fields.text({ label: 'Hours (optional)' }),
+                image: imageUploadField('Logo / Photo (optional)', 'partnerLogo'),
               }),
               {
                 label: '10% Off Partners',
@@ -710,7 +789,8 @@ export default config({
           {
             headline: fields.text({
               label: 'Headline',
-              defaultValue: 'START YOUR MEMBERSHIP TODAY',
+              description: 'Type $XX where the live prorated price should appear.',
+              defaultValue: 'START YOUR MEMBERSHIP TODAY FOR $XX',
             }),
             description: fields.text({
               label: 'Description',
@@ -745,12 +825,7 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -770,12 +845,7 @@ export default config({
               'Welcome Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Welcome Section Image (optional)',
-              description: SIZE_GUIDANCE.sectionImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField('Upload New Welcome Section Image (optional)', 'sectionImage'),
           },
           { label: 'Welcome Section' }
         ),
@@ -806,12 +876,7 @@ export default config({
               'Day Pass Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Day Pass Section Image (optional)',
-              description: SIZE_GUIDANCE.sectionImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField('Upload New Day Pass Section Image (optional)', 'sectionImage'),
           },
           { label: 'Day Pass Section' }
         ),
@@ -834,12 +899,7 @@ export default config({
               'Card Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Card Image (optional)',
-              description: SIZE_GUIDANCE.cardImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField('Upload New Card Image (optional)', 'cardImage'),
             imageAlt: fields.text({ label: 'Image Alt Text' }),
           }),
           {
@@ -865,12 +925,7 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -899,12 +954,7 @@ export default config({
               'Amenity Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
-            image: fields.image({
-              label: 'Upload New Amenity Image (optional)',
-              description: SIZE_GUIDANCE.cardImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            image: imageUploadField('Upload New Amenity Image (optional)', 'cardImage'),
           }),
           {
             label: 'Amenity Cards',
@@ -939,12 +989,7 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: fields.image({
-              label: 'Upload New Background Image (optional)',
-              description: SIZE_GUIDANCE.heroImage,
-              directory: CMS_IMAGE_DIRECTORY,
-              publicPath: CMS_IMAGE_PUBLIC_PATH,
-            }),
+            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -996,12 +1041,7 @@ export default config({
           `Select an existing file from the shared media library. ${SIZE_GUIDANCE.teamPhoto}`
         ),
         bio: fields.text({ label: 'Bio', multiline: true }),
-        photo: fields.image({
-          label: 'Upload New Photo (optional)',
-          description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.teamPhoto}`,
-          directory: CMS_IMAGE_DIRECTORY,
-          publicPath: CMS_IMAGE_PUBLIC_PATH,
-        }),
+        photo: imageUploadField('Upload New Photo (optional)', 'teamPhoto', 'Optional upload. Use Media Library above for existing files. '),
         order: fields.integer({
           label: 'Display Order',
           defaultValue: 99,
@@ -1041,12 +1081,7 @@ export default config({
           'Event Image (Media Library)',
           `Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
         ),
-        image: fields.image({
-          label: 'Upload New Event Image (optional)',
-          description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.eventImage}`,
-          directory: CMS_IMAGE_DIRECTORY,
-          publicPath: CMS_IMAGE_PUBLIC_PATH,
-        }),
+        image: imageUploadField('Upload New Event Image (optional)', 'eventImage', 'Optional upload. Use Media Library above for existing files. '),
         registrationLink: fields.text({
           label: 'Registration Link',
           description: 'URL for event registration (optional)',
@@ -1066,12 +1101,7 @@ export default config({
                   'Flyer Image (Media Library)',
                   `Shown beside the event details on the dedicated page. Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
                 ),
-                flyer: fields.image({
-                  label: 'Upload New Flyer (optional)',
-                  description: `Optional upload. Use Media Library above for existing files. ${SIZE_GUIDANCE.eventImage}`,
-                  directory: CMS_IMAGE_DIRECTORY,
-                  publicPath: CMS_IMAGE_PUBLIC_PATH,
-                }),
+                flyer: imageUploadField('Upload New Flyer (optional)', 'eventImage', 'Optional upload. Use Media Library above for existing files. '),
               },
               {
                 label: 'Dedicated Event Page',
@@ -1279,12 +1309,7 @@ export default config({
           }
         ),
         images: fields.array(
-          fields.image({
-            label: 'Upload New Image (optional)',
-            description: SIZE_GUIDANCE.productImage,
-            directory: CMS_IMAGE_DIRECTORY,
-            publicPath: CMS_IMAGE_PUBLIC_PATH,
-          }),
+          imageUploadField('Upload New Image (optional)', 'productImage'),
           {
             label: 'Product Images (Upload Fallback)',
             itemLabel: () => 'Uploaded Image',
@@ -1376,12 +1401,7 @@ export default config({
                   'Background Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
                 ),
-                backgroundImage: fields.image({
-                  label: 'Upload New Background Image (optional)',
-                  description: SIZE_GUIDANCE.heroImage,
-                  directory: CMS_IMAGE_DIRECTORY,
-                  publicPath: CMS_IMAGE_PUBLIC_PATH,
-                }),
+                backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
                 objectPositionX: objectPositionXField(),
                 objectPositionY: objectPositionYField(),
               }),
@@ -1435,12 +1455,7 @@ export default config({
                   'Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
                 ),
-                image: fields.image({
-                  label: 'Upload New Image (optional)',
-                  description: SIZE_GUIDANCE.sectionImage,
-                  directory: CMS_IMAGE_DIRECTORY,
-                  publicPath: CMS_IMAGE_PUBLIC_PATH,
-                }),
+                image: imageUploadField('Upload New Image (optional)', 'sectionImage'),
                 alt: fields.text({
                   label: 'Alt Text',
                   description: 'Describes the image for screen readers and SEO. Required.',
@@ -1476,12 +1491,7 @@ export default config({
                   'Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
                 ),
-                image: fields.image({
-                  label: 'Upload New Image (optional)',
-                  description: SIZE_GUIDANCE.sectionImage,
-                  directory: CMS_IMAGE_DIRECTORY,
-                  publicPath: CMS_IMAGE_PUBLIC_PATH,
-                }),
+                image: imageUploadField('Upload New Image (optional)', 'sectionImage'),
                 alt: fields.text({
                   label: 'Image Alt Text',
                   description: 'Required for accessibility.',
@@ -1636,12 +1646,7 @@ export default config({
           'Card Image (Media Library)',
           `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
         ),
-        image: fields.image({
-          label: 'Upload New Card Image (optional)',
-          description: SIZE_GUIDANCE.cardImage,
-          directory: CMS_IMAGE_DIRECTORY,
-          publicPath: CMS_IMAGE_PUBLIC_PATH,
-        }),
+        image: imageUploadField('Upload New Card Image (optional)', 'cardImage'),
         order: fields.integer({
           label: 'Display Order',
           defaultValue: 99,

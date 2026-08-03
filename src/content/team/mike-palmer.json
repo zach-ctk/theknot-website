@@ -2,9 +2,8 @@
   "name": "MIKE PALMER",
   "role": "Owner / CEO",
   "bio": "",
-  "photo": "/images/canva-final/mike-palmer/team-mike-palmer.jpg",
   "order": 1,
   "isLeadership": true,
   "teamGroup": "leadership",
-  "photoLibraryPath": "public/images/canva-final/mike-palmer/team-mike-palmer.jpg"
+  "photoLibraryPath": "public/images/canva-final/photos/team-mike-palmer.jpg"
 }

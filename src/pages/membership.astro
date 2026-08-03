@@ -1,7 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Accordion from "../components/Accordion.tsx";
-import { getCollection } from "astro:content";
+import PageHero from "../components/PageHero.astro";
 import fs from "node:fs";
 import path from "node:path";
 import ProratedMembershipPrice from "@/components/ProratedMembershipPrice.astro";
@@ -13,45 +12,8 @@ interface LocalPartner {
   description?: string;
   address?: string;
   hours?: string;
+  image?: string;
 }
-
-const policyFallback = [
-  {
-    title: "BILLING & PAYMENTS",
-    content:
-      "Payments & billing changes processed on the 1st of each month.\nSubmit all change requests by the 25th to ensure they'll be processed before billing.",
-    buttonText: "UPDATE BILLING",
-    buttonLink: "https://portal.climbtheknot.com/gnv/account/billing",
-  },
-  {
-    title: "MEMBERSHIP FREEZE",
-    content:
-      "Freeze for $8/month (Minimum 1 month).\nLocks in your rate - even if we change pricing!\nEasy restart - just pay the prorated amount & resume billing.",
-    buttonText: "FREEZE YOUR MEMBERSHIP",
-    buttonLink: "https://portal.climbtheknot.com/gnv/account/change-request",
-  },
-  {
-    title: "CANCELLATIONS",
-    content:
-      "Cancel anytime - Cancellations go into effect prior to billing on the first of the following month.\nPlanning on returning? Check out our Freeze option instead to come back on the prorated amount.",
-    buttonText: "TERMINATE YOUR MEMBERSHIP",
-    buttonLink: "https://portal.climbtheknot.com/gnv/account/change-request",
-  },
-  {
-    title: "KIDS POLICIES",
-    content:
-      "We're excited to welcome kids and youth climbers into our space. To keep the gym safe and fun for everyone, we have a few important policies in place:\n- Children under 5 are not permitted to climb in our facility.\n- Children 12 and under must be actively supervised by an adult at all times. We follow a 1:1 adult-to-child ratio - each child needs their own supervising adult.\n- For youth ages 13-15, we require at least one adult for every four climbers (4:1 ratio).\n\nIMPORTANT NOTE: The gym can get crowded during peak hours, which makes it tougher for younger kids to climb safely. For that reason, we recommend that climbers 12 and under plan to finish their sessions before 6 PM on busy evenings.\n\nFor more info on our kids policies, check out our full list here:",
-    buttonText: "KIDS POLICIES",
-    buttonLink: "https://portal.climbtheknot.com/gnv/policies/kids",
-  },
-  {
-    title: "YOUTH MEMBERSHIPS",
-    content:
-      "Kids & Youth memberships must be attached to a full-price adult membership ($80/month) and do not receive full member benefits. Check out our membership page for more info on benefits and registration.\n- Kids Membership (Ages 5 - 12): $25/month\n- Youth Membership (Ages 13 - 17): $45/month\n  - Minors 16 and older have the option to sign up for an adult membership or a youth membership. Take a look at the benefits on our member page.",
-    buttonText: "MEMBERSHIP PAGE",
-    buttonLink: "/membership#benefits",
-  },
-];
 
 const benefitsFallback = [
   { title: "FREE GEAR RENTALS", description: "For you & your guests!" },
@@ -93,14 +55,12 @@ let membershipPage: {
     objectPositionX?: number;
     objectPositionY?: number;
   };
+  manageSection?: { headline?: string };
   portalButton?: { text?: string; url?: string };
   pricing?: {
+    sectionHeading?: string;
     headline?: string;
-    monthlyPrice?: string;
-    cancelText?: string;
     billingText?: string;
-    buttonText?: string;
-    buttonUrl?: string;
     image?: string;
     imageLibraryPath?: string;
   };
@@ -130,16 +90,14 @@ try {
       backgroundVideo: "/images/canva-final/membership-hero.mp4",
       backgroundImage: "/images/canva-final/canva-hills-background.jpg",
     },
+    manageSection: { headline: "MANAGE YOUR MEMBERSHIP" },
     portalButton: {
       text: "REDPOINT MEMBER PORTAL",
       url: "https://portal.climbtheknot.com",
     },
     pricing: {
-      headline: "START YOUR MEMBERSHIP TODAY FOR",
-      monthlyPrice: "$80/month",
-      cancelText: "Cancel anytime",
-      buttonText: "JOIN NOW",
-      buttonUrl: "https://portal.climbtheknot.com/gnv/memberships/join",
+      sectionHeading: "BILLING",
+      headline: "START YOUR MEMBERSHIP TODAY FOR ONLY $XX",
       image: "/images/canva-final/membership-wall-gear-1280.jpg",
     },
     benefits: benefitsFallback,
@@ -153,6 +111,7 @@ const toPublicUrl = (libraryPath?: string) =>
     : undefined;
 
 const heroContent = membershipPage.hero || {};
+const manageSection = membershipPage.manageSection || {};
 const portalButton = membershipPage.portalButton || {};
 const pricing = membershipPage.pricing || {};
 const benefits =
@@ -167,8 +126,7 @@ const membershipHeroVideo =
   heroContent.backgroundVideo ||
   toPublicUrl(heroContent.backgroundVideoLibraryPath) ||
   "/images/canva-final/membership-hero.mp4";
-const membershipHeroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
-const pricingImage =
+const manageImage =
   pricing.image ||
   toPublicUrl(pricing.imageLibraryPath) ||
   "/images/canva-final/membership-wall-gear-1280.jpg";
@@ -177,42 +135,18 @@ const benefitsImage =
   toPublicUrl(membershipPage.benefitsImageLibraryPath) ||
   "/images/canva-final/membership-climber-benefits-960.jpg";
 
-type PolicyItem = {
-  title: string;
-  content: string;
-  buttonText: string;
-  buttonLink: string;
-  order?: number;
-};
+const toParagraphs = (text?: string) =>
+  (text || "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
 
-let policyItems: PolicyItem[] = policyFallback;
-try {
-  const policiesCollection = await getCollection("policies");
-  if (policiesCollection.length > 0) {
-    policyItems = policiesCollection
-      .map(
-        (p) =>
-          ({
-            title: p.data.title,
-            content:
-              typeof p.data.content === "string"
-                ? p.data.content
-                : p.data.content?.document
-                    ?.map((block: { children?: { text?: string }[] }) =>
-                      (block.children || []).map((c) => c.text || "").join(""),
-                    )
-                    .filter(Boolean)
-                    .join("\n\n") || "",
-            buttonText: p.data.buttonText || "",
-            buttonLink: p.data.buttonLink || "",
-            order: p.data.order,
-          }) as PolicyItem,
-      )
-      .sort((a, b) => (a.order || 99) - (b.order || 99));
-  }
-} catch {
-  policyItems = policyFallback;
-}
+// "$XX" in editable copy is a placeholder for the live prorated price, so any
+// headline containing it gets the real component spliced in at that spot.
+const splitOnPricePlaceholder = (text?: string) => (text || "").split(/\$XX/i);
+
+const manageParagraphs = toParagraphs(heroContent.subtext);
+const billingParagraphs = toParagraphs(pricing.billingText);
 
 const localDiscounts = membershipPage.localDiscounts || {
   headline: "LOCAL DISCOUNTS",
@@ -221,62 +155,44 @@ const localDiscounts = membershipPage.localDiscounts || {
   partners15: [],
   partners10: [],
 };
-const fifteenPercentPartners = localDiscounts.partners15 || [];
-const tenPercentPartners = localDiscounts.partners10 || [];
+const discountTiers = [
+  { label: "15%", partners: localDiscounts.partners15 || [] },
+  { label: "10%", partners: localDiscounts.partners10 || [] },
+].filter((tier) => tier.partners.length > 0);
 const bottomCta = membershipPage.bottomCta;
 ---
 
 <BaseLayout title="Membership">
   <!-- Hero Section with Video -->
-  <section class="hero-section">
-    <div class="hero-background">
-      <video
-        autoplay
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        poster={membershipHeroImage}
-        class="hero-video"
-      >
-        <source src={membershipHeroVideo} type="video/mp4" />
-      </video>
-      <img
-        src={membershipHeroImage}
-        alt="Membership hero fallback background"
-        class="hero-fallback"
-        style={`object-position: ${membershipHeroObjectPosition};`}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        width="1438"
-        height="560"
-      />
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">{heroContent.headline || "MEMBERSHIP"}</h1>
-      {heroContent.subtext && <p class="hero-subtext">{heroContent.subtext}</p>}
-    </div>
-  </section>
+  <PageHero
+    headline={heroContent.headline || "MEMBERSHIP"}
+    backgroundImage={membershipHeroImage}
+    backgroundVideo={membershipHeroVideo}
+    imageAlt="Membership hero fallback background"
+    objectPositionX={heroContent.objectPositionX}
+    objectPositionY={heroContent.objectPositionY}
+  />
 
-  <!-- REDPOINT MEMBER PORTAL Button Section -->
-  <section class="portal-section">
-    <a
-      href={portalButton.url || "https://portal.climbtheknot.com"}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="portal-button"
-    >
-      {portalButton.text || "REDPOINT MEMBER PORTAL"}
-    </a>
-  </section>
-
-  <!-- Pricing and JOIN NOW Section -->
-  <section class="pricing-section">
-    <div class="pricing-container">
-      <div class="pricing-image">
+  <!-- Manage Your Membership Section -->
+  <section class="page-section">
+    <div class="section-inner manage-container">
+      <div class="manage-copy">
+        <h2 class="section-heading">
+          {manageSection.headline || "MANAGE YOUR MEMBERSHIP"}
+        </h2>
+        {manageParagraphs.map((paragraph) => <p class="section-copy">{paragraph}</p>)}
+        <a
+          href={portalButton.url || "https://portal.climbtheknot.com"}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta-button"
+        >
+          {portalButton.text || "REDPOINT MEMBER PORTAL"}
+        </a>
+      </div>
+      <div class="manage-image">
         <img
-          src={pricingImage}
+          src={manageImage}
           alt="Climbing wall with gear and holds"
           loading="lazy"
           decoding="async"
@@ -284,52 +200,63 @@ const bottomCta = membershipPage.bottomCta;
           height="721"
         />
       </div>
-      <div class="pricing-info">
-        <h2 class="pricing-heading">
-          {pricing.headline || "START YOUR MEMBERSHIP TODAY FOR"}
-          <ProratedMembershipPrice color={colors.coral} />
-        </h2>
-        <a
-          href={pricing.buttonUrl ||
-            "https://portal.climbtheknot.com/gnv/memberships/join"}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="join-button"
-        >
-          {pricing.buttonText || "JOIN NOW"}
-        </a>
-      </div>
     </div>
-    {pricing.billingText && <p class="billing-text">{pricing.billingText}</p>}
   </section>
 
-  <!-- Rates & Policies Accordion Section -->
-  <section class="policies-section">
-    <Accordion client:visible items={policyItems} />
+  <!-- Billing Section -->
+  <section class="page-section">
+    <div class="section-inner">
+      <h2 class="section-heading">{pricing.sectionHeading || "BILLING"}</h2>
+      {
+        pricing.headline && (
+          <p class="billing-lead">
+            {splitOnPricePlaceholder(pricing.headline).map((part, index) => (
+              <>
+                {index > 0 && <ProratedMembershipPrice color={colors.manatee} />}
+                {part}
+              </>
+            ))}
+          </p>
+        )
+      }
+      {
+        billingParagraphs.map((paragraph) => (
+          <p class="section-copy">
+            {paragraph.split(/(\$\d+)/).map((segment) =>
+              /^\$\d+$/.test(segment) ? (
+                <span class="billing-amount">{segment}</span>
+              ) : (
+                segment
+              ),
+            )}
+          </p>
+        ))
+      }
+    </div>
   </section>
 
   <!-- Benefits Section -->
-  <section class="benefits-section" id="benefits">
-    <div class="benefits-container">
-      <div class="benefits-list">
-        <h2 class="benefits-heading">MEMBER BENEFITS</h2>
+  <section class="page-section" id="benefits">
+    <div class="section-inner">
+      <h2 class="section-heading">MEMBER BENEFITS</h2>
+      <div class="benefits-card">
         <ul class="benefits-items">
           {
             benefits.map((benefit) => (
               <li class="benefit-item">
                 <div class="benefit-check">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                     <circle
                       cx="12"
                       cy="12"
                       r="11"
-                      stroke="var(--color-manatee, #84BABF)"
-                      stroke-width="2"
+                      stroke="#000"
+                      stroke-width="1.5"
                       fill="none"
                     />
                     <path
                       d="M7 12l3 3 7-7"
-                      stroke="var(--color-manatee, #84BABF)"
+                      stroke="#000"
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -348,367 +275,389 @@ const bottomCta = membershipPage.bottomCta;
             ))
           }
         </ul>
-      </div>
-      <div class="benefits-image">
-        <img
-          src={benefitsImage}
-          alt="Climber enjoying membership benefits"
-          loading="lazy"
-          decoding="async"
-          width="960"
-          height="1440"
-        />
+        <div class="benefits-image">
+          <img
+            src={benefitsImage}
+            alt="Climber enjoying membership benefits"
+            loading="lazy"
+            decoding="async"
+            width="960"
+            height="1440"
+          />
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Local Discounts Section -->
-  <section class="discounts-section">
-    <h2 class="discounts-heading">
-      {localDiscounts.headline || "LOCAL DISCOUNTS"}
-    </h2>
-    {
-      localDiscounts.intro && (
-        <p class="discounts-intro">{localDiscounts.intro}</p>
-      )
-    }
+  <section class="page-section">
+    <div class="section-inner">
+      <h2 class="section-heading">
+        {localDiscounts.headline || "LOCAL DISCOUNTS"}
+      </h2>
+      {
+        localDiscounts.intro && (
+          <p class="section-copy discounts-intro">{localDiscounts.intro}</p>
+        )
+      }
 
-    {
-      fifteenPercentPartners.length > 0 && (
-        <div class="discount-tier">
-          <h3 class="tier-label">15%</h3>
-          <div class="business-grid">
-            {fifteenPercentPartners.map((partner) => (
-              <button
-                class="business-card"
-                data-business={JSON.stringify(partner)}
-              >
-                <div class="business-image">
-                  <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                    <rect
-                      x="10"
-                      y="20"
-                      width="40"
-                      height="30"
-                      rx="2"
-                      fill="rgba(255,255,255,0.3)"
-                    />
-                    <rect
-                      x="20"
-                      y="10"
-                      width="20"
-                      height="15"
-                      rx="2"
-                      fill="rgba(255,255,255,0.2)"
-                    />
-                  </svg>
-                </div>
-                <span class="business-name">{partner.name}</span>
-              </button>
-            ))}
+      {
+        discountTiers.map((tier) => (
+          <div class="discount-tier">
+            <h3 class="tier-label">{tier.label}</h3>
+            <div class="business-grid">
+              {tier.partners.map((partner) => (
+                <button
+                  class="business-card"
+                  data-business={JSON.stringify(partner)}
+                >
+                  <div class="business-image">
+                    {partner.image ? (
+                      <img
+                        src={partner.image}
+                        alt={partner.name}
+                        width="120"
+                        height="120"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <rect
+                          x="10"
+                          y="20"
+                          width="40"
+                          height="30"
+                          rx="2"
+                          fill="rgba(255,255,255,0.3)"
+                        />
+                        <rect
+                          x="20"
+                          y="10"
+                          width="20"
+                          height="15"
+                          rx="2"
+                          fill="rgba(255,255,255,0.2)"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span class="business-name">{partner.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+
+      <!-- Business Detail Popup (populated + toggled by script) -->
+      <div class="business-detail" id="businessDetail" hidden>
+        <button
+          type="button"
+          class="business-detail-close"
+          id="businessDetailClose"
+          aria-label="Close business details"
+        >
+          &times;
+        </button>
+        <div class="business-detail-image" id="detailImageWrap">
+          <img id="detailImage" src="" alt="" hidden />
+        </div>
+        <div class="business-detail-info">
+          <h3 class="business-detail-name" id="detailName"></h3>
+          <a
+            class="business-detail-handle"
+            id="detailHandle"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            hidden></a>
+          <p class="business-detail-description" id="detailDescription"></p>
+          <div class="business-detail-field" id="detailAddressWrap" hidden>
+            <h4>ADDRESS</h4>
+            <p id="detailAddress"></p>
+          </div>
+          <div class="business-detail-field" id="detailHoursWrap" hidden>
+            <h4>HOURS</h4>
+            <p id="detailHours"></p>
           </div>
         </div>
-      )
-    }
-
-    {
-      tenPercentPartners.length > 0 && (
-        <div class="discount-tier">
-          <h3 class="tier-label">10%</h3>
-          <div class="business-grid">
-            {tenPercentPartners.map((partner) => (
-              <button
-                class="business-card"
-                data-business={JSON.stringify(partner)}
-              >
-                <div class="business-image">
-                  <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                    <rect
-                      x="10"
-                      y="20"
-                      width="40"
-                      height="30"
-                      rx="2"
-                      fill="rgba(255,255,255,0.3)"
-                    />
-                    <rect
-                      x="20"
-                      y="10"
-                      width="20"
-                      height="15"
-                      rx="2"
-                      fill="rgba(255,255,255,0.2)"
-                    />
-                  </svg>
-                </div>
-                <span class="business-name">{partner.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )
-    }
+      </div>
+    </div>
   </section>
 
   <!-- Bottom CTA Section -->
   {
     bottomCta && (
-      <section class="bottom-cta-section">
-        <h2 class="bottom-cta-heading">{bottomCta.headline}</h2>
-        {bottomCta.description && (
-          <p class="bottom-cta-description">{bottomCta.description}</p>
-        )}
-        {bottomCta.buttonText && (
-          <a
-            href={bottomCta.buttonUrl || "https://portal.climbtheknot.com"}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="join-button"
-          >
-            {bottomCta.buttonText}
-          </a>
-        )}
+      <section class="page-section">
+        <div class="section-inner">
+          <h2 class="section-heading">
+            {splitOnPricePlaceholder(bottomCta.headline).map((part, index) => (
+              <>
+                {index > 0 && <ProratedMembershipPrice color={colors.manatee} />}
+                {part}
+              </>
+            ))}
+          </h2>
+          {toParagraphs(bottomCta.description).map((paragraph) => (
+            <p class="section-copy">{paragraph}</p>
+          ))}
+          {bottomCta.buttonText && (
+            <div class="bottom-cta-actions">
+              <a
+                href={bottomCta.buttonUrl || "https://portal.climbtheknot.com"}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="cta-button"
+              >
+                {bottomCta.buttonText}
+              </a>
+            </div>
+          )}
+        </div>
       </section>
     )
   }
 
+  <script>
+    interface BusinessData {
+      name?: string;
+      handle?: string;
+      description?: string;
+      address?: string;
+      hours?: string;
+      image?: string;
+    }
+
+    const detail = document.getElementById("businessDetail");
+    const closeBtn = document.getElementById("businessDetailClose");
+    const imageWrap = document.getElementById("detailImageWrap");
+    const image = document.getElementById("detailImage") as HTMLImageElement | null;
+    const nameEl = document.getElementById("detailName");
+    const handleEl = document.getElementById("detailHandle") as HTMLAnchorElement | null;
+    const descEl = document.getElementById("detailDescription");
+    const addressWrap = document.getElementById("detailAddressWrap");
+    const addressEl = document.getElementById("detailAddress");
+    const hoursWrap = document.getElementById("detailHoursWrap");
+    const hoursEl = document.getElementById("detailHours");
+    const cards = Array.from(
+      document.querySelectorAll<HTMLButtonElement>(".business-card"),
+    );
+
+    const setField = (
+      wrap: HTMLElement | null,
+      target: HTMLElement | null,
+      value?: string,
+    ) => {
+      if (!wrap || !target) return;
+      if (value) {
+        target.textContent = value;
+        wrap.hidden = false;
+      } else {
+        target.textContent = "";
+        wrap.hidden = true;
+      }
+    };
+
+    const openDetail = (data: BusinessData) => {
+      if (!detail) return;
+
+      if (nameEl) nameEl.textContent = data.name || "";
+
+      if (image && imageWrap) {
+        if (data.image) {
+          image.src = data.image;
+          image.alt = data.name || "";
+          image.hidden = false;
+        } else {
+          image.removeAttribute("src");
+          image.hidden = true;
+        }
+      }
+
+      if (handleEl) {
+        if (data.handle) {
+          const clean = data.handle.replace(/^@/, "").trim();
+          handleEl.href = `https://www.instagram.com/${clean}/`;
+          handleEl.textContent = data.handle.startsWith("@")
+            ? data.handle
+            : `@${clean}`;
+          handleEl.hidden = false;
+        } else {
+          handleEl.hidden = true;
+        }
+      }
+
+      if (descEl) descEl.textContent = data.description || "";
+
+      setField(addressWrap, addressEl, data.address);
+      setField(hoursWrap, hoursEl, data.hours);
+
+      detail.hidden = false;
+      detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+
+    const closeDetail = () => {
+      if (detail) detail.hidden = true;
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const raw = card.dataset.business;
+        if (!raw) return;
+        try {
+          openDetail(JSON.parse(raw) as BusinessData);
+        } catch {
+          /* ignore malformed data */
+        }
+      });
+    });
+
+    closeBtn?.addEventListener("click", closeDetail);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && detail && !detail.hidden) closeDetail();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!detail || detail.hidden) return;
+      const target = event.target as Node;
+      if (detail.contains(target)) return;
+      if (cards.some((card) => card.contains(target))) return;
+      closeDetail();
+    });
+  </script>
 </BaseLayout>
 
 <style>
-  .hero-section {
-    position: relative;
-    min-height: 50vh;
+  /* Every section below the hero shares one black canvas, one content width,
+     and one vertical rhythm so the page reads as a single column. */
+  .page-section {
+    padding: 36px 48px;
+    background-color: #000;
+  }
+
+  .section-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .section-heading {
+    font-family: var(--font-heading, "Zing Rust", sans-serif);
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    margin: 0 0 28px 0;
+  }
+
+  /* Named to avoid colliding with the global .body-text utility, whose design
+     tokens force weight 700 and italic. */
+  .section-copy {
+    font-family: var(--font-body, "Rubik", sans-serif);
+    font-size: 16px;
+    font-weight: 400;
+    font-style: normal;
+    color: #fff;
+    line-height: 1.7;
+    margin: 0 0 20px 0;
+  }
+
+  .section-copy:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px 48px;
+    background-color: var(--color-manatee, #84babf);
+    color: #000;
+    font-family: var(--font-heading, "Uniform Pro", sans-serif);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 1px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .cta-button:hover {
+    opacity: 0.85;
+  }
+
+  /* Manage Your Membership */
+  .manage-container {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+  }
+
+  .manage-copy {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .manage-copy .cta-button {
+    margin-top: 32px;
+  }
+
+  .manage-image {
+    flex: 0 1 620px;
+    min-width: 0;
+  }
+
+  .manage-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+  }
+
+  /* Billing */
+  .billing-lead {
+    font-family: var(--font-heading, "Uniform Pro", sans-serif);
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 20px 0;
+  }
+
+  .billing-amount {
+    color: var(--color-manatee, #84babf);
+  }
+
+  /* Benefits */
+  .benefits-card {
+    display: flex;
+    align-items: stretch;
+    background-color: var(--color-sand, #faf9f5);
+    border-radius: 16px;
     overflow: hidden;
   }
 
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .hero-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-  }
-
-  .hero-fallback {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center bottom;
-    z-index: 0;
-  }
-
-  .hero-content {
-    position: absolute;
-    right: 48px;
-    bottom: 15%;
-    z-index: 2;
-  }
-
-  .hero-headline {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 72px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.1;
-    margin: 0;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  }
-
-  .hero-subtext {
-    margin: 8px 0 0;
-    font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 18px;
-    color: #fff;
-    text-align: right;
-  }
-
-  .portal-section {
-    display: flex;
-    justify-content: flex-end;
-    padding: 40px 48px;
-    background-color: #000;
-  }
-
-  .portal-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px 32px;
-    background-color: var(--color-rust, #b94237);
-    color: #fff;
-    font-family: var(--font-heading, "Uniform Pro", sans-serif);
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-
-  .portal-button:hover {
-    opacity: 0.9;
-  }
-
-  .pricing-section {
-    padding: 64px 48px;
-    background-color: #fff;
-  }
-
-  .pricing-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 48px;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-
-  .pricing-image img {
-    width: 400px;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .pricing-info {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .pricing-heading {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 28px;
-    font-weight: 900;
-    color: #000;
-    text-transform: uppercase;
-    margin: 0;
-    line-height: 1.3;
-  }
-
-  .price-highlight {
-    color: var(--color-rust, #b94237);
-  }
-
-  .price-monthly {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 24px;
-    font-weight: 900;
-    color: #000;
-    margin: 0;
-  }
-
-  .pricing-note {
-    font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-  }
-
-  .join-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px 40px;
-    background-color: var(--color-rust, #b94237);
-    color: #fff;
-    font-family: var(--font-heading, "Uniform Pro", sans-serif);
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    margin-top: 8px;
-  }
-
-  .join-button:hover {
-    opacity: 0.9;
-  }
-
-  .billing-text {
-    max-width: 1000px;
-    margin: 32px auto 0;
-    font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 14px;
-    color: #666;
-    line-height: 1.6;
-    text-align: center;
-  }
-
-  .policies-section {
-    padding: 48px 24px 64px;
-    background-color: #000;
-  }
-
-  .policies-section :global(.accordion) {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .benefits-section {
-    padding: 64px 48px;
-    background-color: var(--color-sand, #faf9f5);
-  }
-
-  .benefits-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 48px;
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-
-  .benefits-list {
-    flex: 1;
-    padding: 32px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .benefits-heading {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 28px;
-    font-weight: 900;
-    color: #000;
-    text-transform: uppercase;
-    margin: 0 0 24px 0;
-    letter-spacing: 1px;
-  }
-
   .benefits-items {
+    flex: 1 1 0;
+    min-width: 0;
     list-style: none;
-    padding: 0;
+    padding: 48px;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
 
   .benefit-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: 16px;
   }
 
   .benefit-check {
@@ -721,7 +670,7 @@ const bottomCta = membershipPage.bottomCta;
   .benefit-text {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
 
   .benefit-title {
@@ -730,83 +679,47 @@ const bottomCta = membershipPage.bottomCta;
     font-weight: 700;
     color: #000;
     text-transform: uppercase;
+    letter-spacing: 0.3px;
   }
 
   .benefit-description {
     font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 12px;
-    color: #666;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  .benefits-image {
+    flex: 0 0 42%;
   }
 
   .benefits-image img {
-    width: 400px;
-    height: 400px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 8px;
-    filter: sepia(50%);
+    display: block;
   }
 
-  .discounts-section {
-    padding: 64px 48px;
-    background-color: #000;
-  }
-
-  .discounts-heading {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 32px;
-    font-weight: 900;
-    color: #fff;
-    text-transform: uppercase;
-    text-align: center;
-    margin: 0 0 16px 0;
-    letter-spacing: 2px;
-  }
-
+  /* Local Discounts */
   .discounts-intro {
-    max-width: 800px;
-    margin: 0 auto 48px;
-    color: #ccc;
-    font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
-    line-height: 1.6;
-    text-align: center;
-  }
-
-  .bottom-cta-section {
-    padding: 64px 48px;
-    background-color: #fff;
-    text-align: center;
-  }
-
-  .bottom-cta-heading {
-    font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 28px;
-    font-weight: 900;
-    color: #000;
-    text-transform: uppercase;
-    margin: 0 0 16px 0;
-  }
-
-  .bottom-cta-description {
-    max-width: 800px;
-    margin: 0 auto 24px;
-    color: #333;
-    font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
-    line-height: 1.6;
+    margin-bottom: 40px;
   }
 
   .discount-tier {
     margin-bottom: 48px;
   }
 
+  .discount-tier:last-of-type {
+    margin-bottom: 0;
+  }
+
   .tier-label {
     font-family: var(--font-heading, "Zing Rust", sans-serif);
-    font-size: 64px;
+    font-size: 52px;
     font-weight: 900;
-    color: var(--color-limestone, #d0d96f);
-    text-align: center;
+    color: var(--color-manatee, #84babf);
     margin: 0 0 24px 0;
+    line-height: 1.1;
   }
 
   .business-grid {
@@ -819,12 +732,13 @@ const bottomCta = membershipPage.bottomCta;
   .business-card {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    align-items: stretch;
     width: 150px;
-    padding: 16px;
-    background: transparent;
+    padding: 0;
+    background-color: #fff;
     border: none;
+    border-radius: 8px;
+    overflow: hidden;
     cursor: pointer;
     transition: transform 0.2s ease;
   }
@@ -834,127 +748,199 @@ const bottomCta = membershipPage.bottomCta;
   }
 
   .business-image {
-    width: 120px;
     height: 120px;
     background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    filter: grayscale(100%);
+  }
+
+  .business-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .business-name {
+    padding: 12px 8px;
+    font-family: var(--font-heading, "Uniform Pro", sans-serif);
+    font-size: 13px;
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+
+  .business-detail {
+    display: flex;
+    position: relative;
+    margin: 48px auto 0;
+    background-color: var(--color-sand, #faf9f5);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .business-detail[hidden] {
+    display: none;
+  }
+
+  .business-detail-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: #333;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .business-detail-close:hover {
+    color: var(--color-rust, #b94237);
+  }
+
+  .business-detail-image {
+    flex: 0 0 40%;
+    align-self: stretch;
+    min-height: 340px;
+    background: linear-gradient(180deg, #cfe8f5 0%, #dff0d8 55%, #7cb342 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     filter: grayscale(100%);
   }
 
-  .business-name {
-    font-family: var(--font-heading, "Uniform Pro", sans-serif);
-    font-size: 12px;
-    font-weight: 700;
-    color: #fff;
+  .business-detail-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .business-detail-info {
+    flex: 1;
+    padding: 48px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .business-detail-name {
+    font-family: var(--font-heading, "Zing Rust", sans-serif);
+    font-size: 48px;
+    font-weight: 900;
+    color: #000;
     text-transform: uppercase;
-    text-align: center;
+    margin: 0;
+    line-height: 1.05;
+  }
+
+  .business-detail-handle {
+    font-family: var(--font-heading, "Uniform Pro", sans-serif);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-rust, #b94237);
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  .business-detail-handle:hover {
+    text-decoration: underline;
+  }
+
+  .business-detail-description {
+    font-family: var(--font-body, "Rubik", sans-serif);
+    font-size: 16px;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .business-detail-field {
+    margin-top: 8px;
+  }
+
+  .business-detail-field[hidden] {
+    display: none;
+  }
+
+  .business-detail-field h4 {
+    font-family: var(--font-heading, "Uniform Pro", sans-serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
     letter-spacing: 0.5px;
+    margin: 0 0 4px 0;
+  }
+
+  .business-detail-field p {
+    font-family: var(--font-body, "Rubik", sans-serif);
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+  }
+
+  /* Bottom CTA */
+  .bottom-cta-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
   }
 
   @media (max-width: 768px) {
-    .hero-section {
-      min-height: 50vh;
+    .page-section {
+      padding: 24px 24px;
     }
 
-    .hero-content {
-      right: 24px;
-      bottom: 10%;
+    .section-heading {
+      font-size: 32px;
+      margin-bottom: 20px;
     }
 
-    .hero-headline {
-      font-size: 42px;
-    }
-
-    .hero-subtext {
-      font-size: 14px;
-    }
-
-    .portal-section {
-      padding: 32px 16px;
-      justify-content: center;
-    }
-
-    .portal-button {
+    .cta-button {
       width: 100%;
-      max-width: 320px;
+      max-width: 340px;
       padding: 16px 24px;
     }
 
-    .pricing-section {
-      padding: 48px 24px;
-    }
-
-    .pricing-container {
+    .manage-container {
       flex-direction: column;
+      align-items: stretch;
       gap: 32px;
     }
 
-    .pricing-image img {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
+    .manage-image {
+      flex-basis: auto;
     }
 
-    .pricing-info {
-      align-items: center;
-      text-align: center;
+    .benefits-card {
+      flex-direction: column-reverse;
     }
 
-    .pricing-heading {
-      font-size: 24px;
+    .benefits-items {
+      padding: 28px 24px;
     }
 
-    .price-monthly {
-      font-size: 22px;
-    }
-
-    .join-button {
-      width: 100%;
-      max-width: 320px;
-    }
-
-    .policies-section {
-      padding: 24px 16px 48px;
-    }
-
-    .benefits-section {
-      padding: 48px 24px;
-    }
-
-    .benefits-container {
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    .benefits-list {
-      padding: 24px;
-    }
-
-    .benefits-heading {
-      font-size: 24px;
-      text-align: center;
+    .benefits-image {
+      flex-basis: auto;
     }
 
     .benefits-image img {
-      width: 100%;
-      max-width: 100%;
       height: auto;
-      aspect-ratio: 4/3;
-    }
-
-    .discounts-section {
-      padding: 48px 24px;
-    }
-
-    .discounts-heading {
-      font-size: 24px;
+      aspect-ratio: 4 / 3;
     }
 
     .tier-label {
-      font-size: 48px;
+      font-size: 40px;
     }
 
     .business-card {
@@ -962,12 +948,30 @@ const bottomCta = membershipPage.bottomCta;
     }
 
     .business-image {
-      width: 100px;
       height: 100px;
     }
 
     .business-name {
       font-size: 11px;
+    }
+
+    .business-detail {
+      flex-direction: column;
+      margin-top: 32px;
+    }
+
+    .business-detail-image {
+      flex-basis: auto;
+      min-height: 200px;
+      max-height: 240px;
+    }
+
+    .business-detail-info {
+      padding: 32px 24px;
+    }
+
+    .business-detail-name {
+      font-size: 32px;
     }
   }
 </style>

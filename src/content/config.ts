@@ -157,7 +157,7 @@ const notReadyCards = defineCollection({
   type: 'data',
   schema: z.object({
     label: z.string(),
-    description: z.string(),
+    description: z.string().optional(),
     buttonText: z.string(),
     buttonLink: z.string(),
     imageLibraryPath: z.string().nullish().transform((v) => v ?? undefined),
@@ -211,7 +211,7 @@ const pages = defineCollection({
     coreValuesHeadline: z.string().optional(),
     coreValues: z.array(z.object({
       title: z.string(),
-      content: z.string(),
+      content: z.string().optional(),
     })).optional(),
     teamSections: z.object({
       ownersHeadline: z.string().optional(),
@@ -221,7 +221,7 @@ const pages = defineCollection({
     faqHeadline: z.string().optional(),
     faqItems: z.array(z.object({
       title: z.string(),
-      content: z.string(),
+      content: z.string().optional(),
       buttonText: z.string().optional(),
       buttonLink: z.string().optional(),
     })).optional(),

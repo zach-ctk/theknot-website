@@ -1,9 +1,8 @@
 {
   "label": "Day Passes",
-  "description": "Try it out just for the day! Available Mon - Fri from 10am - 3pm",
+  "description": "Try it out just for the day!\nAvailable Mon - Fri from 10am - 3pm",
   "buttonText": "MORE INFO",
   "buttonLink": "/new-climbers#day-passes",
-  "imageLibraryPath": "public/images/canva-final/home-card-day-passes.jpg",
-  "image": "/images/canva-final/home-card-day-passes.jpg",
+  "imageLibraryPath": "public/images/canva-final/photos/home-card-day-passes.jpg",
   "order": 1
 }

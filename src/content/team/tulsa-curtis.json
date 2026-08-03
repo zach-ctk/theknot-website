@@ -2,9 +2,8 @@
   "name": "TULSA CURTIS",
   "role": "Operations Manager",
   "bio": "",
-  "photo": "/images/canva-final/tulsa-curtis/team-tulsa-curtis.jpg",
   "order": 3,
   "isLeadership": true,
   "teamGroup": "leadership",
-  "photoLibraryPath": "public/images/canva-final/tulsa-curtis/team-tulsa-curtis.jpg"
+  "photoLibraryPath": "public/images/canva-final/photos/team-tulsa-curtis.jpg"
 }

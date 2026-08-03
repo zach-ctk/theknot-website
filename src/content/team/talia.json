@@ -1,10 +1,8 @@
 {
   "name": "TALIA",
-  "role": "Staff",
-  "bio": "",
-  "photo": "/images/canva-final/talia/staff-talia.jpg",
+  "role": "Art Coordinator",
+  "teamGroup": "coordinator",
+  "photoLibraryPath": "public/images/canva-final/photos/team-talia.jpg",
   "order": 25,
-  "isLeadership": false,
-  "teamGroup": "staff",
-  "photoLibraryPath": "public/images/canva-final/talia/staff-talia.jpg"
+  "isLeadership": false
 }

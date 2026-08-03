@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 interface AccordionItem {
   title: string;
-  content: string;
+  content?: string;
   buttonText?: string;
   buttonLink?: string;
 }
@@ -79,7 +79,7 @@ export default function Accordion({ items }: AccordionProps) {
             }}
           >
             <div className="accordion-content-inner">
-              {item.content.split('\n').map((paragraph, pIndex) => (
+              {(item.content ?? '').split('\n').map((paragraph, pIndex) => (
                 <p key={pIndex} className="accordion-text">
                   {paragraph}
                 </p>

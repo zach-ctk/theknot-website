@@ -36,7 +36,13 @@ tmp/
 nul
 reports/
 
+# Full-resolution photo originals. The site uses the compressed copies in
+# public/images/canva-final/photos/ — these are kept only for re-cropping.
+source-photos/
+
 # Local working docs (not part of the deployed site)
 DEPLOYMENT.md
 KEYSTATIC-CLEANUP.md
 Oddities.txt
+WEBSITE-EDITS.md
+IMAGE-CHECKLIST.md

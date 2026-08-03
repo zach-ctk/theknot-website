@@ -98,21 +98,24 @@ const initialPrice = formatPrice(calculateProratedPrice(new Date()));
     }
 
     function renderProratedPrice() {
-        const priceEl = document.querySelector<HTMLElement>(
+        const priceEls = document.querySelectorAll<HTMLElement>(
             "[data-prorated-price]",
         );
 
-        if (!priceEl) {
+        if (priceEls.length === 0) {
             return;
         }
 
         const price = calculateProratedPrice();
         const roundedDownPrice = Math.floor(price);
-
-        priceEl.textContent = roundedDownPrice.toLocaleString("en-US", {
+        const formatted = roundedDownPrice.toLocaleString("en-US", {
             style: "currency",
             currency: "USD",
             maximumFractionDigits: 0,
+        });
+
+        priceEls.forEach((priceEl) => {
+            priceEl.textContent = formatted;
         });
     }
 

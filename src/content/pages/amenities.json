@@ -1,8 +1,7 @@
 {
   "hero": {
     "headline": "AMENITIES",
-    "backgroundImage": "/images/canva-final/canva-hills-background.jpg",
-    "backgroundImageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+    "backgroundImageLibraryPath": "public/images/canva-final/photos/amenities-hero.jpg"
   },
   "sectionHeadline": "MORE THAN JUST CLIMBING",
   "introText": "Our priority is enhancing the climbing experience for everyone who walks through our door. We've put careful thought into our amenities to make the best use of our space to complement climbing for our members.",
@@ -11,54 +10,48 @@
       "title": "Bouldering",
       "description": "Six areas of bouldering spread across 7,000 square feet. Each area is unique, offering a variety of angles and roofs.\n\nPerfect for beginners or seasoned pros. Need a little more instruction? Take a peek at our Intro to Climbing class",
       "imageLabel": "Pic of bouldering",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-bouldering.jpg"
     },
     {
       "title": "Top-Rope",
       "description": "17 top-rope anchors with over 30 unique routes to choose from.\n\nTop-roping is a partner activity that requires belay-certification prior to participation. Want to reach new heights? Check out our belay class with a member or schedule one of our private belayers.",
       "imageLabel": "Pic of staff belay/top-roping",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-top-rope.jpg"
     },
     {
       "title": "Yoga & Fitness Classes",
       "description": "We offer at least one free class for members every day. Our goal is to provide everything our members need for a well-rounded climbing experience under one roof.\n\nCheck out our full schedule for class times & more info!",
       "imageLabel": "Pic of yoga class",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-yoga-fitness.jpg"
     },
     {
       "title": "Free Gear Rental",
       "description": "Investing in your own gear requires some time on the wall to figure out what you want. In the meantime, we've got shoes, chalk, & harnesses that our members can rent for free.",
       "imageLabel": "Gear rental pic",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-gear-rental.jpg"
     },
     {
       "title": "Free Belay Classes",
       "description": "Never climbed before? No problem! All members receive our undivided attention for a free belay class to help you learn the ropes.\n\nCheck out our schedule for more info!",
       "imageLabel": "Belay class pic",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-belay-classes.jpg"
     },
     {
       "title": "Extensive Training Area & On-Site Showers",
       "description": "Get unlimited access to our fitness area & climbing-specific training equipment.\n\nSwinging by for a quick workout in between work or activities? We've got clean showers & towels to keep feeling fresh.",
       "imageLabel": "Training area pic",
-      "image": "/images/canva-final/canva-hills-background.jpg",
-      "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-training-showers.jpg"
     }
   ],
   "ctaText": "Don't just take our word for it! Come check out all of our amenities in person or watch our virtual tour to get a feel for what we have to offer.",
   "ctaButtons": [
     {
       "text": "CLASS SCHEDULE",
-      "url": "https://portal.climbtheknot.com/gnv/calendar"
+      "url": "https://portal.climbtheknot.com/gnv/n/calendar"
     },
     {
       "text": "BELAY CLASSES",
-      "url": "https://portal.climbtheknot.com/gnv/services/belay-class"
+      "url": "https://portal.climbtheknot.com/gnv/programs/belay-class"
     }
   ]
 }

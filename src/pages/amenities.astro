@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -103,7 +104,6 @@ const heroImage =
   heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   '/images/canva-final/canva-hills-background.jpg';
-const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 const amenitiesCards =
   Array.isArray(amenitiesPage.amenityCards) && amenitiesPage.amenityCards.length > 0
     ? amenitiesPage.amenityCards
@@ -122,31 +122,23 @@ const cardRows: typeof amenitiesCards[] = [];
 for (let index = 0; index < amenitiesCards.length; index += 3) {
   cardRows.push(amenitiesCards.slice(index, index + 3));
 }
-
-const labelPositionClasses = ['left', 'center', 'right'] as const;
 ---
 <BaseLayout title="Amenities">
   <!-- Hero Section with design slide background -->
-  <section class="hero-section">
-    <div class="hero-background">
-      <img
-        src={heroImage}
-        alt="Amenities hero background"
-        style={`object-position: ${heroObjectPosition};`}
-      />
-    </div>
-
-    <div class="hero-content">
-      <h1 class="hero-headline">{heroContent.headline || 'AMENITIES'}</h1>
-    </div>
-
+  <PageHero
+    headline={heroContent.headline || 'AMENITIES'}
+    backgroundImage={heroImage}
+    imageAlt="Amenities hero background"
+    objectPositionX={heroContent.objectPositionX}
+    objectPositionY={heroContent.objectPositionY}
+  >
     <!-- Video placeholder in top right -->
     <div class="hero-video-placeholder">
       <div class="video-box">
         <span class="video-label">Video of gym tour</span>
       </div>
     </div>
-  </section>
+  </PageHero>
 
   <!-- More Than Just Climbing Section -->
   <section class="amenities-grid-section">
@@ -158,9 +150,8 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
 
     {cardRows.map((row, rowIndex) => (
       <div class={`amenities-grid ${rowIndex === cardRows.length - 1 ? 'row-2' : ''}`}>
-        {row.map((amenity, amenityIndex) => {
+        {row.map((amenity) => {
           const cardImage = amenity.image || toPublicUrl(amenity.imageLibraryPath);
-          const labelPosition = labelPositionClasses[amenityIndex % labelPositionClasses.length];
           return (
             <div class="amenity-card">
               <div class="card-image">
@@ -185,9 +176,6 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
                     </div>
                   </div>
                 )}
-                <div class={`card-label label-${labelPosition}`}>
-                  <span>{amenity.imageLabel || 'Amenity image'}</span>
-                </div>
               </div>
               <div class="card-content">
                 <h3 class="card-title">{amenity.title}</h3>
@@ -221,46 +209,7 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
 </BaseLayout>
 
 <style>
-  /* Hero Section */
-  .hero-section {
-    position: relative;
-    height: 50vh;
-    overflow: hidden;
-  }
-
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .hero-background img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center bottom;
-  }
-
-  .hero-content {
-    position: absolute;
-    bottom: 30px;
-    right: 5%;
-    z-index: 10;
-  }
-
-  .hero-headline {
-    font-family: var(--font-display);
-    font-size: 64px;
-    font-weight: 900;
-    color: white;
-    text-transform: uppercase;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    letter-spacing: 2px;
-  }
-
+  /* Hero video placeholder (rendered into the PageHero slot) */
   .hero-video-placeholder {
     position: absolute;
     top: 60px;
@@ -442,35 +391,6 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
     background: #5C8A2B;
   }
 
-  .card-label {
-    position: absolute;
-    bottom: 12px;
-    background: var(--color-rust);
-    padding: 8px 16px;
-    border: 3px solid black;
-  }
-
-  .card-label span {
-    font-family: var(--font-body);
-    font-size: 11px;
-    color: white;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-
-  .label-left {
-    left: 12px;
-  }
-
-  .label-center {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .label-right {
-    right: 12px;
-  }
-
   .card-content {
     padding: 16px 0;
   }
@@ -551,19 +471,6 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    .hero-section {
-      height: 220px;
-    }
-
-    .hero-headline {
-      font-size: 36px;
-    }
-
-    .hero-content {
-      bottom: 20px;
-      right: 5%;
-    }
-
     .hero-video-placeholder {
       top: 40px;
       right: 20px;
@@ -586,12 +493,6 @@ const labelPositionClasses = ['left', 'center', 'right'] as const;
     .amenities-grid {
       grid-template-columns: 1fr;
       gap: 20px;
-    }
-
-    .card-label {
-      left: 50% !important;
-      right: auto !important;
-      transform: translateX(-50%);
     }
 
     .cta-row {

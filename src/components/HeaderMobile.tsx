@@ -4,6 +4,7 @@ interface NavItem {
   label: string;
   href: string;
   isPopup?: boolean;
+  external?: boolean;
 }
 
 interface HeaderMobileProps {
@@ -202,6 +203,8 @@ export default function HeaderMobile({ navItems, isHome = false }: HeaderMobileP
               <a
                 href={item.href}
                 onClick={handleNavClick}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener noreferrer' : undefined}
                 style={{
                   color: 'white',
                   fontSize: '24px',

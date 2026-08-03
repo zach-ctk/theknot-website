@@ -1,10 +1,8 @@
 {
   "name": "STEVE",
   "role": "Staff",
-  "bio": "",
-  "photo": "/images/canva-final/steve/staff-steve.jpg",
+  "teamGroup": "coordinator",
+  "photoLibraryPath": "public/images/canva-final/photos/team-steve.jpg",
   "order": 23,
-  "isLeadership": false,
-  "teamGroup": "staff",
-  "photoLibraryPath": "public/images/canva-final/steve/staff-steve.jpg"
+  "isLeadership": false
 }

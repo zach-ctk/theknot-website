@@ -2,9 +2,8 @@
   "name": "BEN",
   "role": "Staff",
   "bio": "",
-  "photo": "/images/canva-final/ben/staff-ben.jpg",
   "order": 21,
   "isLeadership": false,
   "teamGroup": "staff",
-  "photoLibraryPath": "public/images/canva-final/ben/staff-ben.jpg"
+  "photoLibraryPath": "public/images/canva-final/photos/team-ben.jpg"
 }

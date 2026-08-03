@@ -139,11 +139,11 @@ function validateRequiredSingletonPages() {
         if (!hasString(data?.portalButton?.text) || !hasString(data?.portalButton?.url)) {
           fail('Membership page portal button is incomplete.');
         }
-        if (!hasString(data?.pricing?.headline) || !hasString(data?.pricing?.buttonUrl)) {
-          fail('Membership page pricing section is incomplete.');
+        if (!hasString(data?.pricing?.headline) || !hasString(data?.pricing?.billingText)) {
+          fail('Membership page billing section is incomplete.');
         }
         if (!hasImageRef(data?.pricing, 'imageLibraryPath', 'image')) {
-          fail('Membership page pricing section is missing a connected image.');
+          fail('Membership page manage membership section is missing a connected image.');
         }
         if (!Array.isArray(data?.benefits) || data.benefits.length === 0) {
           fail('Membership page benefits list is empty.');

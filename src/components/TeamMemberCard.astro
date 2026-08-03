@@ -4,12 +4,13 @@ interface Props {
   title: string;
   image?: string;
   filterType: 'blue-black' | 'grayscale';
+  size?: 'full' | 'half';
 }
 
-const { name, title, image, filterType } = Astro.props;
+const { name, title, image, filterType, size = 'full' } = Astro.props;
 ---
 
-<div class="team-card">
+<div class:list={['team-card', { 'team-card--half': size === 'half' }]}>
   <div class={`team-image ${filterType}`}>
     {image ? (
       <img
@@ -56,15 +57,25 @@ const { name, title, image, filterType } = Astro.props;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 180px;
+    /* 5 per row: subtract the 4 inter-card gaps (24px) from the grid, split 5 ways. */
+    width: calc((100% - 4 * 24px) / 5);
+  }
+
+  .team-card--half {
+    /* 7 per row: subtract the 6 inter-card gaps (24px), split 7 ways. */
+    width: calc((100% - 6 * 24px) / 7);
   }
 
   .team-image {
-    width: 180px;
-    height: 250px;
-    border-radius: 12px;
+    width: 100%;
+    aspect-ratio: 180 / 250;
+    border-radius: 12px 12px 0 0;
     overflow: hidden;
     background-color: #D6EEF5;
+  }
+
+  .team-card--half .team-image {
+    border-radius: 8px 8px 0 0;
   }
 
   .team-image.blue-black .team-photo {
@@ -84,6 +95,13 @@ const { name, title, image, filterType } = Astro.props;
   .team-info {
     padding: 16px 8px;
     width: 100%;
+    background-color: #fff;
+    border-radius: 0 0 6px 6px;
+  }
+
+  .team-card--half .team-info {
+    padding: 8px 4px;
+    border-radius: 0 0 4px 4px;
   }
 
   .team-name {
@@ -96,10 +114,31 @@ const { name, title, image, filterType } = Astro.props;
     letter-spacing: 1px;
   }
 
+  .team-card--half .team-name {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
   .team-title {
     font-family: var(--font-body, 'Rubik', sans-serif);
     font-size: 12px;
     color: #000;
     margin: 0;
+  }
+
+  .team-card--half .team-title {
+    font-size: 10px;
+  }
+
+  @media (max-width: 768px) {
+    /* 1 full card per row */
+    .team-card {
+      width: 100%;
+    }
+
+    /* 3 half cards per row: subtract the 2 inter-card gaps (16px), split 3 ways. */
+    .team-card--half {
+      width: calc((100% - 2 * 16px) / 3);
+    }
   }
 </style>

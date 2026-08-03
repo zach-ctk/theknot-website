@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import ShopPageClient from '../components/ShopPageClient.tsx';
 import { getCollection } from 'astro:content';
 import fs from 'node:fs';
@@ -47,21 +48,17 @@ const heroImage =
   heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   '/images/canva-final/canva-hills-background.jpg';
-const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 ---
 
 <BaseLayout title="Shop">
   <main class="shop-page">
     <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-background">
-        <img src={heroImage} alt="" class="hero-bg-image" style={`object-position: ${heroObjectPosition};`} loading="eager" fetchpriority="high" decoding="async" />
-      </div>
-
-      <div class="hero-content">
-        <h1 class="hero-headline">{heroContent.headline || 'SHOP'}</h1>
-      </div>
-    </section>
+    <PageHero
+      headline={heroContent.headline || 'SHOP'}
+      backgroundImage={heroImage}
+      objectPositionX={heroContent.objectPositionX}
+      objectPositionY={heroContent.objectPositionY}
+    />
 
     <!-- Client-side interactive content -->
     <ShopPageClient client:load products={sortedProducts} />
@@ -74,61 +71,4 @@ const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.
     background: #fff;
   }
 
-  /* Hero Section */
-  .hero-section {
-    position: relative;
-    height: 50vh;
-    min-height: 400px;
-    overflow: hidden;
-  }
-
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .hero-bg-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .hero-content {
-    position: absolute;
-    bottom: 15%;
-    right: 8%;
-    z-index: 2;
-  }
-
-  .hero-headline {
-    font-family: 'Zing Rust', 'Impact', sans-serif;
-    font-size: 72px;
-    font-weight: 900;
-    color: #fff;
-    text-transform: uppercase;
-    margin: 0;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Mobile Responsive */
-  @media (max-width: 768px) {
-    .hero-section {
-      height: 40vh;
-      min-height: 300px;
-    }
-
-    .hero-headline {
-      font-size: 42px;
-    }
-
-    .hero-content {
-      bottom: 10%;
-      right: 5%;
-    }
-  }
 </style>

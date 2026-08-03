@@ -1,10 +1,8 @@
 {
-  "name": "G",
+  "name": "Guilherme",
   "role": "Staff",
-  "bio": "",
-  "photo": "/images/canva-final/g/staff-g.jpg",
-  "order": 20,
-  "isLeadership": false,
   "teamGroup": "staff",
-  "photoLibraryPath": "public/images/canva-final/g/staff-g.jpg"
+  "photoLibraryPath": "public/images/canva-final/photos/team-g.jpg",
+  "order": 20,
+  "isLeadership": false
 }

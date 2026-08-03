@@ -182,7 +182,7 @@ const fallbackNotReadyCards = [
   {
     label: "Day Passes",
     description:
-      "Try it out just for the day! Available Mon - Fri from 10am - 3pm",
+      "Try it out just for the day!\n Available Mon - Fri from 10am - 3pm",
     buttonText: "MORE INFO",
     buttonLink: "/new-climbers#day-passes",
     image: "/images/canva-final/home-card-day-passes.jpg",
@@ -206,7 +206,15 @@ const fallbackNotReadyCards = [
   },
 ];
 
-let notReadyCards = [...fallbackNotReadyCards];
+type NotReadyCard = {
+  label: string;
+  description?: string;
+  buttonText: string;
+  buttonLink: string;
+  image: string;
+  order?: number;
+};
+let notReadyCards: NotReadyCard[] = [...fallbackNotReadyCards];
 try {
   const cardsCollection = await getCollection("not-ready-cards");
   if (cardsCollection.length > 0) {
@@ -487,13 +495,14 @@ try {
   }
 
   .not-ready-copy {
-    margin: 0;
+    margin: 0 0 24px 0;
     color: #fff;
     font-family: var(--font-body);
     font-size: 18px;
     font-weight: 400;
     line-height: 1.5;
     max-width: 345px;
+    white-space: pre-line;
   }
 
   @media (max-width: 1280px) {

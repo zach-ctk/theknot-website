@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import ClassesAccordion from '../components/ClassesAccordion.tsx';
 import ScheduleCalendar from '../components/ScheduleCalendar.tsx';
 
@@ -51,17 +52,12 @@ const classTypes = [
 
 <BaseLayout title="Classes">
   <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-background">
-      <img
-        src="/images/canva-final/canva-hills-background.jpg"
-        alt="Classes hero background"
-      />
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">CLASSES</h1>
-    </div>
-  </section>
+  <PageHero
+    headline="CLASSES"
+    backgroundImage="/images/canva-final/canva-hills-background.jpg"
+    imageAlt="Classes hero background"
+    objectPositionY={100}
+  />
 
   <!-- Intro Section -->
   <section class="intro-section">
@@ -133,43 +129,6 @@ const classTypes = [
 </BaseLayout>
 
 <style>
-  /* Hero Section */
-  .hero-section {
-    position: relative;
-    height: 300px;
-    overflow: hidden;
-  }
-
-  .hero-background {
-    position: absolute;
-    inset: 0;
-  }
-
-  .hero-background img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: bottom;
-  }
-
-  .hero-content {
-    position: absolute;
-    bottom: 30px;
-    right: 5%;
-    z-index: 2;
-  }
-
-  .hero-headline {
-    font-family: var(--font-display, 'Zing Rust', sans-serif);
-    font-size: 56px;
-    font-weight: 900;
-    color: #000;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin: 0;
-    text-align: right;
-  }
-
   /* Intro Section */
   .intro-section {
     padding: 60px 5%;
@@ -339,19 +298,6 @@ const classTypes = [
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    .hero-section {
-      height: 220px;
-    }
-
-    .hero-headline {
-      font-size: 42px;
-    }
-
-    .hero-content {
-      bottom: 20px;
-      right: 5%;
-    }
-
     .section-heading {
       font-size: 24px;
     }

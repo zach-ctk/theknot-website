@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
 import NewClimberSafetyAccordion from '../components/NewClimberSafetyAccordion.tsx';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -161,7 +162,6 @@ const heroImage =
   heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
   '/images/canva-final/newclimbers-hero-photo.jpg';
-const heroObjectPosition = `${heroContent.objectPositionX ?? 50}% ${heroContent.objectPositionY ?? 50}%`;
 const welcomeImage =
   welcomeContent.image ||
   toPublicUrl(welcomeContent.imageLibraryPath) ||
@@ -210,27 +210,13 @@ const activitiesCards =
 
 <BaseLayout title="New Climbers">
   <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-video-background">
-      <img
-        src={heroImage}
-        srcset={`${heroImage} 1600w, ${heroImage} 2400w`}
-        sizes="100vw"
-        alt="New climbers hero image"
-        class="hero-video"
-        style={`object-position: ${heroObjectPosition};`}
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        width="1600"
-        height="1067"
-      />
-      <div class="hero-video-overlay"></div>
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">{heroContent.headline || 'NEW CLIMBERS'}</h1>
-    </div>
-  </section>
+  <PageHero
+    headline={heroContent.headline || 'NEW CLIMBERS'}
+    backgroundImage={heroImage}
+    imageAlt="New climbers hero image"
+    objectPositionX={heroContent.objectPositionX}
+    objectPositionY={heroContent.objectPositionY}
+  />
 
   <!-- Welcome Section -->
   <section class="welcome-section">
@@ -330,60 +316,6 @@ const activitiesCards =
 </BaseLayout>
 
 <style>
-  .hero-section {
-    position: relative;
-    height: 50vh;
-    min-height: 400px;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  .hero-video-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-  }
-
-  .hero-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .hero-video-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(180, 60, 60, 0.5);
-    z-index: 1;
-  }
-
-  .hero-content {
-    position: absolute;
-    right: 5%;
-    bottom: 12%;
-    z-index: 2;
-    text-align: right;
-  }
-
-  .hero-headline {
-    font-family: var(--font-heading, 'Zing Rust', sans-serif);
-    font-size: 72px;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: -2px;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
-  }
-
   /* Welcome Section */
   .welcome-section {
     background-color: #000;
@@ -642,22 +574,6 @@ const activitiesCards =
 
   /* Mobile Responsive */
   @media (max-width: 768px) {
-    .hero-section {
-      min-height: 400px;
-    }
-
-    .hero-content {
-      left: 24px;
-      right: 24px;
-      transform: none;
-      text-align: center;
-      bottom: 10%;
-    }
-
-    .hero-headline {
-      font-size: 42px;
-    }
-
     .welcome-section {
       padding: 32px 24px;
     }

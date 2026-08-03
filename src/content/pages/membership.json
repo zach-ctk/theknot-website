@@ -6,19 +6,18 @@
     "backgroundVideoLibraryPath": "public/images/canva-final/membership-hero.mp4",
     "backgroundImageLibraryPath": "public/images/canva-final/membership-hero-poster.jpg"
   },
+  "manageSection": {
+    "headline": "MANAGE YOUR MEMBERSHIP"
+  },
   "portalButton": {
     "text": "REDPOINT MEMBER PORTAL",
     "url": "https://portal.climbtheknot.com"
   },
   "pricing": {
-    "headline": "START YOUR MEMBERSHIP TODAY FOR ONLY",
-    "monthlyPrice": "$80/month",
+    "sectionHeading": "BILLING",
+    "headline": "START YOUR MEMBERSHIP TODAY FOR ONLY $XX",
     "billingText": "We prorate your first month of membership, which means you're only paying for the remaining days of the month. Then, it's just $80/month, billed on the first of every month.\n\nThere's no contracts, start-up or cancellation fees - so cancel anytime, no strings attached. Cancellation requests will go into effect prior to the next billing cycle. You can enjoy your membership for the remainder of the month, with no worries about it charging you for the next month. All change requests must be submitted at least 5 days prior to billing (usually the 25th of the month), to ensure that we're able to process them in time.\n\nIf you're planning on taking a break, consider our Freeze option instead. Freezing is only $8/month and allows you to easily restart your membership anytime - just pay for the rest of the month & you're good to go!\n\nWe only prorate once, so Cancelled members will have to pay the full membership price when they reactivate their account",
-    "cancelText": "Cancel anytime",
-    "buttonText": "REDPOINT MEMBER PORTAL",
-    "buttonUrl": "https://portal.climbtheknot.com",
-    "imageLibraryPath": "public/images/canva-final/membership-wall-gear-1280.jpg",
-    "image": "/images/canva-final/pricing/image.jpg"
+    "imageLibraryPath": "public/images/canva-final/photos/membership-pricing.jpg"
   },
   "benefits": [
     {
@@ -47,8 +46,7 @@
       "description": "Check out all of the spots below!"
     }
   ],
-  "benefitsImageLibraryPath": "public/images/canva-final/membership-climber-benefits-960.jpg",
-  "benefitsImage": "/images/canva-final/benefitsImage.jpg",
+  "benefitsImageLibraryPath": "public/images/canva-final/photos/membership-benefits.jpg",
   "localDiscounts": {
     "headline": "LOCAL DISCOUNTS",
     "intro": "Bring your member key tag to any of our local partners for a discount on your order! Click on the icons for address, hours, and more info.",
@@ -58,7 +56,8 @@
         "handle": "@afternoon__coffee",
         "description": "Info and stuff about the business - what they sell, how their discount works etc.",
         "address": "619 S Main St",
-        "hours": "Everyday 7:30AM - 3PM"
+        "hours": "Everyday 7:30AM - 3PM",
+        "image": "/images/canva-final/photos/partner-afternoon-coffee.jpg"
       },
       {
         "name": "Frenchmen Street Food"
@@ -69,19 +68,24 @@
     ],
     "partners10": [
       {
-        "name": "Afternoon Restaurant"
+        "name": "Afternoon Restaurant",
+        "image": "/images/canva-final/photos/partner-afternoon-restaurant.jpg"
       },
       {
-        "name": "Humble Wood Fire (Pizza)"
+        "name": "Humble Wood Fire (Pizza)",
+        "image": "/images/canva-final/photos/partner-humble-pizza.jpg"
       },
       {
-        "name": "Humble Wood Fire (Bagels)"
+        "name": "Humble Wood Fire (Bagels)",
+        "image": "/images/canva-final/photos/partner-humble-bagels.jpg"
       },
       {
-        "name": "Cry Baby's"
+        "name": "Cry Baby's",
+        "image": "/images/canva-final/photos/partner-cry-babys.jpg"
       },
       {
-        "name": "Baby J's"
+        "name": "Baby J's",
+        "image": "/images/canva-final/photos/partner-baby-js.jpg"
       }
     ]
   },

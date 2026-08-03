@@ -1,0 +1,145 @@
+---
+// Shared hero for all secondary (non-home) pages. The heroes are uniform by
+// design: 50vh tall, background image or video, right-aligned uppercase title.
+// Customize per page via props. Pass `backgroundVideo` to use a looping video
+// (the image is kept as the poster/fallback).
+interface Props {
+  headline: string;
+  backgroundImage: string;
+  backgroundVideo?: string;
+  imageAlt?: string;
+  objectPositionX?: number;
+  objectPositionY?: number;
+}
+
+const {
+  headline,
+  backgroundImage,
+  backgroundVideo,
+  imageAlt = "",
+  objectPositionX = 50,
+  objectPositionY = 50,
+} = Astro.props;
+
+const heroObjectPosition = `${objectPositionX}% ${objectPositionY}%`;
+---
+
+<section class="hero-section">
+  <div class="hero-background">
+    {
+      backgroundVideo ? (
+        <>
+          <video
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster={backgroundImage}
+            class="hero-video"
+          >
+            <source src={backgroundVideo} type="video/mp4" />
+          </video>
+          <img
+            src={backgroundImage}
+            alt={imageAlt}
+            class="hero-fallback"
+            style={`object-position: ${heroObjectPosition};`}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </>
+      ) : (
+        <img
+          src={backgroundImage}
+          alt={imageAlt}
+          class="hero-image"
+          style={`object-position: ${heroObjectPosition};`}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div class="hero-content">
+    <h1 class="hero-headline">{headline}</h1>
+  </div>
+  <slot />
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    min-height: 84.5vh;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    overflow: hidden;
+  }
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-video,
+  .hero-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-fallback {
+    z-index: 0;
+  }
+
+  .hero-video {
+    z-index: 1;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 48px;
+    padding-top: 120px;
+  }
+
+  .hero-headline {
+    font-family: var(--font-heading, "Zing Rust", sans-serif);
+    font-size: 72px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  @media (max-width: 768px) {
+    .hero-content {
+      padding: 24px;
+      padding-top: 100px;
+    }
+
+    .hero-headline {
+      font-size: 42px;
+    }
+  }
+</style>
