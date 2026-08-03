@@ -25,7 +25,7 @@
     ],
     "hoursTitle": "DAY PASS HOURS",
     "hoursText": [
-      "Day passes are only sold Monday through Friday from 10AM - 3PM.",
+      "Day passes are **only sold Monday through Friday from 10AM - 3PM**.",
       "Must be purchased at the front desk - come check us out!"
     ],
     "imageLibraryPath": "public/images/canva-final/newclimbers-daypass-1440.jpg",
@@ -38,7 +38,7 @@
       "title": "Bouldering",
       "description": "Six areas of bouldering spread across 7,000 square feet. Each area is unique, offering a variety of angles and roofs.\n\nPerfect for beginners or seasoned pros. Need a little more instruction? Take a peek at our Intro to Climbing class",
       "buttonText": "INTRO CLASS",
-      "buttonLink": "https://portal.climbtheknot.com/gnv/services/intro-class",
+      "buttonLink": "https://portal.climbtheknot.com/gnv/programs/intro-to-climbing",
       "imageLibraryPath": "public/images/canva-final/photos/newclimbers-bouldering.jpg",
       "imageAlt": "Climber getting started on the wall"
     },
@@ -46,7 +46,7 @@
       "title": "Top-Rope",
       "description": "17 top-rope anchors with over 30 unique routes to choose from.\n\nTop-roping is a partner activity that requires belay-certification prior to participation. Want to reach new heights? Check out our belay class with a member or schedule one of our private belayers.",
       "buttonText": "PRIVATE BELAYER",
-      "buttonLink": "https://portal.climbtheknot.com/gnv/services/private-belayer",
+      "buttonLink": "https://portal.climbtheknot.com/gnv/programs/private-belaying",
       "imageLibraryPath": "public/images/canva-final/photos/newclimbers-top-rope.jpg",
       "imageAlt": "Private belayer support session"
     },
@@ -54,7 +54,7 @@
       "title": "Classes",
       "description": "Learn climbing basics, get in a quick workout, or tap in to your flow with one of our many class offerings.\n\nCheck out our full schedule for class times & more info!",
       "buttonText": "SCHEDULE",
-      "buttonLink": "https://portal.climbtheknot.com/gnv/calendar",
+      "buttonLink": "https://portal.climbtheknot.com/gnv/n/calendar",
       "imageLibraryPath": "public/images/canva-final/photos/newclimbers-classes.jpg",
       "imageAlt": "Climbers during gym activities"
     }

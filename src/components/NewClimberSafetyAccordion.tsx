@@ -73,13 +73,20 @@ export default function NewClimberSafetyAccordion() {
       ))}
 
       <style>{`
+        /* Chrome matches the shared Accordion.tsx (membership/home page):
+           8px-gapped bordered items, graphite headers, Rubik titles, teal icon,
+           semi-transparent graphite content panel. Inner content styling below
+           is intentionally left as-is. */
         .safety-accordion {
           display: flex;
           flex-direction: column;
+          gap: 8px;
         }
 
         .safety-accordion-item {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 0;
+          overflow: hidden;
         }
 
         .safety-accordion-header {
@@ -87,40 +94,40 @@ export default function NewClimberSafetyAccordion() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 24px 48px;
-          background-color: #000;
+          padding: 20px 24px;
+          background-color: var(--color-graphite, #39393B);
           border: none;
           cursor: pointer;
           transition: background-color 0.2s ease;
         }
 
         .safety-accordion-header:hover {
-          background-color: #1a1a1a;
+          background-color: #4a4a4c;
         }
 
         .safety-accordion-header--open {
-          background-color: #1a1a1a;
+          background-color: #4a4a4c;
         }
 
         .safety-accordion-title {
-          font-family: var(--font-heading, 'Zing Rust', sans-serif);
-          font-size: 20px;
-          font-weight: 900;
+          font-family: var(--font-body, 'Rubik', sans-serif);
+          font-size: 14px;
+          font-weight: 700;
           color: white;
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 0;
           text-align: left;
         }
 
         .safety-accordion-icon {
-          color: var(--color-coral, #D89B92);
+          color: var(--color-manatee, #84BABF);
           display: flex;
           align-items: center;
         }
 
         .safety-accordion-content-inner {
-          padding: 0 48px 32px 48px;
-          background-color: #000;
+          padding: 24px 40px 32px 40px;
+          background-color: rgba(57, 57, 59, 0.5);
         }
 
         .safety-accordion-content-inner h3 {
@@ -188,15 +195,15 @@ export default function NewClimberSafetyAccordion() {
 
         @media (max-width: 768px) {
           .safety-accordion-header {
-            padding: 20px 24px;
+            padding: 16px 20px;
           }
 
           .safety-accordion-title {
-            font-size: 16px;
+            font-size: 14px;
           }
 
           .safety-accordion-content-inner {
-            padding: 0 24px 24px 24px;
+            padding: 20px 20px 24px 20px;
           }
 
           .safety-accordion-content-inner h3 {

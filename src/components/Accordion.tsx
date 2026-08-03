@@ -79,11 +79,53 @@ export default function Accordion({ items }: AccordionProps) {
             }}
           >
             <div className="accordion-content-inner">
-              {(item.content ?? '').split('\n').map((paragraph, pIndex) => (
-                <p key={pIndex} className="accordion-text">
-                  {paragraph}
-                </p>
-              ))}
+              {/* Blank lines (\n\n) separate paragraphs; single newlines are tight
+                  line breaks within a paragraph. A line beginning with a bullet
+                  marker (• ◦ ○ -) renders as a hanging-indent row so wrapped text
+                  lines up under the text, not under the marker. A hollow marker
+                  (◦ / ○) renders as an indented, nested bullet. */}
+              {(item.content ?? '').split(/\n\s*\n/).map((paragraph, pIndex) => {
+                const lines = paragraph.split('\n');
+                const isList = lines.some((line) => /^\s*[•●◦○\-]\s/.test(line));
+                return (
+                  <p
+                    key={pIndex}
+                    className={`accordion-text${isList ? ' accordion-text--list' : ''}`}
+                  >
+                    {lines.map((line, lIndex) => {
+                      if (!isList) {
+                        return (
+                          <span key={lIndex}>
+                            {line}
+                            {lIndex < lines.length - 1 && <br />}
+                          </span>
+                        );
+                      }
+                      const bullet = /^\s*([•●◦○\-])\s+(.*)$/.exec(line);
+                      if (!bullet) {
+                        return (
+                          <span key={lIndex} className="bullet-row bullet-row--plain">
+                            {line}
+                          </span>
+                        );
+                      }
+                      const [, marker, text] = bullet;
+                      const nested = marker === '◦' || marker === '○';
+                      return (
+                        <span
+                          key={lIndex}
+                          className={`bullet-row${nested ? ' bullet-row--nested' : ''}`}
+                        >
+                          <span className="bullet-marker" aria-hidden="true">
+                            {marker}
+                          </span>
+                          <span>{text}</span>
+                        </span>
+                      );
+                    })}
+                  </p>
+                );
+              })}
               {item.buttonText && item.buttonLink && (
                 <div className="accordion-button-container">
                   <a
@@ -152,7 +194,7 @@ export default function Accordion({ items }: AccordionProps) {
         }
 
         .accordion-content-inner {
-          padding: 24px;
+          padding: 24px 40px;
           background-color: rgba(57, 57, 59, 0.5);
           text-align: center;
         }
@@ -167,6 +209,34 @@ export default function Accordion({ items }: AccordionProps) {
 
         .accordion-text:last-of-type {
           margin-bottom: 0;
+        }
+
+        .accordion-text--list {
+          /* Bullet lists are left-aligned. Indent them inward so the markers
+             always sit past where a wrapped line of centered text would start,
+             instead of poking out to the left of it. */
+          text-align: left;
+          padding-left: 32px;
+          padding-right: 32px;
+        }
+
+        .bullet-row {
+          display: flex;
+          gap: 8px;
+          align-items: baseline;
+        }
+
+        .bullet-row--nested {
+          /* Indent nested items under their parent bullet. */
+          padding-left: 24px;
+        }
+
+        .bullet-marker {
+          flex: 0 0 auto;
+        }
+
+        .bullet-row--plain {
+          display: block;
         }
 
         .accordion-button-container {
@@ -207,11 +277,16 @@ export default function Accordion({ items }: AccordionProps) {
           }
 
           .accordion-content-inner {
-            padding: 20px;
+            padding: 20px 28px;
           }
 
           .accordion-text {
             font-size: 14px;
+          }
+
+          .accordion-text--list {
+            padding-left: 18px;
+            padding-right: 18px;
           }
 
           .accordion-button {

@@ -33,7 +33,11 @@ const textColor = textColorMap[backgroundColor];
   style={`background-color: ${bgColor}; color: ${textColor}`}
 >
   <p class="announcement-banner__text">
-    {text}
+    {text
+      .split(/\*\*(.+?)\*\*/g)
+      .map((segment, index) =>
+        index % 2 === 1 ? <strong>{segment}</strong> : segment,
+      )}
     {linkText && linkUrl && (
       <a href={linkUrl} class="announcement-banner__link" style={`color: ${textColor}`}>
         {linkText}
