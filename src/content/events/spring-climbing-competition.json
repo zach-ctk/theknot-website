@@ -1,14 +1,12 @@
 {
   "title": "Spring Climbing Competition",
   "date": "2026-07-29",
-  "imageLibraryPath": "public/images/canva-final/aaron/staff-aaron.png",
-  "image": "/images/canva-final/spring-climbing-competition/image.jpg",
+  "imageLibraryPath": "public/images/canva-final/canva-hills-background.jpg",
   "registrationLink": "https://portal.climbtheknot.com/gnv/events/spring-competition",
   "eventPage": {
     "discriminant": true,
     "value": {
-      "flyerLibraryPath": "public/images/canva-final/about-building-facade-1366.jpg",
-      "flyer": "/images/canva-final/spring-climbing-competition/eventPage/value/flyer.png"
+      "flyerLibraryPath": "public/images/canva-final/spring-climbing-competition/flyer.png"
     }
   },
   "isFeatured": true,

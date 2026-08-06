@@ -12,8 +12,7 @@
       "The Knot is a locally owned climbing gym in Gainesville, Florida that strives to cultivate a community-centered approach to fitness.",
       "Check out our video to learn more about our facility and getting started on the wall or swing by to chat with our staff!"
     ],
-    "imageLibraryPath": "public/images/canva-final/newclimbers-welcome.jpg",
-    "image": "/images/canva-final/welcome/image.jpg"
+    "imageLibraryPath": "public/images/canva-final/newclimbers-welcome.jpg"
   },
   "dayPass": {
     "headline": "DAY PASSES",
@@ -28,8 +27,7 @@
       "Day passes are **only sold Monday through Friday from 10AM - 3PM**.",
       "Must be purchased at the front desk - come check us out!"
     ],
-    "imageLibraryPath": "public/images/canva-final/newclimbers-daypass-1440.jpg",
-    "image": "/images/canva-final/dayPass/image.jpg"
+    "imageLibraryPath": "public/images/canva-final/newclimbers-daypass-1440.jpg"
   },
   "activitiesHeadline": "ACTIVITIES",
   "activitiesIntro": "Never climbed before? No problem! We have a variety of walls & classes for all skill levels.\n\nAt our facility, bouldering is the most accessible activity for beginners - pop in for a quick orientation & you'll be on the wall in no time.",

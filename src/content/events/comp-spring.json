@@ -8,7 +8,7 @@
   "eventPage": {
     "discriminant": true,
     "value": {
-      "flyerLibraryPath": "public/images/canva-final/spring-climbing-competition/eventPage/value/flyer.png"
+      "flyerLibraryPath": "public/images/canva-final/spring-climbing-competition/flyer.png"
     }
   },
   "isFeatured": true,

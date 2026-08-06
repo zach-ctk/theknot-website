@@ -44,9 +44,11 @@ const toPublicUrl = (libraryPath?: string) =>
     : undefined;
 
 const heroContent = shopPage.hero || {};
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const heroImage =
-  heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
+  heroContent.backgroundImage ||
   '/images/canva-final/canva-hills-background.jpg';
 ---
 

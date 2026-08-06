@@ -57,7 +57,7 @@
         "description": "Info and stuff about the business - what they sell, how their discount works etc.",
         "address": "619 S Main St",
         "hours": "Everyday 7:30AM - 3PM",
-        "image": "/images/canva-final/photos/partner-afternoon-coffee.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-afternoon-coffee.jpg"
       },
       {
         "name": "Frenchmen Street Food"
@@ -69,23 +69,23 @@
     "partners10": [
       {
         "name": "Afternoon Restaurant",
-        "image": "/images/canva-final/photos/partner-afternoon-restaurant.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-afternoon-restaurant.jpg"
       },
       {
         "name": "Humble Wood Fire (Pizza)",
-        "image": "/images/canva-final/photos/partner-humble-pizza.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-pizza.jpg"
       },
       {
         "name": "Humble Wood Fire (Bagels)",
-        "image": "/images/canva-final/photos/partner-humble-bagels.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-bagels.jpg"
       },
       {
         "name": "Cry Baby's",
-        "image": "/images/canva-final/photos/partner-cry-babys.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-cry-babys.jpg"
       },
       {
         "name": "Baby J's",
-        "image": "/images/canva-final/photos/partner-baby-js.jpg"
+        "imageLibraryPath": "public/images/canva-final/photos/partner-baby-js.jpg"
       }
     ]
   },

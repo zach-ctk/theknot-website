@@ -32,9 +32,9 @@ const toPublicUrl = (libraryPath?: string | null) =>
 const eventImage = toPublicUrl(eventData.imageLibraryPath) || eventData.image;
 
 const flyerData = eventData.eventPage?.value;
-// A freshly uploaded flyer takes precedence over a previously chosen Media
-// Library image, so uploading a new file overrides the old selection.
-const flyerImage = flyerData?.flyer || toPublicUrl(flyerData?.flyerLibraryPath) || undefined;
+// The Media Library pick wins. `flyer` is the pre-library upload value, kept
+// only so events that were never migrated still render.
+const flyerImage = toPublicUrl(flyerData?.flyerLibraryPath) || flyerData?.flyer || undefined;
 
 function formatDate(dateString: string | undefined): string {
   if (!dateString) return 'Date TBD';

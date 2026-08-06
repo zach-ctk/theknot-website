@@ -93,7 +93,10 @@ const sectionStyle =
     opacity: 0.9;
   }
 
+  /* Blue buttons run long per the design doc; length from the shared token. */
   .block-cta__button--blue {
+    width: min(100%, var(--btn-blue-width, 500px));
+    box-sizing: border-box;
     background-color: var(--color-manatee, #84babf);
     color: #000;
   }

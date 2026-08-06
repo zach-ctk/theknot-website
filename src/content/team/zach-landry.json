@@ -2,9 +2,8 @@
   "name": "ZACH LANDRY",
   "role": "Risk Management & Tech Manager",
   "bio": "",
-  "photo": "/images/canva-final/zach-landry/team-zach-landry.jpg",
   "order": 5,
   "isLeadership": true,
   "teamGroup": "leadership",
-  "photoLibraryPath": "public/images/canva-final/zach-landry/team-zach-landry.jpg"
+  "photoLibraryPath": "public/images/canva-final/team/zach-landry.jpg"
 }

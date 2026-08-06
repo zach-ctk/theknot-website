@@ -12,6 +12,9 @@ interface LocalPartner {
   description?: string;
   address?: string;
   hours?: string;
+  // Library pick. `image` is the pre-library upload value, kept only so entries
+  // that were never migrated still render.
+  imageLibraryPath?: string;
   image?: string;
 }
 
@@ -118,21 +121,23 @@ const benefits =
   Array.isArray(membershipPage.benefits) && membershipPage.benefits.length > 0
     ? membershipPage.benefits
     : benefitsFallback;
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const membershipHeroImage =
-  heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
+  heroContent.backgroundImage ||
   "/images/canva-final/canva-hills-background.jpg";
 const membershipHeroVideo =
   heroContent.backgroundVideo ||
   toPublicUrl(heroContent.backgroundVideoLibraryPath) ||
   "/images/canva-final/membership-hero.mp4";
 const manageImage =
-  pricing.image ||
   toPublicUrl(pricing.imageLibraryPath) ||
+  pricing.image ||
   "/images/canva-final/membership-wall-gear-1280.jpg";
 const benefitsImage =
-  membershipPage.benefitsImage ||
   toPublicUrl(membershipPage.benefitsImageLibraryPath) ||
+  membershipPage.benefitsImage ||
   "/images/canva-final/membership-climber-benefits-960.jpg";
 
 const toParagraphs = (text?: string) =>
@@ -155,9 +160,15 @@ const localDiscounts = membershipPage.localDiscounts || {
   partners15: [],
   partners10: [],
 };
+// Resolve each partner's logo up front so the card markup and the detail modal
+// (which reads the serialized partner from data-business) share one `image`.
+const resolvePartner = (partner: LocalPartner) => ({
+  ...partner,
+  image: toPublicUrl(partner.imageLibraryPath) || partner.image,
+});
 const discountTiers = [
-  { label: "15%", partners: localDiscounts.partners15 || [] },
-  { label: "10%", partners: localDiscounts.partners10 || [] },
+  { label: "15%", partners: (localDiscounts.partners15 || []).map(resolvePartner) },
+  { label: "10%", partners: (localDiscounts.partners10 || []).map(resolvePartner) },
 ].filter((tier) => tier.partners.length > 0);
 const bottomCta = membershipPage.bottomCta;
 ---
@@ -569,10 +580,14 @@ const bottomCta = membershipPage.bottomCta;
     margin-bottom: 0;
   }
 
+  /* Blue button: length/height from the shared tokens in global.css. */
   .cta-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: min(100%, var(--btn-blue-width, 500px));
+    min-height: var(--btn-blue-height, 55px);
+    box-sizing: border-box;
     padding: 18px 48px;
     background-color: var(--color-manatee, #84babf);
     color: #000;
@@ -754,7 +769,6 @@ const bottomCta = membershipPage.bottomCta;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    filter: grayscale(100%);
   }
 
   .business-image img {
@@ -816,7 +830,6 @@ const bottomCta = membershipPage.bottomCta;
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: grayscale(100%);
   }
 
   .business-detail-image img {

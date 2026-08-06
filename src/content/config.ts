@@ -166,7 +166,9 @@ const notReadyCards = defineCollection({
   }),
 });
 
-// Media assets index
+// Image Library — the one collection that owns image files. `image` is set for
+// files uploaded through the CMS; `filePath` points at files committed to the
+// repo directly, which no entry owns.
 const mediaAssets = defineCollection({
   type: 'data',
   schema: z.object({
@@ -185,7 +187,8 @@ const mediaAssets = defineCollection({
         'other',
       ])
       .default('other'),
-    filePath: z.string(),
+    image: z.string().nullish(),
+    filePath: z.string().nullish(),
     altText: z.string().optional(),
     tags: z.array(z.string()).optional(),
     notes: z.string().optional(),
@@ -224,10 +227,11 @@ const pages = defineCollection({
       content: z.string().optional(),
       buttonText: z.string().optional(),
       buttonLink: z.string().optional(),
-    })).optional(),
-    feedbackButtons: z.array(z.object({
-      text: z.string(),
-      url: z.string(),
+      buttons: z.array(z.object({
+        text: z.string().optional(),
+        link: z.string().optional(),
+      })).optional(),
+      defaultOpen: z.boolean().optional(),
     })).optional(),
     // Other page-specific fields can be added as needed
     membership: z.any().optional(),

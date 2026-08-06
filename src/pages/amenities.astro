@@ -10,6 +10,8 @@ const amenitiesFallback: Array<{
   imageLabel: string;
   image?: string;
   imageLibraryPath?: string;
+  buttonText?: string;
+  buttonLink?: string;
 }> = [
   {
     title: 'BOULDERING',
@@ -67,9 +69,10 @@ let amenitiesPage: {
     imageLabel?: string;
     image?: string;
     imageLibraryPath?: string;
+    buttonText?: string;
+    buttonLink?: string;
   }[];
   ctaText?: string;
-  ctaButtons?: { text?: string; url?: string }[];
 };
 
 try {
@@ -87,10 +90,6 @@ try {
       image: '/images/canva-final/canva-hills-background.jpg',
     })),
     ctaText: 'Don\'t just take our word for it — come see for yourself! Whether you\'re looking for a new way to stay active, a fun outing with friends, or a welcoming community to be part of, The Knot has something for everyone.',
-    ctaButtons: [
-      { text: 'CLASS SCHEDULE', url: 'https://portal.climbtheknot.com/gnv/calendar' },
-      { text: 'BELAY CLASSES', url: 'https://portal.climbtheknot.com/gnv/services/belay-class' },
-    ],
   };
 }
 
@@ -100,21 +99,16 @@ const toPublicUrl = (libraryPath?: string) =>
     : undefined;
 
 const heroContent = amenitiesPage.hero || {};
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const heroImage =
-  heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
+  heroContent.backgroundImage ||
   '/images/canva-final/canva-hills-background.jpg';
 const amenitiesCards =
   Array.isArray(amenitiesPage.amenityCards) && amenitiesPage.amenityCards.length > 0
     ? amenitiesPage.amenityCards
     : amenitiesFallback;
-const ctaButtons =
-  Array.isArray(amenitiesPage.ctaButtons) && amenitiesPage.ctaButtons.length > 0
-    ? amenitiesPage.ctaButtons
-    : [
-        { text: 'CLASS SCHEDULE', url: 'https://portal.climbtheknot.com/gnv/calendar' },
-        { text: 'BELAY CLASSES', url: 'https://portal.climbtheknot.com/gnv/services/belay-class' },
-      ];
 const introText = amenitiesPage.introText || '';
 const ctaText = amenitiesPage.ctaText || '';
 
@@ -151,7 +145,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     {cardRows.map((row, rowIndex) => (
       <div class={`amenities-grid ${rowIndex === cardRows.length - 1 ? 'row-2' : ''}`}>
         {row.map((amenity) => {
-          const cardImage = amenity.image || toPublicUrl(amenity.imageLibraryPath);
+          const cardImage = toPublicUrl(amenity.imageLibraryPath) || amenity.image;
           return (
             <div class="amenity-card">
               <div class="card-image">
@@ -180,6 +174,16 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
               <div class="card-content">
                 <h3 class="card-title">{amenity.title}</h3>
                 <p class="card-description">{amenity.description}</p>
+                {amenity.buttonText && (
+                  <a
+                    href={amenity.buttonLink || '#'}
+                    target={(amenity.buttonLink || '').startsWith('http') ? '_blank' : undefined}
+                    rel={(amenity.buttonLink || '').startsWith('http') ? 'noopener noreferrer' : undefined}
+                    class="card-button"
+                  >
+                    {amenity.buttonText}
+                  </a>
+                )}
               </div>
             </div>
           );
@@ -187,22 +191,19 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
       </div>
     ))}
 
-    {ctaText && (
-      <p class="section-cta-text">{ctaText}</p>
-    )}
-
-    <!-- CTA Buttons -->
-    <div class="cta-row">
-      {ctaButtons.map((button) => (
-        <a
-          href={button.url || '#'}
-          target={(button.url || '').startsWith('http') ? '_blank' : undefined}
-          rel={(button.url || '').startsWith('http') ? 'noopener noreferrer' : undefined}
-          class="cta-button"
-        >
-          {button.text || 'LEARN MORE'}
-        </a>
-      ))}
+    <!-- Take A Peek: copy on the left, gym tour video on the right -->
+    <h2 class="section-heading peek-heading">TAKE A PEEK</h2>
+    <div class="peek-grid">
+      <div class="peek-text">
+        {ctaText && (
+          <p class="section-cta-text">{ctaText}</p>
+        )}
+      </div>
+      <!-- Placeholder until the tour video is ready: drop the embed inside
+           .peek-video and delete the label span. -->
+      <div class="peek-video">
+        <span class="peek-video-label">Video coming soon</span>
+      </div>
     </div>
   </section>
 
@@ -240,8 +241,8 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     font-family: var(--font-heading);
     font-size: clamp(24px, 3.6vw, 44px);
     font-weight: 900;
-    color: black;
-    text-align: center;
+    color: #fff;
+    text-align: left;
     text-transform: uppercase;
     margin: 0 0 40px 0;
   }
@@ -249,15 +250,20 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
   /* Amenities Grid Section */
   .amenities-grid-section {
     padding: 60px 5%;
-    background: white;
+    background: #000;
   }
 
+  /* Full-width three-up grid: equal columns and an even gap, with the outer
+     edges landing on the section padding so the cards line up with the
+     heading and body copy. */
   .amenities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    max-width: 1000px;
-    margin: 0 auto 24px;
+    /* Wide column gap: the grid still spans the full content width, so the
+       larger the gap, the narrower each card (image and text) becomes. */
+    column-gap: 120px;
+    row-gap: 32px;
+    margin: 0 0 24px;
   }
 
   .row-2 {
@@ -393,44 +399,45 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
 
   .card-content {
     padding: 16px 0;
+    text-align: center;
   }
 
   .card-title {
     font-family: var(--font-heading);
     font-size: 16px;
     font-weight: 700;
-    color: black;
+    color: #fff;
     text-transform: uppercase;
     margin: 0 0 8px 0;
     line-height: 1.2;
   }
 
+  /* Same size/leading as .section-intro and .section-cta-text. */
   .card-description {
     font-family: var(--font-body);
-    font-size: 13px;
-    color: #666;
-    line-height: 1.5;
+    font-size: 16px;
+    color: #ccc;
+    line-height: 1.7;
     margin: 0;
   }
 
-  /* CTA Row */
-  .cta-row {
-    display: flex;
+  /* In-card button. Sized to match the activity/FAQ buttons elsewhere on the
+     site; centered by .card-content's text-align. */
+  .card-button {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    gap: 24px;
-    margin-top: 32px;
-  }
-
-  .cta-button {
-    display: inline-block;
-    min-width: 180px;
-    padding: 14px 32px;
-    text-align: center;
+    width: 100%;
+    max-width: 200px;
+    box-sizing: border-box;
+    margin-top: 16px;
+    padding: 16px 20px;
     background: var(--color-rust);
     color: white;
-    font-family: var(--font-body);
+    font-family: var(--font-heading, 'Uniform Pro', sans-serif);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 1px;
     text-transform: uppercase;
     text-decoration: none;
     border: none;
@@ -438,7 +445,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     transition: opacity 0.2s ease;
   }
 
-  .cta-button:hover {
+  .card-button:hover {
     opacity: 0.9;
   }
 
@@ -446,21 +453,60 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
   .section-intro {
     font-family: var(--font-body);
     font-size: 16px;
-    color: #444;
+    color: #ececec;
     line-height: 1.7;
-    text-align: center;
-    max-width: 760px;
-    margin: 0 auto 40px;
+    text-align: left;
+    margin: 0 0 40px;
   }
 
   .section-cta-text {
     font-family: var(--font-body);
     font-size: 16px;
-    color: #444;
+    color: #ececec;
     line-height: 1.7;
-    text-align: center;
-    max-width: 760px;
-    margin: 40px auto 0;
+    text-align: left;
+    margin: 0;
+  }
+
+  /* Take A Peek Section */
+  .peek-heading {
+    margin-top: 64px;
+  }
+
+  .peek-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    /* Copy starts at the top of the row, just under the heading, rather than
+       floating in the middle of the taller video column. */
+    align-items: start;
+  }
+
+  /* 16/9 shell the real embed can drop into unchanged. */
+  .peek-video {
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #141414;
+    border: 2px dashed #555;
+    box-sizing: border-box;
+  }
+
+  .peek-video :global(iframe),
+  .peek-video :global(video) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  .peek-video-label {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: #9a9a9a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .placeholder-sky,
@@ -494,19 +540,18 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
       gap: 20px;
     }
 
-    .cta-row {
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
+    .peek-heading {
+      margin-top: 48px;
     }
 
-    .cta-button {
-      width: 100%;
-      max-width: 240px;
+    .peek-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
     }
 
     .section-intro,
-    .section-cta-text {
+    .section-cta-text,
+    .card-description {
       font-size: 14px;
     }
   }

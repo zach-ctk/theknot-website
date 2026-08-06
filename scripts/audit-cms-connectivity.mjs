@@ -182,9 +182,6 @@ function validateRequiredSingletonPages() {
         if (!Array.isArray(data?.amenityCards) || data.amenityCards.length === 0) {
           fail('Amenities cards are empty.');
         }
-        if (!Array.isArray(data?.ctaButtons) || data.ctaButtons.length === 0) {
-          fail('Amenities CTA buttons are empty.');
-        }
       },
     },
     {

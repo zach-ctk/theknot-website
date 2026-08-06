@@ -163,17 +163,19 @@ const toPublicUrl = (libraryPath?: string) =>
 const heroContent = newClimbersPage.hero || newClimberFallback.hero;
 const welcomeContent = newClimbersPage.welcome || newClimberFallback.welcome;
 const dayPassContent = newClimbersPage.dayPass || newClimberFallback.dayPass;
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const heroImage =
-  heroContent.backgroundImage ||
   toPublicUrl(heroContent.backgroundImageLibraryPath) ||
+  heroContent.backgroundImage ||
   "/images/canva-final/newclimbers-hero-photo.jpg";
 const welcomeImage =
-  welcomeContent.image ||
   toPublicUrl(welcomeContent.imageLibraryPath) ||
+  welcomeContent.image ||
   "/images/canva-final/newclimbers-welcome.jpg";
 const dayPassImage =
-  dayPassContent.image ||
   toPublicUrl(dayPassContent.imageLibraryPath) ||
+  dayPassContent.image ||
   "/images/canva-final/newclimbers-daypass-1440.jpg";
 const welcomeParagraphs =
   Array.isArray(welcomeContent.paragraphs) &&
@@ -202,8 +204,8 @@ const activitiesCards =
         buttonText: card.buttonText || "LEARN MORE",
         buttonHref: card.buttonLink || "#",
         imageSrc:
-          card.image ||
           toPublicUrl(card.imageLibraryPath) ||
+          card.image ||
           "/images/canva-final/canva-hills-background.jpg",
         imageAlt: card.imageAlt || card.buttonText || "Activity card image",
       }))
@@ -380,16 +382,6 @@ const activitiesCards =
           href="/membership">Membership</a
         > page for more info.
       </p>
-      <div class="membership-cta-actions">
-        <a
-          href="https://portal.climbtheknot.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="portal-button"
-        >
-          REDPOINT MEMBER PORTAL
-        </a>
-      </div>
     </div>
   </section>
 </BaseLayout>
@@ -631,7 +623,11 @@ const activitiesCards =
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px 24px;
+    align-self: center;
+    width: 100%;
+    max-width: 200px;
+    box-sizing: border-box;
+    padding: 16px 20px;
     background-color: var(--color-rust, #b94237);
     color: #fff;
     font-family: var(--font-heading, "Uniform Pro", sans-serif);
@@ -702,7 +698,6 @@ const activitiesCards =
     line-height: 1.6;
     color: #ececec;
     text-align: left;
-    max-width: 900px;
     margin: 0 0 16px;
   }
 
@@ -717,35 +712,6 @@ const activitiesCards =
 
   .membership-cta-text a:hover {
     text-decoration: underline;
-  }
-
-  .membership-cta-actions {
-    margin-top: 32px;
-    display: flex;
-    justify-content: center;
-  }
-
-  /* Matches the .cta-button in the membership page's Manage Membership section. */
-  .portal-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 18px 48px;
-    background-color: var(--color-manatee, #84babf);
-    color: #000;
-    font-family: var(--font-heading, "Uniform Pro", sans-serif);
-    font-size: 16px;
-    font-weight: 700;
-    text-transform: uppercase;
-    text-decoration: none;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-
-  .portal-button:hover {
-    opacity: 0.85;
   }
 
   /* Mobile Responsive */
@@ -822,12 +788,6 @@ const activitiesCards =
 
     .membership-cta-inner {
       padding: 0 24px;
-    }
-
-    .portal-button {
-      width: 100%;
-      max-width: 340px;
-      padding: 16px 24px;
     }
   }
 </style>

@@ -22,7 +22,9 @@
       "title": "Yoga & Fitness Classes",
       "description": "We offer at least one free class for members every day. Our goal is to provide everything our members need for a well-rounded climbing experience under one roof.\n\nCheck out our full schedule for class times & more info!",
       "imageLabel": "Pic of yoga class",
-      "imageLibraryPath": "public/images/canva-final/photos/amenities-yoga-fitness.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-yoga-fitness.jpg",
+      "buttonText": "CLASS SCHEDULE",
+      "buttonLink": "https://portal.climbtheknot.com/gnv/n/calendar"
     },
     {
       "title": "Free Gear Rental",
@@ -34,7 +36,9 @@
       "title": "Free Belay Classes",
       "description": "Never climbed before? No problem! All members receive our undivided attention for a free belay class to help you learn the ropes.\n\nCheck out our schedule for more info!",
       "imageLabel": "Belay class pic",
-      "imageLibraryPath": "public/images/canva-final/photos/amenities-belay-classes.jpg"
+      "imageLibraryPath": "public/images/canva-final/photos/amenities-belay-classes.jpg",
+      "buttonText": "BELAY CLASSES",
+      "buttonLink": "https://portal.climbtheknot.com/gnv/programs/belay-class"
     },
     {
       "title": "Extensive Training Area & On-Site Showers",
@@ -43,15 +47,5 @@
       "imageLibraryPath": "public/images/canva-final/photos/amenities-training-showers.jpg"
     }
   ],
-  "ctaText": "Don't just take our word for it! Come check out all of our amenities in person or watch our virtual tour to get a feel for what we have to offer.",
-  "ctaButtons": [
-    {
-      "text": "CLASS SCHEDULE",
-      "url": "https://portal.climbtheknot.com/gnv/n/calendar"
-    },
-    {
-      "text": "BELAY CLASSES",
-      "url": "https://portal.climbtheknot.com/gnv/programs/belay-class"
-    }
-  ]
+  "ctaText": "Don't just take our word for it! Come check out all of our amenities in person or watch our virtual tour to get a feel for what we have to offer."
 }

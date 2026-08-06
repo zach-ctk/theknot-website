@@ -87,9 +87,11 @@ const toPublicUrl = (libraryPath?: string | null) =>
     ? `/${libraryPath.slice("public/".length)}`
     : undefined;
 
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const eventImage = (event: (typeof allEvents)[number]) =>
-  event.data.image ||
   toPublicUrl(event.data.imageLibraryPath) ||
+  event.data.image ||
   hillsPlaceholder;
 
 // The flyer is the primary image everywhere on the events index (cards, next
@@ -98,7 +100,7 @@ const eventImage = (event: (typeof allEvents)[number]) =>
 const cardImage = (event: (typeof allEvents)[number]) => {
   const flyer = event.data.eventPage?.value;
   return (
-    flyer?.flyer || toPublicUrl(flyer?.flyerLibraryPath) || eventImage(event)
+    toPublicUrl(flyer?.flyerLibraryPath) || flyer?.flyer || eventImage(event)
   );
 };
 
@@ -108,31 +110,34 @@ const eventParagraphs = (description?: string) =>
     .map((line) => line.trim())
     .filter(Boolean);
 
+// Pricing, length, and group size come from the group events cheat sheet.
+// Each entry follows the same shape: a short description, then a bulleted
+// Length / Price / Group size block, then any booking requirements.
 const eventTypeItems = [
   {
     title: "BOULDERING ONLY",
     content:
-      "Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.",
+      "Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.\n\n● Length: 2 hours\n● Price: $200 for up to 8 climbers, then $15 per additional climber\n● Group size: 8 - 30 climbers (max 20 for youth groups)",
   },
   {
     title: "TOP ROPE + BOULDERING",
     content:
-      "Top rope events include harnesses and rope climbing lanes in addition to bouldering zones. Belay support requirements depend on group size.",
+      "Top rope events include harnesses and rope climbing lanes in addition to bouldering zones.\n\n● Length: 2 hours\n● Price: $200 for up to 8 climbers, then $15 per additional climber\n● Group size: 8 - 30 climbers (max 20 for youth groups)\n\nAll belayers must be certified at The Knot. If your group plans to bring its own belayers, they will need to pass a belay check-off at our facility before the event.",
   },
   {
     title: "STAFF BELAY",
     content:
-      "Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.",
+      "Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.\n\n● Length: 1 - 2 hours\n● Price: $100 for up to 4 climbers, then $20 per additional climber\n● Group size: 4 - 20 climbers",
   },
   {
     title: "YOGA OR FITNESS CLASS",
     content:
-      "Add yoga or fitness sessions to your event package. Availability depends on instructor schedules and gym staffing.",
+      "Add a private yoga or fitness session to your event package.\n\n● Length: 1 hour\n● Price: $150 per class\n● Group size: Up to 10 participants\n\nPrivate classes are subject to instructor availability.",
   },
   {
     title: "BELAY CLASS",
     content:
-      "Belay classes can be added for groups that want certification as part of the event experience.",
+      "Belay classes can be added for groups that want certification as part of the event experience.\n\n● Length: 2 hours\n● Price: $200 per class\n● Group size: Up to 4 participants",
   },
   {
     title: "KIDS POLICIES",
@@ -291,10 +296,10 @@ const eventTypeItems = [
     </p>
     <div class="group-buttons">
       <a
-        href="https://form.asana.com/?k=event-request"
+        href="https://form.asana.com/?k=JDie6HSxcL5R1kJCgsb0iw&d=1199115976275379"
         target="_blank"
         rel="noopener noreferrer"
-        class="btn-secondary"
+        class="btn-primary"
       >
         EVENT REQUEST FORM
       </a>
@@ -322,7 +327,7 @@ const eventTypeItems = [
                 href={event.data.registrationLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="btn-secondary"
+                class="btn-secondary register-button"
               >
                 REGISTER HERE
               </a>
@@ -361,7 +366,7 @@ const eventTypeItems = [
           href="https://upendingparkinsons.org/"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn-secondary"
+          class="btn-secondary register-button"
         >
           REGISTER HERE
         </a>
@@ -417,10 +422,6 @@ const eventTypeItems = [
     background: #000;
   }
 
-  .calendar-section {
-    background: #fff;
-  }
-
   /* Centers a section's content in the same 1200px column the grids use, so
      titles, subtext, and group-events content all share the page's alignment. */
   .section-inner {
@@ -438,20 +439,12 @@ const eventTypeItems = [
     line-height: 1.1;
   }
 
-  .calendar-section .section-title {
-    color: #000;
-  }
-
   .section-subtext {
     margin: 0 0 20px;
     color: #ddd;
     font-family: var(--font-body);
     font-size: 14px;
     line-height: 1.5;
-  }
-
-  .calendar-section .section-subtext {
-    color: #4d4d4d;
   }
 
   .next-event-grid {
@@ -489,7 +482,6 @@ const eventTypeItems = [
 
   .next-event-button {
     margin-top: 16px;
-    width: min(100%, 320px);
   }
 
   .calendar-grid {
@@ -503,10 +495,10 @@ const eventTypeItems = [
   .calendar-card {
     display: block;
     text-decoration: none;
-    border: 1px solid #dadada;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     overflow: hidden;
-    background: #fff;
+    background: #141414;
     color: inherit;
     transition:
       transform 0.2s ease,
@@ -523,7 +515,8 @@ const eventTypeItems = [
 
   .calendar-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
   }
 
   .event-detail-panel {
@@ -533,10 +526,10 @@ const eventTypeItems = [
 
   .event-detail {
     position: relative;
-    border: 1px solid #dadada;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     overflow: hidden;
-    background: #fff;
+    background: #141414;
   }
 
   .event-detail-inner {
@@ -562,7 +555,7 @@ const eventTypeItems = [
 
   .event-detail-title {
     margin: 0;
-    color: #000;
+    color: #fff;
     font-family: var(--font-heading);
     font-size: clamp(20px, 4vw, 28px);
     font-weight: 900;
@@ -572,7 +565,7 @@ const eventTypeItems = [
 
   .event-detail-meta {
     margin: 0;
-    color: var(--color-rust, #b94237);
+    color: var(--color-coral, #d89b92);
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 700;
@@ -580,7 +573,7 @@ const eventTypeItems = [
 
   .event-detail-description {
     margin: 0;
-    color: #333;
+    color: #ccc;
     font-family: var(--font-body);
     font-size: 15px;
     line-height: 1.6;
@@ -631,7 +624,7 @@ const eventTypeItems = [
 
   .calendar-card-title {
     margin: 0 0 4px;
-    color: #000;
+    color: #fff;
     font-family: var(--font-heading);
     font-size: 14px;
     text-transform: uppercase;
@@ -639,14 +632,14 @@ const eventTypeItems = [
 
   .calendar-card-date {
     margin: 0;
-    color: #666;
+    color: #ccc;
     font-family: var(--font-body);
     font-size: 12px;
   }
 
   .calendar-empty {
     margin: 0;
-    color: #4d4d4d;
+    color: #ccc;
     font-family: var(--font-body);
   }
 
@@ -667,10 +660,34 @@ const eventTypeItems = [
     line-height: 1.6;
   }
 
+  /* Two equal columns with each button centered in its own column, so the pair
+     reads as evenly spaced around the section's center line. */
   .group-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
+    gap: 16px;
+    /* 30% narrower than the 1200px content column, which pulls the two
+       centered buttons in toward each other on wide screens. */
+    max-width: 840px;
+    margin: 0 auto;
+  }
+
+  /* Compact sizing, in the spirit of the activity/FAQ buttons but with a
+     slightly wider cap so "EVENT REQUEST FORM" fits on one line at the normal
+     20px horizontal padding. */
+  .group-buttons .btn-primary {
+    width: 100%;
+    max-width: 240px;
+    box-sizing: border-box;
+    padding: 16px 20px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    .group-buttons {
+      grid-template-columns: 1fr;
+    }
   }
 
   .upending-grid {
@@ -687,6 +704,11 @@ const eventTypeItems = [
     aspect-ratio: 16 / 9;
     object-fit: cover;
     border-radius: 6px;
+  }
+
+  /* Length/height/type come from the shared blue-button tokens in global.css. */
+  .register-button {
+    margin-top: 12px;
   }
 
   @media (max-width: 900px) {

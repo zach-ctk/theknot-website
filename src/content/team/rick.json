@@ -1,9 +1,0 @@
-{
-  "name": "RICK",
-  "role": "Coordinator",
-  "teamGroup": "leadership",
-  "photoLibraryPath": "public/images/canva-final/rick/staff-rick.jpg",
-  "photo": "/images/canva-final/rick/photo.jpg",
-  "order": 12,
-  "isLeadership": false
-}

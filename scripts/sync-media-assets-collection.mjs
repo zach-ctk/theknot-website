@@ -67,11 +67,21 @@ const existingEntries = fs
   .filter((name) => name.endsWith('.json'))
   .map((name) => path.join(COLLECTION_ROOT, name));
 
+// Files an Image Library entry already accounts for. `filePath` is an index
+// pointer at a file committed to the repo directly; `image` is a file the entry
+// OWNS because it was uploaded through the CMS (stored as a public URL, e.g.
+// "/images/canva-final/team-jill/image.jpg"). Owned files must not get a second,
+// index-only entry — two entries for one file is confusing, and only the owning
+// one can delete it.
 const existingByFilePath = new Map();
+const ownedFilePaths = new Set();
 for (const entryPath of existingEntries) {
   const parsed = readJsonIfExists(entryPath);
   if (parsed?.filePath) {
     existingByFilePath.set(parsed.filePath, entryPath);
+  }
+  if (typeof parsed?.image === 'string' && parsed.image.startsWith('/')) {
+    ownedFilePaths.add(`public${parsed.image}`);
   }
 }
 
@@ -83,6 +93,7 @@ for (const absolutePath of mediaFiles) {
   const relFromPublic = path.relative(path.join(ROOT, 'public'), absolutePath).replace(/\\/g, '/');
   const relFromLibrary = path.relative(MEDIA_ROOT, absolutePath).replace(/\\/g, '/');
   const filePath = `public/${relFromPublic}`;
+  if (ownedFilePaths.has(filePath)) continue;
   const slug = slugify(relFromLibrary);
   const category = inferCategory(relFromLibrary.toLowerCase());
   const targetPath = path.join(COLLECTION_ROOT, `${slug}.json`);

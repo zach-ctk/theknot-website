@@ -58,15 +58,17 @@ const toPublicUrl = (libraryPath?: string) =>
     ? `/${libraryPath.slice("public/".length)}`
     : undefined;
 
+// Library pick first, legacy upload value second: uploads no longer exist as CMS
+// fields, so the second term only covers content that predates the migration.
 const heroImageFromCms =
-  heroContent?.backgroundImage ||
-  toPublicUrl(heroContent?.backgroundImageLibraryPath);
+  toPublicUrl(heroContent?.backgroundImageLibraryPath) ||
+  heroContent?.backgroundImage;
 const homeHeroImage =
   heroImageFromCms === "/images/canva-final/home-hero-bg.jpg"
     ? "/images/canva-final/home-hero-bg-1366.jpg"
     : heroImageFromCms || "/images/canva-final/home-hero-bg-1366.jpg";
 const membershipImageFromCms =
-  membershipContent?.image || toPublicUrl(membershipContent?.imageLibraryPath);
+  toPublicUrl(membershipContent?.imageLibraryPath) || membershipContent?.image;
 const membershipPromoImage =
   membershipImageFromCms === "/images/canva-final/home-hero-bg.jpg"
     ? "/images/canva-final/home-hero-bg-1366.jpg"
@@ -225,8 +227,8 @@ try {
         buttonText: card.data.buttonText,
         buttonLink: card.data.buttonLink,
         image:
-          card.data.image ||
           toPublicUrl(card.data.imageLibraryPath) ||
+          card.data.image ||
           "/images/canva-final/canva-hills-background.jpg",
         order: card.data.order,
       }))

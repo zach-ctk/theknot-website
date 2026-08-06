@@ -294,9 +294,17 @@ select:focus-visible {
          transition-opacity duration-200 hover:opacity-90;
 }
 
+/* Blue/manatee buttons run long per the design doc. The width/height tokens
+   above are the single source of truth, so every blue button on the site is
+   the same length; min() lets it fall back to the container width in narrow
+   columns and on mobile. */
 .btn-secondary {
   @apply inline-flex items-center justify-center px-10 py-4
          bg-tkcg-manatee text-black font-heading font-bold
          uppercase tracking-wider text-sm
          transition-opacity duration-200 hover:opacity-90;
+  width: min(100%, var(--btn-blue-width));
+  min-height: var(--btn-blue-height);
+  padding: 18px 48px;
+  font-size: 16px;
 }

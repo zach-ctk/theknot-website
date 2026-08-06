@@ -10,8 +10,10 @@ export function toPublicUrl(libraryPath?: string): string | undefined {
   return undefined;
 }
 
-// Resolve an image reference, preferring uploaded files over library paths,
-// matching the precedence used by all hardcoded pages.
+// Resolve an image reference, preferring the Media Library pick, matching the
+// precedence used by all hardcoded pages. `image`/`backgroundImage` are the
+// pre-library upload values, kept only so blocks that were never migrated still
+// render — uploads no longer exist as CMS fields.
 export function resolveImage(value: {
   image?: string | null;
   imageLibraryPath?: string | null;
@@ -19,10 +21,10 @@ export function resolveImage(value: {
   backgroundImageLibraryPath?: string | null;
 }): string | undefined {
   return (
-    value.image ||
-    value.backgroundImage ||
     toPublicUrl(value.imageLibraryPath || undefined) ||
     toPublicUrl(value.backgroundImageLibraryPath || undefined) ||
+    value.image ||
+    value.backgroundImage ||
     undefined
   );
 }

@@ -3,16 +3,32 @@ import { useState } from 'react';
 interface AccordionItem {
   title: string;
   content?: string;
+  /** Legacy single button: wide, manatee-colored. Requires both text and link. */
   buttonText?: string;
   buttonLink?: string;
+  /** Multiple compact rust-colored buttons, rendered side by side. Takes
+      precedence over buttonText/buttonLink when present. A button with no
+      link yet still renders (href falls back to #). */
+  buttons?: {
+    text?: string;
+    link?: string;
+  }[];
+  /** Expand this item on first render. If several are flagged, the first wins —
+      only one item is open at a time. */
+  defaultOpen?: boolean;
 }
+
+const isExternal = (link?: string) => !!link && link.startsWith('http');
 
 interface AccordionProps {
   items: AccordionItem[];
 }
 
 export default function Accordion({ items }: AccordionProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const initialOpenIndex = items.findIndex((item) => item.defaultOpen);
+  const [openIndex, setOpenIndex] = useState<number | null>(
+    initialOpenIndex === -1 ? null : initialOpenIndex
+  );
 
   const toggleItem = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -30,6 +46,8 @@ export default function Accordion({ items }: AccordionProps) {
       {items.map((item, index) => {
         const contentId = `accordion-content-${index}`;
         const headerId = `accordion-header-${index}`;
+
+        const compactButtons = (item.buttons ?? []).filter((button) => button?.text);
 
         return (
         <div key={index} className="accordion-item">
@@ -126,18 +144,32 @@ export default function Accordion({ items }: AccordionProps) {
                   </p>
                 );
               })}
-              {item.buttonText && item.buttonLink && (
+              {compactButtons.length > 0 ? (
+                <div className="accordion-button-container accordion-button-row">
+                  {compactButtons.map((button, bIndex) => (
+                    <a
+                      key={bIndex}
+                      href={button.link || '#'}
+                      className="accordion-button accordion-button--compact"
+                      target={isExternal(button.link) ? '_blank' : undefined}
+                      rel={isExternal(button.link) ? 'noopener noreferrer' : undefined}
+                    >
+                      {button.text}
+                    </a>
+                  ))}
+                </div>
+              ) : item.buttonText && item.buttonLink ? (
                 <div className="accordion-button-container">
                   <a
                     href={item.buttonLink}
                     className="accordion-button"
-                    target={item.buttonLink.startsWith('http') ? '_blank' : undefined}
-                    rel={item.buttonLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    target={isExternal(item.buttonLink) ? '_blank' : undefined}
+                    rel={isExternal(item.buttonLink) ? 'noopener noreferrer' : undefined}
                   >
                     {item.buttonText}
                   </a>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
@@ -243,12 +275,14 @@ export default function Accordion({ items }: AccordionProps) {
           margin-top: 24px;
         }
 
+        /* Blue button: length/height from the shared tokens in global.css. */
         .accordion-button {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          min-width: min(100%, 500px);
-          min-height: 55px;
+          width: min(100%, var(--btn-blue-width, 500px));
+          min-height: var(--btn-blue-height, 55px);
+          box-sizing: border-box;
           padding: 14px 32px;
           background-color: var(--color-manatee, #84BABF);
           color: black;
@@ -265,6 +299,32 @@ export default function Accordion({ items }: AccordionProps) {
 
         .accordion-button:hover {
           opacity: 0.9;
+        }
+
+        /* Row of compact buttons, sized to match the new-climbers activity
+           card buttons (rust, 200px cap, 16px/20px padding). */
+        .accordion-button-row {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          /* Row gap stays tight for when the buttons stack on narrow screens;
+             the wider column gap is the side-by-side spacing. */
+          gap: 16px 48px;
+        }
+
+        .accordion-button--compact {
+          min-width: 0;
+          min-height: 0;
+          width: 100%;
+          max-width: 200px;
+          box-sizing: border-box;
+          padding: 16px 20px;
+          background-color: var(--color-rust, #b94237);
+          color: #fff;
+          font-family: var(--font-heading, 'Uniform Pro', sans-serif);
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: 1px;
         }
 
         @media (max-width: 768px) {
@@ -294,6 +354,13 @@ export default function Accordion({ items }: AccordionProps) {
             max-width: 320px;
             padding: 16px 24px;
             font-size: 14px;
+          }
+
+          /* Keep the compact buttons compact — the rule above would otherwise
+             widen them to 320px on mobile. */
+          .accordion-button--compact {
+            max-width: 200px;
+            padding: 16px 20px;
           }
         }
       `}</style>

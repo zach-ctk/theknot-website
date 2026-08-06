@@ -1,5 +1,5 @@
 import { config, fields, collection, singleton } from '@keystatic/core';
-import { createElement, Fragment, type FunctionComponent } from 'react';
+import { createElement, Fragment, useState, type FunctionComponent } from 'react';
 
 const CMS_IMAGE_DIRECTORY = 'public/images/canva-final';
 const CMS_IMAGE_PUBLIC_PATH = '/images/canva-final/';
@@ -31,20 +31,138 @@ function colorPaletteField(label: string, defaultValue: string, description?: st
   });
 }
 
+// Every image slot on the site is a *reference* to a file in the shared library,
+// never an owned upload. That distinction is the whole point: a `fields.image`
+// upload owns the file it writes, so Keystatic deletes that file from
+// public/images/canva-final the moment the field is cleared — which is how
+// "remove" on a staff card used to wipe a photo out of the library for every
+// other page using it. A pathReference has no such power: clearing it unsets the
+// pick and leaves the file alone. New files enter (and leave) the library in
+// exactly one place — the Image Library collection.
+const LIBRARY_PICKER_HINT =
+  'Only images already in the library appear here — add new ones under Image Library. Clearing this unsets the pick without deleting the file.';
+
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif', 'svg']);
+const VIDEO_EXTENSIONS = new Set(['mp4', 'webm', 'mov', 'm4v']);
+
+// Neutral greys rather than theme colors — the Keystatic admin renders in both a
+// light and a dark theme, and semi-transparent grey reads correctly on either.
+const PREVIEW_BORDER = '1px solid rgba(128, 128, 128, 0.35)';
+const PREVIEW_SURFACE = 'rgba(128, 128, 128, 0.12)';
+
+// Thumbnail of whatever a picker currently points at. A pathReference field only
+// renders the stored path, so without this there is no way to tell a right pick
+// from a wrong one without opening the file — the reason these previews exist.
+function MediaPreview({ value }: { value: unknown }) {
+  // Remember which src failed rather than a bare boolean, so picking a different
+  // file clears the error without needing an effect to reset it.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  const storedPath = typeof value === 'string' ? value.trim() : '';
+  if (!storedPath) return null;
+
+  // Library paths are repo-relative ("public/images/…"); the admin loads them
+  // over HTTP from the site root, where public/ is served.
+  const src = storedPath.startsWith('public/') ? `/${storedPath.slice('public/'.length)}` : storedPath;
+  const filename = src.slice(src.lastIndexOf('/') + 1) || src;
+  const extension = filename.includes('.') ? filename.slice(filename.lastIndexOf('.') + 1).toLowerCase() : '';
+
+  const caption = createElement(
+    'div',
+    { style: { minWidth: 0, fontSize: 12, lineHeight: 1.4 } },
+    createElement('div', { style: { fontWeight: 600, wordBreak: 'break-all' } }, filename),
+    createElement(
+      'div',
+      { style: { opacity: 0.7, wordBreak: 'break-all' } },
+      failedSrc === src ? `Not found at ${src} — the file may have been removed.` : src
+    )
+  );
+
+  let media = null;
+  if (failedSrc === src) {
+    media = null;
+  } else if (IMAGE_EXTENSIONS.has(extension)) {
+    media = createElement('img', {
+      src,
+      alt: `Preview of ${filename}`,
+      onError: () => setFailedSrc(src),
+      style: {
+        display: 'block',
+        width: 120,
+        height: 90,
+        objectFit: 'contain' as const,
+        borderRadius: 4,
+        background: PREVIEW_SURFACE,
+        flexShrink: 0,
+      },
+    });
+  } else if (VIDEO_EXTENSIONS.has(extension)) {
+    media = createElement('video', {
+      src,
+      muted: true,
+      controls: true,
+      preload: 'metadata',
+      onError: () => setFailedSrc(src),
+      style: { display: 'block', width: 160, borderRadius: 4, background: PREVIEW_SURFACE, flexShrink: 0 },
+    });
+  }
+
+  return createElement(
+    'div',
+    {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginTop: 8,
+        padding: 8,
+        border: PREVIEW_BORDER,
+        borderRadius: 6,
+      },
+    },
+    media,
+    caption
+  );
+}
+
+type PathReferenceField = ReturnType<typeof fields.pathReference>;
+type PathReferenceInputProps = Parameters<PathReferenceField['Input']>[0];
+
+// See the note on imageUploadField for why these casts are type-only: Keystatic
+// resolves against a nested @types/react@19 while this project pins v18.
+function withMediaPreview(base: PathReferenceField): PathReferenceField {
+  const BaseInput = base.Input as unknown as FunctionComponent<PathReferenceInputProps>;
+  return {
+    ...base,
+    Input(props: PathReferenceInputProps) {
+      return createElement(
+        Fragment,
+        null,
+        createElement(BaseInput, props),
+        createElement(MediaPreview, { value: props.value })
+      ) as unknown as ReturnType<PathReferenceField['Input']>;
+    },
+  };
+}
+
 function imageLibraryField(label: string, description?: string) {
-  return fields.pathReference({
-    label,
-    description,
-    pattern: CMS_IMAGE_LIBRARY_PATTERN,
-  });
+  return withMediaPreview(
+    fields.pathReference({
+      label,
+      description: description ? `${description} ${LIBRARY_PICKER_HINT}` : LIBRARY_PICKER_HINT,
+      pattern: CMS_IMAGE_LIBRARY_PATTERN,
+    })
+  );
 }
 
 function videoLibraryField(label: string, description?: string) {
-  return fields.pathReference({
-    label,
-    description,
-    pattern: CMS_VIDEO_LIBRARY_PATTERN,
-  });
+  return withMediaPreview(
+    fields.pathReference({
+      label,
+      description,
+      pattern: CMS_VIDEO_LIBRARY_PATTERN,
+    })
+  );
 }
 
 function objectPositionXField() {
@@ -79,6 +197,10 @@ const SIZE_GUIDANCE = {
   teamPhoto: 'Recommended: 600–800px, square crop, ≤ 150KB.',
   eventImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
   productImage: 'Recommended: 1000–1200px wide, ≤ 300KB.',
+  // The library holds every kind of image, so its guidance spans the range and
+  // the per-slot numbers above stay as advice on the pickers that use them.
+  libraryImage:
+    'Recommended: 800–1200px wide for cards and team photos, 1600–2400px for full-width hero images. JPG or WebP.',
 } as const;
 
 // Hard upload ceilings, enforced by imageUploadField. Set well above the
@@ -95,6 +217,9 @@ const MAX_UPLOAD_KB = {
   productImage: 1536,
   teamPhoto: 1024,
   partnerLogo: 1024,
+  // One ceiling for the library, set to the largest per-slot value (hero images)
+  // because a single upload point can't know which slot the image is destined for.
+  libraryImage: 2560,
 } as const;
 
 type ImageKind = keyof typeof MAX_UPLOAD_KB;
@@ -105,6 +230,10 @@ function formatBytes(bytes: number) {
     : `${Math.round(bytes / 1024)}KB`;
 }
 
+// The one owned-upload field in the config, used only by the Image Library
+// collection — see the note on imageLibraryField above for why nothing else
+// uploads in place.
+//
 // Keystatic's fields.image only validates `isRequired`, so a size limit has to be
 // layered on top. Two halves, both needed: `validate` is what actually blocks the
 // save, and `Input` renders the reason inline — Keystatic only console.warns
@@ -415,7 +544,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -449,7 +577,6 @@ export default config({
               'Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: imageUploadField('Upload New Section Image (optional)', 'sectionImage'),
           },
           { label: 'Membership Section' }
         ),
@@ -564,7 +691,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -630,20 +756,28 @@ export default config({
             content: fields.text({ label: 'Answer', multiline: true }),
             buttonText: fields.text({ label: 'Button Text (optional)' }),
             buttonLink: fields.text({ label: 'Button Link (optional)' }),
+            buttons: fields.array(
+              fields.object({
+                text: fields.text({ label: 'Button Text' }),
+                link: fields.text({ label: 'Button Link' }),
+              }),
+              {
+                label: 'Buttons (optional)',
+                description:
+                  'Two or more compact buttons shown side by side. If used, these replace the single Button Text/Link above.',
+                itemLabel: (props) => props.fields.text.value || 'Button',
+              }
+            ),
+            defaultOpen: fields.checkbox({
+              label: 'Open by default',
+              description:
+                'Expand this question when the page loads. Only one question can be open at a time — if several are checked, the first one wins.',
+              defaultValue: false,
+            }),
           }),
           {
             label: 'FAQ Items',
             itemLabel: (props) => props.fields.title.value || 'Question',
-          }
-        ),
-        feedbackButtons: fields.array(
-          fields.object({
-            text: fields.text({ label: 'Button Text' }),
-            url: fields.text({ label: 'Button URL' }),
-          }),
-          {
-            label: 'Feedback Buttons',
-            itemLabel: (props) => props.fields.text.value || 'Button',
           }
         ),
       },
@@ -673,7 +807,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -721,10 +854,6 @@ export default config({
               'Manage Membership Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.pricingImage}`
             ),
-            image: imageUploadField(
-              'Upload New Manage Membership Section Image (optional)',
-              'pricingImage'
-            ),
           },
           { label: 'Billing Section' }
         ),
@@ -742,7 +871,6 @@ export default config({
           'Benefits Section Image (Media Library)',
           `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
         ),
-        benefitsImage: imageUploadField('Upload New Benefits Section Image (optional)', 'sectionImage'),
         localDiscounts: fields.object(
           {
             headline: fields.text({
@@ -761,7 +889,10 @@ export default config({
                 description: fields.text({ label: 'Description (optional)', multiline: true }),
                 address: fields.text({ label: 'Address (optional)' }),
                 hours: fields.text({ label: 'Hours (optional)' }),
-                image: imageUploadField('Logo / Photo (optional)', 'partnerLogo'),
+                imageLibraryPath: imageLibraryField(
+                  'Logo / Photo (optional)',
+                  `Select the business's logo or photo from the shared media library. ${SIZE_GUIDANCE.partnerLogo}`
+                ),
               }),
               {
                 label: '15% Off Partners',
@@ -775,7 +906,10 @@ export default config({
                 description: fields.text({ label: 'Description (optional)', multiline: true }),
                 address: fields.text({ label: 'Address (optional)' }),
                 hours: fields.text({ label: 'Hours (optional)' }),
-                image: imageUploadField('Logo / Photo (optional)', 'partnerLogo'),
+                imageLibraryPath: imageLibraryField(
+                  'Logo / Photo (optional)',
+                  `Select the business's logo or photo from the shared media library. ${SIZE_GUIDANCE.partnerLogo}`
+                ),
               }),
               {
                 label: '10% Off Partners',
@@ -825,7 +959,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -845,7 +978,6 @@ export default config({
               'Welcome Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: imageUploadField('Upload New Welcome Section Image (optional)', 'sectionImage'),
           },
           { label: 'Welcome Section' }
         ),
@@ -876,7 +1008,6 @@ export default config({
               'Day Pass Section Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
             ),
-            image: imageUploadField('Upload New Day Pass Section Image (optional)', 'sectionImage'),
           },
           { label: 'Day Pass Section' }
         ),
@@ -899,7 +1030,6 @@ export default config({
               'Card Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
-            image: imageUploadField('Upload New Card Image (optional)', 'cardImage'),
             imageAlt: fields.text({ label: 'Image Alt Text' }),
           }),
           {
@@ -925,7 +1055,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -954,21 +1083,15 @@ export default config({
               'Amenity Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
             ),
-            image: imageUploadField('Upload New Amenity Image (optional)', 'cardImage'),
+            buttonText: fields.text({
+              label: 'Button Text (optional)',
+              description: 'Leave blank for cards with no button.',
+            }),
+            buttonLink: fields.text({ label: 'Button Link (optional)' }),
           }),
           {
             label: 'Amenity Cards',
             itemLabel: (props) => props.fields.title.value || 'Amenity',
-          }
-        ),
-        ctaButtons: fields.array(
-          fields.object({
-            text: fields.text({ label: 'Button Text' }),
-            url: fields.text({ label: 'Button URL' }),
-          }),
-          {
-            label: 'CTA Buttons',
-            itemLabel: (props) => props.fields.text.value || 'Button',
           }
         ),
       },
@@ -989,7 +1112,6 @@ export default config({
               'Background Image (Media Library)',
               `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
             ),
-            backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
             objectPositionX: objectPositionXField(),
             objectPositionY: objectPositionYField(),
           },
@@ -1041,7 +1163,6 @@ export default config({
           `Select an existing file from the shared media library. ${SIZE_GUIDANCE.teamPhoto}`
         ),
         bio: fields.text({ label: 'Bio', multiline: true }),
-        photo: imageUploadField('Upload New Photo (optional)', 'teamPhoto', 'Optional upload. Use Media Library above for existing files. '),
         order: fields.integer({
           label: 'Display Order',
           defaultValue: 99,
@@ -1081,7 +1202,6 @@ export default config({
           'Event Image (Media Library)',
           `Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
         ),
-        image: imageUploadField('Upload New Event Image (optional)', 'eventImage', 'Optional upload. Use Media Library above for existing files. '),
         registrationLink: fields.text({
           label: 'Registration Link',
           description: 'URL for event registration (optional)',
@@ -1101,7 +1221,6 @@ export default config({
                   'Flyer Image (Media Library)',
                   `Shown beside the event details on the dedicated page. Select an existing file from the shared media library. ${SIZE_GUIDANCE.eventImage}`
                 ),
-                flyer: imageUploadField('Upload New Flyer (optional)', 'eventImage', 'Optional upload. Use Media Library above for existing files. '),
               },
               {
                 label: 'Dedicated Event Page',
@@ -1214,15 +1333,26 @@ export default config({
     }),
 
     // =========================================
-    // MEDIA ASSETS (Shared Library Index)
+    // IMAGE LIBRARY (the only place files are added or removed)
     // =========================================
+    // One entry per image. The `image` field is the site's only `fields.image`,
+    // which makes this collection the sole owner of the files it uploads:
+    // deleting an entry deletes its file, and nothing else in the CMS can. Every
+    // other image slot is a pathReference that merely points here, so clearing a
+    // photo on a staff card or a page section can never remove it from the library.
     mediaAssets: collection({
-      label: 'Media Assets',
+      label: 'Image Library',
       slugField: 'name',
       path: 'src/content/media-assets/*',
       format: { data: 'json' },
       schema: {
-        name: fields.slug({ name: { label: 'Asset Name' } }),
+        name: fields.slug({
+          name: {
+            label: 'Asset Name',
+            description:
+              'Names the entry and the folder its uploaded file lives in. Use something descriptive — "team-jill-2026", not "img1".',
+          },
+        }),
         category: fields.select({
           label: 'Category',
           options: [
@@ -1239,11 +1369,23 @@ export default config({
           ],
           defaultValue: 'other',
         }),
-        filePath: fields.pathReference({
-          label: 'Media File (Library)',
-          description: 'Select an existing media file from the shared library.',
-          pattern: CMS_MEDIA_LIBRARY_PATTERN,
-        }),
+        image: imageUploadField(
+          'Upload Image',
+          'libraryImage',
+          'Adds this image to the shared library so it can be picked on any page. Deleting this entry deletes the file from the site, so check it is unused first. '
+        ),
+        // Index-only pointer for the images that were committed to the repo
+        // directly, before the library existed. Those files are not owned by any
+        // entry, so deleting an entry that only has a filePath removes the index
+        // card and leaves the file in place — remove those in git.
+        filePath: withMediaPreview(
+          fields.pathReference({
+            label: 'Existing File (added outside the CMS)',
+            description:
+              'Points at a file that was committed to the repo directly. Deleting this entry does NOT delete that file. Leave blank for images uploaded above.',
+            pattern: CMS_MEDIA_LIBRARY_PATTERN,
+          })
+        ),
         altText: fields.text({
           label: 'Alt Text',
           description: 'Used when this asset appears as an image on the site.',
@@ -1306,13 +1448,6 @@ export default config({
           {
             label: 'Product Images (Media Library)',
             itemLabel: () => 'Library Image',
-          }
-        ),
-        images: fields.array(
-          imageUploadField('Upload New Image (optional)', 'productImage'),
-          {
-            label: 'Product Images (Upload Fallback)',
-            itemLabel: () => 'Uploaded Image',
           }
         ),
         sizes: fields.array(fields.text({ label: 'Size' }), {
@@ -1401,8 +1536,7 @@ export default config({
                   'Background Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.heroImage}`
                 ),
-                backgroundImage: imageUploadField('Upload New Background Image (optional)', 'heroImage'),
-                objectPositionX: objectPositionXField(),
+                    objectPositionX: objectPositionXField(),
                 objectPositionY: objectPositionYField(),
               }),
             },
@@ -1455,7 +1589,6 @@ export default config({
                   'Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
                 ),
-                image: imageUploadField('Upload New Image (optional)', 'sectionImage'),
                 alt: fields.text({
                   label: 'Alt Text',
                   description: 'Describes the image for screen readers and SEO. Required.',
@@ -1491,7 +1624,6 @@ export default config({
                   'Image (Media Library)',
                   `Select an existing image from the shared media library. ${SIZE_GUIDANCE.sectionImage}`
                 ),
-                image: imageUploadField('Upload New Image (optional)', 'sectionImage'),
                 alt: fields.text({
                   label: 'Image Alt Text',
                   description: 'Required for accessibility.',
@@ -1646,7 +1778,6 @@ export default config({
           'Card Image (Media Library)',
           `Select an existing image from the shared media library. ${SIZE_GUIDANCE.cardImage}`
         ),
-        image: imageUploadField('Upload New Card Image (optional)', 'cardImage'),
         order: fields.integer({
           label: 'Display Order',
           defaultValue: 99,

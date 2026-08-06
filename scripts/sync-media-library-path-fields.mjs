@@ -1,8 +1,40 @@
+// Moves legacy Keystatic upload values into their "…LibraryPath" counterpart and
+// drops the upload key.
+//
+// Background: image slots used to have two fields — a `pathReference` picker
+// ("…LibraryPath") and a `fields.image` upload. The upload field OWNS its file:
+// Keystatic deletes the file from public/images/canva-final the moment the field
+// is cleared, so "remove" on a staff card wiped the image out of the shared
+// library for every page using it. Uploads now happen only in the Image Library
+// collection, and every other slot is a reference that can be cleared safely.
+//
+// The upload value used to win at render time, so this script copies the upload
+// path INTO the library field (overwriting a different pick) — that keeps every
+// page rendering exactly the same image it renders today. Idempotent: once the
+// upload keys are gone there is nothing left to move.
+//
+// Usage: node ./scripts/sync-media-library-path-fields.mjs [--dry-run]
+
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
 const CONTENT_ROOT = path.join(ROOT, 'src', 'content');
+const DRY_RUN = process.argv.includes('--dry-run');
+
+// upload key -> library key. Applied at every depth, so nested objects and array
+// items (activity cards, amenity cards, discount partners, event flyers) are all
+// covered without naming each container.
+const FIELD_PAIRS = [
+  ['photo', 'photoLibraryPath'],
+  ['image', 'imageLibraryPath'],
+  ['backgroundImage', 'backgroundImageLibraryPath'],
+  ['benefitsImage', 'benefitsImageLibraryPath'],
+  ['flyer', 'flyerLibraryPath'],
+];
+
+// Array-of-strings equivalent (shop products).
+const ARRAY_FIELD_PAIRS = [['images', 'imageLibraryPaths']];
 
 function toLibraryPath(value) {
   if (typeof value !== 'string' || !value.trim()) return undefined;
@@ -11,69 +43,59 @@ function toLibraryPath(value) {
   return value;
 }
 
-function isUnset(value) {
-  if (value === undefined || value === null) return true;
-  if (typeof value === 'string' && !value.trim()) return true;
-  if (Array.isArray(value) && value.length === 0) return true;
-  return false;
+function fileExists(libraryPath) {
+  return fs.existsSync(path.join(ROOT, libraryPath));
 }
 
-function getPathValue(target, dotPath) {
-  const keys = dotPath.split('.');
-  let current = target;
-  for (const key of keys) {
-    if (!current || typeof current !== 'object') return undefined;
-    current = current[key];
+const moves = [];
+const missing = [];
+
+function visit(node, file, trail) {
+  if (Array.isArray(node)) {
+    // reduce, not forEach — an item that changed has to propagate up or the
+    // containing file never gets written back.
+    return node.reduce((changed, item, index) => visit(item, file, `${trail}[${index}]`) || changed, false);
   }
-  return current;
-}
-
-function setPathValue(target, dotPath, value) {
-  const keys = dotPath.split('.');
-  let current = target;
-  for (let index = 0; index < keys.length - 1; index += 1) {
-    const key = keys[index];
-    if (!current[key] || typeof current[key] !== 'object') {
-      current[key] = {};
-    }
-    current = current[key];
-  }
-  current[keys[keys.length - 1]] = value;
-}
-
-function syncField(data, sourcePath, targetPath) {
-  const sourceValue = toLibraryPath(getPathValue(data, sourcePath));
-  const targetValue = getPathValue(data, targetPath);
-  if (!sourceValue || !isUnset(targetValue)) return false;
-  setPathValue(data, targetPath, sourceValue);
-  return true;
-}
-
-function syncArrayField(data, sourcePath, targetPath) {
-  const sourceValue = getPathValue(data, sourcePath);
-  const targetValue = getPathValue(data, targetPath);
-  if (!Array.isArray(sourceValue) || !isUnset(targetValue)) return false;
-
-  const mapped = sourceValue
-    .map((entry) => toLibraryPath(entry))
-    .filter((entry) => typeof entry === 'string' && entry.trim().length > 0);
-
-  if (mapped.length === 0) return false;
-  setPathValue(data, targetPath, mapped);
-  return true;
-}
-
-function syncArrayObjectField(data, arrayPath, sourceKey, targetKey) {
-  const arrayValue = getPathValue(data, arrayPath);
-  if (!Array.isArray(arrayValue)) return false;
+  if (!node || typeof node !== 'object') return false;
 
   let changed = false;
-  for (const entry of arrayValue) {
-    if (!entry || typeof entry !== 'object') continue;
-    const sourceValue = toLibraryPath(entry[sourceKey]);
-    if (!sourceValue || !isUnset(entry[targetKey])) continue;
-    entry[targetKey] = sourceValue;
+
+  for (const [uploadKey, libraryKey] of FIELD_PAIRS) {
+    if (!(uploadKey in node)) continue;
+    const libraryPath = toLibraryPath(node[uploadKey]);
+    if (libraryPath) {
+      if (!fileExists(libraryPath)) {
+        missing.push(`${file}${trail}.${uploadKey} -> ${libraryPath}`);
+        continue; // leave the entry alone rather than point it at a missing file
+      }
+      if (node[libraryKey] !== libraryPath) {
+        moves.push(`${file}${trail}: ${libraryKey} = ${libraryPath}${node[libraryKey] ? ` (was ${node[libraryKey]})` : ''}`);
+      }
+      node[libraryKey] = libraryPath;
+    }
+    delete node[uploadKey];
     changed = true;
+  }
+
+  for (const [uploadKey, libraryKey] of ARRAY_FIELD_PAIRS) {
+    if (!(uploadKey in node)) continue;
+    const mapped = (Array.isArray(node[uploadKey]) ? node[uploadKey] : [])
+      .map(toLibraryPath)
+      .filter((value) => value && fileExists(value));
+    if (mapped.length) {
+      const existing = Array.isArray(node[libraryKey]) ? node[libraryKey] : [];
+      const merged = [...new Set([...mapped, ...existing])];
+      if (JSON.stringify(merged) !== JSON.stringify(existing)) {
+        moves.push(`${file}${trail}: ${libraryKey} = [${merged.join(', ')}]`);
+      }
+      node[libraryKey] = merged;
+    }
+    delete node[uploadKey];
+    changed = true;
+  }
+
+  for (const key of Object.keys(node)) {
+    changed = visit(node[key], file, `${trail}.${key}`) || changed;
   }
 
   return changed;
@@ -81,30 +103,16 @@ function syncArrayObjectField(data, arrayPath, sourceKey, targetKey) {
 
 function collectJsonFiles(dir, output = []) {
   if (!fs.existsSync(dir)) return output;
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      collectJsonFiles(fullPath, output);
-    } else if (entry.isFile() && entry.name.endsWith('.json')) {
-      output.push(fullPath);
-    }
+    if (entry.isDirectory()) collectJsonFiles(fullPath, output);
+    else if (entry.isFile() && entry.name.endsWith('.json')) output.push(fullPath);
   }
   return output;
 }
 
-const files = collectJsonFiles(CONTENT_ROOT);
 let changedFiles = 0;
-const changedByScope = {
-  team: 0,
-  events: 0,
-  pages: 0,
-  products: 0,
-  cards: 0,
-  other: 0,
-};
-
-for (const filePath of files) {
+for (const filePath of collectJsonFiles(CONTENT_ROOT)) {
   const raw = fs.readFileSync(filePath, 'utf8');
   let data;
   try {
@@ -113,40 +121,18 @@ for (const filePath of files) {
     continue;
   }
 
-  let changed = false;
+  const relPath = path.relative(ROOT, filePath).split(path.sep).join('/');
+  if (!visit(data, relPath, '')) continue;
 
-  changed = syncField(data, 'photo', 'photoLibraryPath') || changed;
-  changed = syncField(data, 'image', 'imageLibraryPath') || changed;
-
-  changed = syncField(data, 'hero.backgroundImage', 'hero.backgroundImageLibraryPath') || changed;
-  changed = syncField(data, 'hero.backgroundVideo', 'hero.backgroundVideoLibraryPath') || changed;
-  changed = syncField(data, 'membership.image', 'membership.imageLibraryPath') || changed;
-  changed = syncField(data, 'pricing.image', 'pricing.imageLibraryPath') || changed;
-  changed = syncField(data, 'benefitsImage', 'benefitsImageLibraryPath') || changed;
-  changed = syncField(data, 'welcome.image', 'welcome.imageLibraryPath') || changed;
-  changed = syncField(data, 'dayPass.image', 'dayPass.imageLibraryPath') || changed;
-
-  changed = syncArrayObjectField(data, 'activityCards', 'image', 'imageLibraryPath') || changed;
-  changed = syncArrayObjectField(data, 'amenityCards', 'image', 'imageLibraryPath') || changed;
-  changed = syncArrayField(data, 'images', 'imageLibraryPaths') || changed;
-
-  if (!changed) continue;
-
-  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
   changedFiles += 1;
-
-  const relPath = path.relative(ROOT, filePath).replace(/\\/g, '/');
-  if (relPath.startsWith('src/content/team/')) changedByScope.team += 1;
-  else if (relPath.startsWith('src/content/events/')) changedByScope.events += 1;
-  else if (relPath.startsWith('src/content/pages/')) changedByScope.pages += 1;
-  else if (relPath.startsWith('src/content/products/')) changedByScope.products += 1;
-  else if (relPath.startsWith('src/content/not-ready-cards/')) changedByScope.cards += 1;
-  else changedByScope.other += 1;
+  if (!DRY_RUN) {
+    fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+  }
 }
 
-console.log(`Synced files: ${changedFiles}`);
-console.log(`  Team entries: ${changedByScope.team}`);
-console.log(`  Event entries: ${changedByScope.events}`);
-console.log(`  Page files: ${changedByScope.pages}`);
-console.log(`  Product files: ${changedByScope.products}`);
-console.log(`  Not-ready card files: ${changedByScope.cards}`);
+for (const move of moves) console.log(`  ${move}`);
+if (missing.length) {
+  console.log('\nSkipped (upload value points at a file that is not on disk):');
+  for (const entry of missing) console.log(`  ${entry}`);
+}
+console.log(`\n${DRY_RUN ? '[dry run] would update' : 'Updated'} ${changedFiles} file(s); ${moves.length} library path(s) set.`);

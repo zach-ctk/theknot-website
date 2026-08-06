@@ -3,15 +3,14 @@ interface Props {
   name: string;
   title: string;
   image?: string;
-  filterType: 'blue-black' | 'grayscale';
   size?: 'full' | 'half';
 }
 
-const { name, title, image, filterType, size = 'full' } = Astro.props;
+const { name, title, image, size = 'full' } = Astro.props;
 ---
 
 <div class:list={['team-card', { 'team-card--half': size === 'half' }]}>
-  <div class={`team-image ${filterType}`}>
+  <div class="team-image">
     {image ? (
       <img
         src={image}
@@ -76,14 +75,6 @@ const { name, title, image, filterType, size = 'full' } = Astro.props;
 
   .team-card--half .team-image {
     border-radius: 8px 8px 0 0;
-  }
-
-  .team-image.blue-black .team-photo {
-    filter: grayscale(100%) sepia(100%) hue-rotate(180deg) saturate(200%);
-  }
-
-  .team-image.grayscale .team-photo {
-    filter: grayscale(100%);
   }
 
   .team-photo {
