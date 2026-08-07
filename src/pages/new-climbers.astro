@@ -400,7 +400,7 @@ const activitiesCards =
   .welcome-grid {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
     box-sizing: border-box;
     display: grid;
     grid-template-columns: 1.1fr 1fr;
@@ -422,7 +422,7 @@ const activitiesCards =
     margin: 0 0 16px;
     color: #efefef;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     font-style: normal;
   }
@@ -448,7 +448,7 @@ const activitiesCards =
   .day-pass-content {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
     box-sizing: border-box;
     display: flex;
     gap: 40px;
@@ -516,7 +516,7 @@ const activitiesCards =
     margin: 0 0 12px;
     color: #ececec;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     font-style: normal;
   }
@@ -540,7 +540,7 @@ const activitiesCards =
   .activities-wrapper {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
     box-sizing: border-box;
   }
 
@@ -561,7 +561,7 @@ const activitiesCards =
 
   .activities-intro p {
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     color: #ececec;
     text-align: left;
@@ -607,12 +607,14 @@ const activitiesCards =
     line-height: 1.15;
   }
 
+  /* Same size and leading as the page's body copy (.welcome-text,
+     .activities-intro, .day-pass-text). */
   .activity-card__description {
     margin: 0 0 12px;
     color: #ccc;
     font-family: var(--font-body);
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: var(--body-size);
+    line-height: 1.6;
   }
 
   .activity-card__description:last-of-type {
@@ -653,7 +655,7 @@ const activitiesCards =
   .safety-wrapper {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
     box-sizing: border-box;
   }
 
@@ -677,7 +679,7 @@ const activitiesCards =
   .membership-cta-inner {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
     box-sizing: border-box;
   }
 
@@ -694,7 +696,7 @@ const activitiesCards =
 
   .membership-cta-text {
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     color: #ececec;
     text-align: left;
@@ -723,11 +725,7 @@ const activitiesCards =
     .welcome-grid {
       grid-template-columns: 1fr;
       gap: 24px;
-      padding: 0 24px;
-    }
-
-    .welcome-text {
-      font-size: 18px;
+      padding: 0 var(--page-padding-x);
     }
 
     .day-pass-section {
@@ -737,7 +735,7 @@ const activitiesCards =
     .day-pass-content {
       flex-direction: column;
       gap: 32px;
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
 
     .day-pass-info {
@@ -754,7 +752,7 @@ const activitiesCards =
     }
 
     .activities-wrapper {
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
 
     .activities-heading {
@@ -775,7 +773,7 @@ const activitiesCards =
     }
 
     .safety-wrapper {
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
 
     .safety-heading {
@@ -787,7 +785,7 @@ const activitiesCards =
     }
 
     .membership-cta-inner {
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
   }
 </style>

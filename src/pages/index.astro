@@ -32,7 +32,7 @@ try {
       description:
         "Only pay for the remaining days of this month, then cancel anytime with no contract or additional fees.",
       buttonText: "JOIN NOW",
-      buttonLink: "https://portal.climbtheknot.com/gnv",
+      buttonLink: "/new-climbers",
     },
     notReadySection: {
       headline: "NOT READY TO COMMIT? NO PROBLEM!",
@@ -279,8 +279,8 @@ try {
           <p class="pricing-subtext">{membershipContent.description}</p>
           <a
             href={membershipContent.buttonLink}
-            target="_blank"
-            rel="noopener noreferrer"
+            target={membershipContent.buttonLink?.startsWith("http") ? "_blank" : undefined}
+            rel={membershipContent.buttonLink?.startsWith("http") ? "noopener noreferrer" : undefined}
             class="btn-blue join-button"
           >
             {membershipContent.buttonText}
@@ -351,7 +351,7 @@ try {
   .home-container {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
   }
 
   .membership-section {
@@ -412,7 +412,7 @@ try {
     max-width: 520px;
     color: #fff;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     font-weight: 400;
     line-height: 1.45;
   }
@@ -447,7 +447,7 @@ try {
   .not-ready-container {
     max-width: 1296px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 0 var(--page-padding-x);
   }
 
   .not-ready-heading {
@@ -500,7 +500,7 @@ try {
     margin: 0 0 24px 0;
     color: #fff;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     font-weight: 400;
     line-height: 1.5;
     max-width: 345px;
@@ -550,7 +550,7 @@ try {
     margin: 0 0 32px;
     color: #f0f0f0;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.5;
   }
 
@@ -568,7 +568,7 @@ try {
 
   @media (max-width: 1024px) {
     .home-container {
-      padding: 0 32px;
+      padding: 0 var(--page-padding-x);
     }
 
     .membership-section {
@@ -583,14 +583,8 @@ try {
       font-size: 32px;
     }
 
-    .pricing-subtext,
-    .not-ready-copy,
-    .cta-subtext {
-      font-size: 16px;
-    }
-
     .not-ready-container {
-      padding: 0 32px;
+      padding: 0 var(--page-padding-x);
     }
 
     .not-ready-title {
@@ -604,7 +598,7 @@ try {
 
   @media (max-width: 768px) {
     .home-container {
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
 
     .membership-section {
@@ -638,7 +632,7 @@ try {
     }
 
     .not-ready-container {
-      padding: 0 24px;
+      padding: 0 var(--page-padding-x);
     }
 
     .not-ready-grid {
@@ -669,11 +663,11 @@ try {
 
   @media (max-width: 375px) {
     .home-container {
-      padding: 0 16px;
+      padding: 0 var(--page-padding-x);
     }
 
     .not-ready-container {
-      padding: 0 16px;
+      padding: 0 var(--page-padding-x);
     }
 
     .not-ready-title {

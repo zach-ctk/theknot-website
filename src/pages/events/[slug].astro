@@ -395,7 +395,7 @@ function renderRichText(text?: string): string {
     position: relative;
     z-index: 1;
     text-align: center;
-    padding: 40px 20px;
+    padding: 40px var(--page-padding-x);
     max-width: 900px;
   }
 
@@ -431,7 +431,7 @@ function renderRichText(text?: string): string {
 
   /* Flyer + Details Block */
   .flyer-section {
-    padding: 60px 5%;
+    padding: 60px var(--page-padding-x);
     background: #000;
   }
 
@@ -481,7 +481,7 @@ function renderRichText(text?: string): string {
   .flyer-description {
     margin: 0;
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: var(--body-size);
     line-height: 1.7;
     color: var(--color-graphite);
   }
@@ -522,7 +522,7 @@ function renderRichText(text?: string): string {
 
   /* Details Section */
   .details-section {
-    padding: 60px 5%;
+    padding: 60px var(--page-padding-x);
     background: white;
   }
 
@@ -542,7 +542,7 @@ function renderRichText(text?: string): string {
 
   .description-text p {
     font-family: var(--font-body);
-    font-size: 17px;
+    font-size: var(--body-size);
     line-height: 1.8;
     color: var(--color-graphite);
     margin: 0;
@@ -569,7 +569,7 @@ function renderRichText(text?: string): string {
 
   .recurring-info p {
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     color: var(--color-graphite);
     margin: 0;
   }
@@ -646,7 +646,7 @@ function renderRichText(text?: string): string {
 
   /* Back Section */
   .back-section {
-    padding: 40px 5%;
+    padding: 40px var(--page-padding-x);
     background: white;
   }
 
@@ -667,7 +667,7 @@ function renderRichText(text?: string): string {
 
   /* Extended Sections (Divisions, Schedule, FAQ, Merchandise) */
   .extended-section {
-    padding: 48px 5%;
+    padding: 48px var(--page-padding-x);
     background: #000;
   }
 
@@ -721,7 +721,7 @@ function renderRichText(text?: string): string {
 
   .division-description {
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     color: #ddd;
     line-height: 1.6;
     margin: 0;
@@ -805,7 +805,7 @@ function renderRichText(text?: string): string {
     padding: 24px;
     background: rgba(255, 255, 255, 0.04);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     color: #fff;
     line-height: 1.7;
     white-space: pre-line;
@@ -896,7 +896,7 @@ function renderRichText(text?: string): string {
 
   .merch-description {
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     color: #ddd;
     line-height: 1.6;
     margin: 0;
@@ -963,11 +963,11 @@ function renderRichText(text?: string): string {
     }
 
     .hero-content {
-      padding: 30px 16px;
+      padding: 30px var(--page-padding-x);
     }
 
     .details-section {
-      padding: 40px 5%;
+      padding: 40px var(--page-padding-x);
     }
 
     .flyer-card {
@@ -982,12 +982,8 @@ function renderRichText(text?: string): string {
       padding: 24px;
     }
 
-    .description-text p {
-      font-size: 15px;
-    }
-
     .back-section {
-      padding: 30px 5%;
+      padding: 30px var(--page-padding-x);
     }
   }
 </style>

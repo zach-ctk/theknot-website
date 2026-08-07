@@ -34,8 +34,10 @@ When you touch one of these areas, re-check whether the trade-off still holds.
      shared, no cron needed.
   Contrast with the class **schedule**, which sidesteps this entirely by having
   the cron Worker ([worker/index.ts](../worker/index.ts)) snapshot RPHQ into KV
-  every 90 min; capacity can't use that path as-is because it's real-time and a
-  90-min-stale head count would be wrong.
+  every 90 min (dormant as of Aug 2026 — the calendar page isn't routed, so the
+  trigger is commented out and the Worker is undeployed); capacity can't use
+  that path as-is because it's real-time and a 90-min-stale head count would be
+  wrong.
 
 ---
 

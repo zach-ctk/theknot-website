@@ -125,7 +125,7 @@ const isPageCover = variant === 'page-cover';
     position: relative;
     z-index: 1;
     text-align: left;
-    padding: 120px 48px 80px;
+    padding: 120px var(--page-padding-x) 80px;
     max-width: 800px;
   }
 
@@ -149,8 +149,8 @@ const isPageCover = variant === 'page-cover';
   .hero--page-cover .hero__content {
     text-align: right;
     margin-left: auto;
-    margin-right: 48px;
-    padding: 48px;
+    margin-right: var(--page-padding-x);
+    padding: 48px var(--page-padding-x);
   }
 
   .hero__headline {
@@ -169,7 +169,7 @@ const isPageCover = variant === 'page-cover';
 
   .hero__subtext p {
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     font-weight: 400;
     font-style: normal;
     color: white;
@@ -177,9 +177,9 @@ const isPageCover = variant === 'page-cover';
     margin: 0 0 16px;
   }
 
+  /* Lead line: same size as the rest of the copy, just a touch heavier. */
   .hero__subtext p:first-child {
     font-weight: 500;
-    font-size: 16px;
     margin-bottom: 12px;
   }
 
@@ -195,21 +195,14 @@ const isPageCover = variant === 'page-cover';
   /* Tablet */
   @media (max-width: 1024px) {
     .hero--home .hero__content {
-      padding: 100px 32px 60px;
+      padding: 100px var(--page-padding-x) 60px;
     }
 
     .hero--page-cover .hero__content {
-      margin-right: 32px;
-      padding: 32px;
+      margin-right: var(--page-padding-x);
+      padding: 32px var(--page-padding-x);
     }
 
-    .hero__subtext p {
-      font-size: 14px;
-    }
-
-    .hero__subtext p:first-child {
-      font-size: 15px;
-    }
   }
 
   /* Mobile */
@@ -225,26 +218,18 @@ const isPageCover = variant === 'page-cover';
     }
 
     .hero__content {
-      padding: 100px 24px 60px;
+      padding: 100px var(--page-padding-x) 60px;
       margin-left: 0;
       margin-right: 0;
       text-align: center;
     }
 
     .hero--page-cover .hero__content {
-      padding: 32px 20px;
+      padding: 32px var(--page-padding-x);
     }
 
     .hero__subtext {
       max-width: 100%;
-    }
-
-    .hero__subtext p {
-      font-size: 14px;
-    }
-
-    .hero__subtext p:first-child {
-      font-size: 14px;
     }
 
     .hero__button {

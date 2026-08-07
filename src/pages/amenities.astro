@@ -112,6 +112,10 @@ const amenitiesCards =
 const introText = amenitiesPage.introText || '';
 const ctaText = amenitiesPage.ctaText || '';
 
+// "TAKE A PEEK" is archived until the gym tour video exists — see the block
+// near the bottom of the markup. Set to true to render it again.
+const SHOW_TAKE_A_PEEK = false;
+
 const cardRows: typeof amenitiesCards[] = [];
 for (let index = 0; index < amenitiesCards.length; index += 3) {
   cardRows.push(amenitiesCards.slice(index, index + 3));
@@ -136,6 +140,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
 
   <!-- More Than Just Climbing Section -->
   <section class="amenities-grid-section">
+    <div class="section-inner">
     <h2 class="section-heading">{amenitiesPage.sectionHeadline || 'MORE THAN JUST CLIMBING'}</h2>
 
     {introText && (
@@ -191,19 +196,28 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
       </div>
     ))}
 
-    <!-- Take A Peek: copy on the left, gym tour video on the right -->
-    <h2 class="section-heading peek-heading">TAKE A PEEK</h2>
-    <div class="peek-grid">
-      <div class="peek-text">
-        {ctaText && (
-          <p class="section-cta-text">{ctaText}</p>
-        )}
-      </div>
-      <!-- Placeholder until the tour video is ready: drop the embed inside
-           .peek-video and delete the label span. -->
-      <div class="peek-video">
-        <span class="peek-video-label">Video coming soon</span>
-      </div>
+    <!-- Take A Peek: copy on the left, gym tour video on the right.
+         ARCHIVED (Aug 2026) — the gym tour video isn't shot yet, and the block
+         is mostly a "Video coming soon" placeholder without it. Flip
+         SHOW_TAKE_A_PEEK to true (top of this file) to bring it back; the
+         markup, styles, and the CMS ctaText field are all still here. -->
+    {SHOW_TAKE_A_PEEK && (
+      <>
+        <h2 class="section-heading peek-heading">TAKE A PEEK</h2>
+        <div class="peek-grid">
+          <div class="peek-text">
+            {ctaText && (
+              <p class="section-cta-text">{ctaText}</p>
+            )}
+          </div>
+          {/* Placeholder until the tour video is ready: drop the embed inside
+              .peek-video and delete the label span. */}
+          <div class="peek-video">
+            <span class="peek-video-label">Video coming soon</span>
+          </div>
+        </div>
+      </>
+    )}
     </div>
   </section>
 
@@ -214,7 +228,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
   .hero-video-placeholder {
     position: absolute;
     top: 60px;
-    right: 40px;
+    right: var(--page-padding-x);
     z-index: 10;
   }
 
@@ -249,20 +263,23 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
 
   /* Amenities Grid Section */
   .amenities-grid-section {
-    padding: 60px 5%;
+    padding: 60px var(--page-padding-x);
     background: #000;
   }
 
-  /* Full-width three-up grid: equal columns and an even gap, with the outer
-     edges landing on the section padding so the cards line up with the
-     heading and body copy. */
+  /* Caps the content in the same 1200px column the other pages use, so the
+     cards stop short of the screen edge on wide displays. */
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Three-up grid matching the activities grid on the new-climbers page:
+     equal columns, 32px gap. */
   .amenities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* Wide column gap: the grid still spans the full content width, so the
-       larger the gap, the narrower each card (image and text) becomes. */
-    column-gap: 120px;
-    row-gap: 32px;
+    gap: 32px;
     margin: 0 0 24px;
   }
 
@@ -402,20 +419,21 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     text-align: center;
   }
 
+  /* Same scale as .activity-card__title on the new-climbers page. */
   .card-title {
     font-family: var(--font-heading);
-    font-size: 16px;
-    font-weight: 700;
+    font-size: clamp(18px, 2.6vw, 32px);
+    font-weight: 900;
     color: #fff;
     text-transform: uppercase;
     margin: 0 0 8px 0;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   /* Same size/leading as .section-intro and .section-cta-text. */
   .card-description {
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: var(--body-size);
     color: #ccc;
     line-height: 1.7;
     margin: 0;
@@ -452,7 +470,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
   /* Intro & CTA text paragraphs */
   .section-intro {
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: var(--body-size);
     color: #ececec;
     line-height: 1.7;
     text-align: left;
@@ -461,7 +479,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
 
   .section-cta-text {
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: var(--body-size);
     color: #ececec;
     line-height: 1.7;
     text-align: left;
@@ -519,7 +537,7 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
   @media (max-width: 768px) {
     .hero-video-placeholder {
       top: 40px;
-      right: 20px;
+      right: var(--page-padding-x);
     }
 
     .video-box {
@@ -532,12 +550,12 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     }
 
     .amenities-grid-section {
-      padding: 40px 5%;
+      padding: 40px var(--page-padding-x);
     }
 
     .amenities-grid {
       grid-template-columns: 1fr;
-      gap: 20px;
+      gap: 24px;
     }
 
     .peek-heading {
@@ -547,12 +565,6 @@ for (let index = 0; index < amenitiesCards.length; index += 3) {
     .peek-grid {
       grid-template-columns: 1fr;
       gap: 24px;
-    }
-
-    .section-intro,
-    .section-cta-text,
-    .card-description {
-      font-size: 14px;
     }
   }
 </style>

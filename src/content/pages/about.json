@@ -6,21 +6,35 @@
   },
   "aboutIntro": "Opened in 2021, The Knot Climbing Gym is a full-service indoor rock climbing gym that offers climbing, yoga, and other forms of fitness.\n\nWe aim to provide an experience that is accessible and enriches the lives of members, guests, and the surrounding community.\n\nClimbing is at the heart of everything we do. We strive to create a memorable experience for all who visit our facility. At the heart of our brand is a team of skilled, passionate routesetters, instructors, and staff who are here to help you reach your climbing goals.",
   "coreValuesHeadline": "CORE VALUES",
+  "missionStatement": {
+    "subheading": "MISSION STATEMENT",
+    "text": "\"We exist, and strive, to facilitate meaningful friendships, connections, and community for our members, guests & staff. In every interaction, we seek to enrich lives and provide a sense of belonging through the climbing experience, our programs, and community partnerships.\""
+  },
   "coreValues": [
     {
-      "title": "CONSCIOUSLY AWARE"
+      "title": "CONSCIOUSLY AWARE",
+      "subheading": "Check your knots, check your blindspots, and check yourself.",
+      "content": "We check, and double-check, the critical equipment on which we and others rely. We keep our eyes open and seek 360-degree visibility of our surroundings. We remind ourselves that the opportunity to pursue our goals and dreams comes from a place of extreme privilege; because of this, we actively work towards greater equity and inclusivity so others may share in this privilege."
     },
     {
-      "title": "RADICALLY BOLD"
+      "title": "RADICALLY BOLD",
+      "subheading": "Be bold, take the chance.",
+      "content": "We calculate the risks and decide to act in spite of fear. This courage can manifest in many ways: climbing scary routes, building a business, or even dyeing our hair. We celebrate taking steps outside our comfort zone."
     },
     {
-      "title": "IMPACT DRIVEN"
+      "title": "IMPACT DRIVEN",
+      "subheading": "Care about the results.",
+      "content": "As part of a community, we understand our actions reverberate beyond us and so we strive for positive change. Our impact isn't just a consideration - it's a driving force. (An impact driver also happens to be a tool that helps us create the routes.)"
     },
     {
-      "title": "REMAIN AUTHENTIC"
+      "title": "REMAIN AUTHENTIC",
+      "subheading": "Be yourself, wholly.",
+      "content": "We can only be who we are in this world. We're proud of ourselves and our Florida roots. Though we may outgrow our swampy pastures, our growth will always remain authentic to the variety of influences and experiences that make us unique."
     },
     {
-      "title": "GET STOKED, STAY STOKED"
+      "title": "GET STOKED, STAY STOKED",
+      "subheading": "Amplify the spark that moves people.",
+      "content": "Encouraging and inspiring individuals to improve beyond what they thought possible - that's what gets us up in the morning."
     }
   ],
   "meetTheTeamHeadline": "MEET THE TEAM",
@@ -60,7 +74,8 @@
           "link": "https://form.asana.com/?k=JDie6HSxcL5R1kJCgsb0iw&d=1199115976275379"
         },
         {
-          "text": "CONTACT US"
+          "text": "CONTACT US",
+          "link": "mailto:info@climbtheknot.com"
         }
       ],
       "defaultOpen": true

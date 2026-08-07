@@ -49,7 +49,7 @@ const sectionStyle = [
 <style>
   .block-two-column {
     width: 100%;
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
   }
 
   .block-two-column__inner {
@@ -75,7 +75,7 @@ const sectionStyle = [
 
   .block-two-column__text {
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
   }
 
@@ -115,7 +115,7 @@ const sectionStyle = [
 
   @media (max-width: 768px) {
     .block-two-column {
-      padding: 48px 16px;
+      padding: 48px var(--page-padding-x);
     }
 
     .block-two-column__inner {
@@ -125,10 +125,6 @@ const sectionStyle = [
 
     .block-two-column--image-right .block-two-column__image-wrap {
       order: 0;
-    }
-
-    .block-two-column__text {
-      font-size: 16px;
     }
   }
 </style>

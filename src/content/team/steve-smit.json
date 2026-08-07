@@ -1,7 +1,7 @@
 {
   "name": "Steve smit",
   "role": "Staff",
-  "teamGroup": "coordinator",
+  "teamGroup": "staff",
   "photoLibraryPath": "public/images/canva-final/team/steve-smit.jpg",
   "order": 23,
   "isLeadership": false

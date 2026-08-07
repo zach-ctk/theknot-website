@@ -137,6 +137,39 @@
   --btn-red-width: 225px;
   --btn-red-height: 55px;
   --btn-red-bg: var(--color-rust);
+
+  /* Body Copy Size
+     One size for prose on every page: section intros, paragraphs, card
+     descriptions, and accordion content. Use var(--body-size) instead of a
+     hardcoded px value, at every breakpoint — body copy is one size on desktop
+     and mobile. Labels, meta lines, footnotes, and buttons keep their own
+     smaller scales. */
+  --body-size: 16px;
+
+  /* Page Gutter
+     One horizontal padding value for every page section, hero, and footer, so
+     content lines up down the whole site. Use var(--page-padding-x) for side
+     padding on any full-width section wrapper — never a hardcoded px or %
+     value. Vertical padding stays per-section. */
+  --page-padding-x: 48px;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --page-padding-x: 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-padding-x: 24px;
+  }
+}
+
+@media (max-width: 375px) {
+  :root {
+    --page-padding-x: 16px;
+  }
 }
 
 /* Base Styles */

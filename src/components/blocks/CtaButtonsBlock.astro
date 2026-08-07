@@ -42,7 +42,7 @@ const sectionStyle =
 
 <style>
   .block-cta {
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
     text-align: center;
     width: 100%;
   }
@@ -58,7 +58,7 @@ const sectionStyle =
 
   .block-cta__subtext {
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.5;
     margin: 0 auto 32px;
     max-width: 700px;
@@ -108,15 +108,11 @@ const sectionStyle =
 
   @media (max-width: 768px) {
     .block-cta {
-      padding: 48px 16px;
+      padding: 48px var(--page-padding-x);
     }
 
     .block-cta__headline {
       font-size: 26px;
-    }
-
-    .block-cta__subtext {
-      font-size: 16px;
     }
 
     .block-cta__buttons {

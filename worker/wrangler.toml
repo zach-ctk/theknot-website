@@ -8,12 +8,24 @@ main = "index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-[triggers]
+# TRIGGER DISABLED (Aug 2026). The classes calendar this feeds is not live —
+# its only consumer is src/pages/_classes.astro, which is underscore-prefixed
+# and so is not routed. As of this comment the Worker has never been deployed
+# (it ships only via `npm run worker:deploy`, and there is no CI), so nothing is
+# running; the commented-out trigger keeps it that way if someone does deploy.
+#
+# To turn it on: uncomment the block below and deploy the Worker
+#   wrangler deploy --config worker/wrangler.toml
+# then populate KV immediately with a single GET to the worker's URL:
+#   https://theknot-schedule-refresh.<subdomain>.workers.dev/?refresh=1
+#
 # Every 90 minutes. The minute field maxes at 59, so a single "*/90" is invalid;
 # these two expressions interleave to land on a 90-minute cadence:
 #   0  */3   * * *  -> 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00
 #   30 1-23/3 * * * -> 01:30, 04:30, 07:30, 10:30, 13:30, 16:30, 19:30, 22:30
-crons = ["0 */3 * * *", "30 1-23/3 * * *"]
+#
+# [triggers]
+# crons = ["0 */3 * * *", "30 1-23/3 * * *"]
 
 # Bind the SAME KV namespace the Pages project uses (see ../wrangler.toml).
 # Fill in the id from: wrangler kv namespace create SCHEDULE_KV

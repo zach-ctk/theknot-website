@@ -111,33 +111,34 @@ const eventParagraphs = (description?: string) =>
     .filter(Boolean);
 
 // Pricing, length, and group size come from the group events cheat sheet.
-// Each entry follows the same shape: a short description, then a bulleted
-// Length / Price / Group size block, then any booking requirements.
+// Each entry follows the same shape: a short description, then LENGTH / PRICE /
+// GROUP SIZE as "## Label" blocks (rendered as red headings by Accordion.tsx),
+// then any booking requirements.
 const eventTypeItems = [
   {
     title: "BOULDERING ONLY",
     content:
-      "Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.\n\n● Length: 2 hours\n● Price: $200 for up to 8 climbers, then $15 per additional climber\n● Group size: 8 - 30 climbers (max 20 for youth groups)",
+      "Bouldering is climbing without ropes on shorter walls with thick crash pads below. Great for first-time climbers and larger group events.\n\n## LENGTH\n2 hours\n\n## PRICE\n$200 for up to 8 climbers, then $15 per additional climber\n\n## GROUP SIZE\n8 - 30 climbers (max 20 for youth groups)",
   },
   {
     title: "TOP ROPE + BOULDERING",
     content:
-      "Top rope events include harnesses and rope climbing lanes in addition to bouldering zones.\n\n● Length: 2 hours\n● Price: $200 for up to 8 climbers, then $15 per additional climber\n● Group size: 8 - 30 climbers (max 20 for youth groups)\n\nAll belayers must be certified at The Knot. If your group plans to bring its own belayers, they will need to pass a belay check-off at our facility before the event.",
+      "Top rope events include harnesses and rope climbing lanes in addition to bouldering zones.\n\n## LENGTH\n2 hours\n\n## PRICE\n$200 for up to 8 climbers, then $15 per additional climber\n\n## GROUP SIZE\n8 - 30 climbers (max 20 for youth groups)\n\nAll belayers must be certified at The Knot. If your group plans to bring its own belayers, they will need to pass a belay check-off at our facility before the event.",
   },
   {
     title: "STAFF BELAY",
     content:
-      "Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.\n\n● Length: 1 - 2 hours\n● Price: $100 for up to 4 climbers, then $20 per additional climber\n● Group size: 4 - 20 climbers",
+      "Need belayers? The Knot can provide trained staff belayers for private and corporate events when scheduled in advance.\n\n## LENGTH\n1 - 2 hours\n\n## PRICE\n$100 for up to 4 climbers, then $20 per additional climber\n\n## GROUP SIZE\n4 - 20 climbers",
   },
   {
     title: "YOGA OR FITNESS CLASS",
     content:
-      "Add a private yoga or fitness session to your event package.\n\n● Length: 1 hour\n● Price: $150 per class\n● Group size: Up to 10 participants\n\nPrivate classes are subject to instructor availability.",
+      "Add a private yoga or fitness session to your event package.\n\n## LENGTH\n1 hour\n\n## PRICE\n$150 per class\n\n## GROUP SIZE\nUp to 10 participants\n\nPrivate classes are subject to instructor availability.",
   },
   {
     title: "BELAY CLASS",
     content:
-      "Belay classes can be added for groups that want certification as part of the event experience.\n\n● Length: 2 hours\n● Price: $200 per class\n● Group size: Up to 4 participants",
+      "Belay classes can be added for groups that want certification as part of the event experience.\n\n## LENGTH\n2 hours\n\n## PRICE\n$200 per class\n\n## GROUP SIZE\nUp to 4 participants",
   },
   {
     title: "KIDS POLICIES",
@@ -288,11 +289,13 @@ const eventTypeItems = [
     <h2 class="section-title">GROUP EVENTS</h2>
     <p class="section-subtext">Host your next event with The Knot!</p>
     <h3 class="group-subtitle">EVENT TYPES & PRICING</h3>
-    <Accordion items={eventTypeItems} client:visible />
-    <p class="group-footnote">
+    <Accordion items={eventTypeItems} client:visible align="left" />
+    <p class="group-footnote group-footnote--lead">
       Group events must be scheduled at least three weeks in advance. Fill out
-      our inquiry form or shoot us an email to learn more. Group event
-      scheduling is subject to gym and staff availability.
+      our inquiry form or shoot us an email to learn more.
+    </p>
+    <p class="group-footnote">
+      Group event scheduling is subject to gym and staff availability.
     </p>
     <div class="group-buttons">
       <a
@@ -418,7 +421,7 @@ const eventTypeItems = [
   .calendar-section,
   .group-events-section,
   .upending-section {
-    padding: 48px 24px;
+    padding: 48px var(--page-padding-x);
     background: #000;
   }
 
@@ -443,7 +446,7 @@ const eventTypeItems = [
     margin: 0 0 20px;
     color: #ddd;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: var(--body-size);
     line-height: 1.5;
   }
 
@@ -469,7 +472,7 @@ const eventTypeItems = [
     margin: 0 0 12px;
     color: #e8e8e8;
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     line-height: 1.6;
   }
 
@@ -575,7 +578,7 @@ const eventTypeItems = [
     margin: 0;
     color: #ccc;
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     line-height: 1.6;
   }
 
@@ -645,19 +648,28 @@ const eventTypeItems = [
 
   .group-subtitle {
     margin: 0 0 14px;
-    color: #84babf;
+    color: #fff;
     font-family: var(--font-heading);
-    font-size: 15px;
+    font-size: var(--body-size);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
 
+  /* Two centered paragraphs. The lead one carries the gap off the accordion
+     above plus a full blank line (1.6em = one line-height) before the second. */
   .group-footnote {
-    margin: 18px 0 20px;
+    margin: 0 0 20px;
     color: #cfcfcf;
     font-family: var(--font-body);
-    font-size: 14px;
+    font-size: var(--body-size);
     line-height: 1.6;
+    text-align: center;
+  }
+
+  .group-footnote--lead {
+    margin-top: 18px;
+    margin-bottom: 1.6em;
   }
 
   /* Two equal columns with each button centered in its own column, so the pair

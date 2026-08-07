@@ -544,7 +544,7 @@ const bottomCta = membershipPage.bottomCta;
   /* Every section below the hero shares one black canvas, one content width,
      and one vertical rhythm so the page reads as a single column. */
   .page-section {
-    padding: 36px 48px;
+    padding: 36px var(--page-padding-x);
     background-color: #000;
   }
 
@@ -568,7 +568,7 @@ const bottomCta = membershipPage.bottomCta;
      tokens force weight 700 and italic. */
   .section-copy {
     font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
+    font-size: var(--body-size);
     font-weight: 400;
     font-style: normal;
     color: #fff;
@@ -690,7 +690,7 @@ const bottomCta = membershipPage.bottomCta;
 
   .benefit-title {
     font-family: var(--font-heading, "Uniform Pro", sans-serif);
-    font-size: 14px;
+    font-size: var(--body-size);
     font-weight: 700;
     color: #000;
     text-transform: uppercase;
@@ -699,16 +699,24 @@ const bottomCta = membershipPage.bottomCta;
 
   .benefit-description {
     font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 13px;
+    font-size: var(--body-size);
     color: #444;
     line-height: 1.5;
   }
 
+  /* The photo is pulled out of flow (absolute inside a stretched column) so it
+     can never drive the card's height — only the benefits list does. Otherwise
+     the portrait image's intrinsic height wins and leaves dead white space
+     under the last list item. */
   .benefits-image {
     flex: 0 0 42%;
+    position: relative;
+    min-height: 0;
   }
 
   .benefits-image img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -869,12 +877,15 @@ const bottomCta = membershipPage.bottomCta;
     text-decoration: underline;
   }
 
+  /* pre-line keeps the line breaks authors type into the CMS description and
+     hours fields (e.g. one line per day range). */
   .business-detail-description {
     font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
+    font-size: var(--body-size);
     color: #333;
     line-height: 1.6;
     margin: 0;
+    white-space: pre-line;
   }
 
   .business-detail-field {
@@ -897,9 +908,10 @@ const bottomCta = membershipPage.bottomCta;
 
   .business-detail-field p {
     font-family: var(--font-body, "Rubik", sans-serif);
-    font-size: 16px;
+    font-size: var(--body-size);
     color: #333;
     margin: 0;
+    white-space: pre-line;
   }
 
   /* Bottom CTA */
@@ -911,7 +923,7 @@ const bottomCta = membershipPage.bottomCta;
 
   @media (max-width: 768px) {
     .page-section {
-      padding: 24px 24px;
+      padding: 24px var(--page-padding-x);
     }
 
     .section-heading {
@@ -942,12 +954,10 @@ const bottomCta = membershipPage.bottomCta;
       padding: 28px 24px;
     }
 
+    /* Stacked layout: the wrapper carries the ratio, since the image itself is
+       absolutely positioned and contributes no height. */
     .benefits-image {
       flex-basis: auto;
-    }
-
-    .benefits-image img {
-      height: auto;
       aspect-ratio: 4 / 3;
     }
 

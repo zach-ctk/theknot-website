@@ -705,9 +705,28 @@ export default config({
           label: 'Core Values Headline',
           defaultValue: 'CORE VALUES',
         }),
+        missionStatement: fields.object(
+          {
+            subheading: fields.text({
+              label: 'Sub-Heading',
+              defaultValue: 'MISSION STATEMENT',
+            }),
+            text: fields.text({
+              label: 'Mission Statement',
+              multiline: true,
+              description:
+                'Text block shown under the Core Values headline, above the values.',
+            }),
+          },
+          { label: 'Mission Statement' }
+        ),
         coreValues: fields.array(
           fields.object({
             title: fields.text({ label: 'Value Title' }),
+            subheading: fields.text({
+              label: 'Sub-Heading (optional)',
+              description: 'Short tagline shown in red above the content.',
+            }),
             content: fields.text({ label: 'Content', multiline: true }),
           }),
           {

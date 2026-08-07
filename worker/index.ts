@@ -4,9 +4,14 @@
 // in KV. The Pages endpoint (src/pages/api/classes.json.ts) reads that KV
 // snapshot, so the RPHQ call is kept off the user-facing request path.
 //
-// Cron: every 90 minutes (see worker/wrangler.toml). 90 minutes can't be a
-// single cron expression because the minute field tops out at 59, so the two
-// expressions there interleave on-the-hour and half-past-the-hour slots.
+// STATUS: dormant. The cron trigger is commented out in worker/wrangler.toml
+// and this Worker has never been deployed — the classes calendar it feeds is
+// not live. The code below is intact; reviving it is a config change plus
+// `npm run worker:deploy`. See the note in worker/wrangler.toml.
+//
+// Cron (when enabled): every 90 minutes. 90 minutes can't be a single cron
+// expression because the minute field tops out at 59, so the two expressions
+// there interleave on-the-hour and half-past-the-hour slots.
 import { fetchProgramsReport } from '../src/lib/rphq';
 import { toSchedule, SCHEDULE_KV_KEY, type SchedulePayload } from '../src/lib/schedule';
 

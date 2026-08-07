@@ -52,39 +52,61 @@
     "intro": "Bring your member key tag to any of our local partners for a discount on your order! Click on the icons for address, hours, and more info.",
     "partners15": [
       {
-        "name": "Afternoon Cafe",
+        "name": "Afternoon Coffee",
         "handle": "@afternoon__coffee",
-        "description": "Info and stuff about the business - what they sell, how their discount works etc.",
+        "description": "A microscopic roastery and coffeeshop. Good coffee & little treats!\n15% off drinks & treats!",
         "address": "619 S Main St",
-        "hours": "Everyday 7:30AM - 3PM",
+        "hours": "Every day 7:30am - 3pm",
         "imageLibraryPath": "public/images/canva-final/photos/partner-afternoon-coffee.jpg"
       },
       {
-        "name": "Frenchmen Street Food"
+        "name": "Lloyd Clarke Sports",
+        "handle": "@lloydclarkesports",
+        "description": "Locally-owned sporting goods store\n15% off full-priced items",
+        "address": "1504 NW 13th St",
+        "hours": "MON - SAT 9:30am - 7pm\nSUN 11am - 6pm",
+        "imageLibraryPath": "public/images/canva-final/photos/partner-lloyd-clarke.jpg"
       },
       {
-        "name": "Lloyd Clark Sports"
+        "name": "Humble Wood Fire (Pizza)",
+        "handle": "@humblewoodfire",
+        "description": "Hand rolled organic bagels, wood fired pizza, scratch made desserts, brunch, salads, espresso, vegan & gluten free options. Brunch every day (except Tuesdays) 9am - 2pm\n15% off food & bev!",
+        "address": "619 S Main St",
+        "hours": "MON 9am - 10pm\nTUES 4pm - 10pm\nWED - SUN 9am - 10pm",
+        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-pizza.jpg"
+      },
+      {
+        "name": "Humble Wood Fire (Bagels)",
+        "handle": "@humblewoodfire",
+        "description": "Hand rolled organic bagels in 4th Ave Food Park\n15% off food & bev!",
+        "address": "307 SW 4th Ave",
+        "hours": "EVERY DAY 7am - 3pm",
+        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-bagels.jpg"
       }
     ],
     "partners10": [
       {
         "name": "Afternoon Restaurant",
+        "handle": "@afternoonrestaurant",
+        "description": "A casual neighborhood brunch restaurant\n10% off drinks & food!",
+        "address": "231 NW 10th Ave",
+        "hours": "MON - THURS 9am - 3pm",
         "imageLibraryPath": "public/images/canva-final/photos/partner-afternoon-restaurant.jpg"
       },
       {
-        "name": "Humble Wood Fire (Pizza)",
-        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-pizza.jpg"
-      },
-      {
-        "name": "Humble Wood Fire (Bagels)",
-        "imageLibraryPath": "public/images/canva-final/photos/partner-humble-bagels.jpg"
-      },
-      {
         "name": "Cry Baby's",
+        "handle": "@crybabysbar",
+        "description": "Locally owned cocktail & tiki bar. Sister restaurant of Afternoon Restaurant & Baby J's.\n10% off food & drinks",
+        "address": "1 W University Ave",
+        "hours": "TUES - THURS 5pm - 12am\nFRI 5pm - 2am\nSAT 12pm - 2am\nSUN 12pm - 12am",
         "imageLibraryPath": "public/images/canva-final/photos/partner-cry-babys.jpg"
       },
       {
         "name": "Baby J's",
+        "handle": "@babyjsbar",
+        "description": "Cocktails, snacks, live music, audiophile bar. Sister bar of Afternoon Restaurant & Cry Baby's\n10% off food & drinks",
+        "address": "7 W University Ave",
+        "hours": "TUES - THURS 6pm - 12am\nFRI - SAT 6pm - 2am",
         "imageLibraryPath": "public/images/canva-final/photos/partner-baby-js.jpg"
       }
     ]

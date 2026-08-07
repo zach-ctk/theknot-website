@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 
 interface AccordionItem {
   title: string;
+  /** Rust-colored sub-heading shown above the content, matching the red section
+      titles inside the new-climbers safety accordion. */
+  subheading?: string;
   content?: string;
   /** Legacy single button: wide, manatee-colored. Requires both text and link. */
   buttonText?: string;
@@ -22,9 +25,13 @@ const isExternal = (link?: string) => !!link && link.startsWith('http');
 
 interface AccordionProps {
   items: AccordionItem[];
+  /** Panel content alignment. Defaults to centered, which is how the FAQ,
+      policies, and events accordions read. 'left' is for prose-heavy panels
+      like the core values. Headers are always left-aligned either way. */
+  align?: 'center' | 'left';
 }
 
-export default function Accordion({ items }: AccordionProps) {
+export default function Accordion({ items, align = 'center' }: AccordionProps) {
   const initialOpenIndex = items.findIndex((item) => item.defaultOpen);
   const [openIndex, setOpenIndex] = useState<number | null>(
     initialOpenIndex === -1 ? null : initialOpenIndex
@@ -42,7 +49,7 @@ export default function Accordion({ items }: AccordionProps) {
   };
 
   return (
-    <div className="accordion">
+    <div className={`accordion${align === 'left' ? ' accordion--left' : ''}`}>
       {items.map((item, index) => {
         const contentId = `accordion-content-${index}`;
         const headerId = `accordion-header-${index}`;
@@ -97,13 +104,40 @@ export default function Accordion({ items }: AccordionProps) {
             }}
           >
             <div className="accordion-content-inner">
+              {item.subheading && (
+                <p className="accordion-subheading">{item.subheading}</p>
+              )}
               {/* Blank lines (\n\n) separate paragraphs; single newlines are tight
-                  line breaks within a paragraph. A line beginning with a bullet
+                  line breaks within a paragraph. A paragraph whose first line is
+                  "## Label" renders that line as a red heading with the rest of
+                  the paragraph as its body — the labelled-block style used by the
+                  new-climbers safety accordion. A line beginning with a bullet
                   marker (• ◦ ○ -) renders as a hanging-indent row so wrapped text
                   lines up under the text, not under the marker. A hollow marker
                   (◦ / ○) renders as an indented, nested bullet. */}
               {(item.content ?? '').split(/\n\s*\n/).map((paragraph, pIndex) => {
                 const lines = paragraph.split('\n');
+
+                const heading = /^##\s+(.*)$/.exec(lines[0] ?? '');
+                if (heading) {
+                  const body = lines.slice(1);
+                  return (
+                    <Fragment key={pIndex}>
+                      <p className="accordion-heading">{heading[1]}</p>
+                      {body.length > 0 && (
+                        <p className="accordion-text">
+                          {body.map((line, lIndex) => (
+                            <span key={lIndex}>
+                              {line}
+                              {lIndex < body.length - 1 && <br />}
+                            </span>
+                          ))}
+                        </p>
+                      )}
+                    </Fragment>
+                  );
+                }
+
                 const isList = lines.some((line) => /^\s*[•●◦○\-]\s/.test(line));
                 return (
                   <p
@@ -231,9 +265,34 @@ export default function Accordion({ items }: AccordionProps) {
           text-align: center;
         }
 
+        /* Matches the red section titles in NewClimberSafetyAccordion, minus the
+           uppercase transform — the case comes from the copy itself.
+           .accordion-subheading is the single one at the top of a panel;
+           .accordion-heading is an inline "## Label" block within the content. */
+        .accordion-subheading,
+        .accordion-heading {
+          font-family: var(--font-heading, 'Uniform Pro', sans-serif);
+          font-size: var(--body-size, 16px);
+          font-weight: 700;
+          color: var(--color-coral, #D89B92);
+          line-height: 1.5;
+        }
+
+        .accordion-subheading {
+          margin: 0 0 12px;
+        }
+
+        .accordion-heading {
+          margin: 20px 0 4px;
+        }
+
+        .accordion-heading:first-child {
+          margin-top: 0;
+        }
+
         .accordion-text {
           font-family: var(--font-body, 'Rubik', sans-serif);
-          font-size: 14px;
+          font-size: var(--body-size, 16px);
           color: white;
           line-height: 1.6;
           margin: 0 0 16px;
@@ -250,6 +309,18 @@ export default function Accordion({ items }: AccordionProps) {
           text-align: left;
           padding-left: 32px;
           padding-right: 32px;
+        }
+
+        /* align="left": panel content runs flush left. The list indent above
+           exists to clear centered text, so it's dropped here — bullets line up
+           with the paragraphs instead. */
+        .accordion--left .accordion-content-inner {
+          text-align: left;
+        }
+
+        .accordion--left .accordion-text--list {
+          padding-left: 0;
+          padding-right: 0;
         }
 
         .bullet-row {
@@ -338,10 +409,6 @@ export default function Accordion({ items }: AccordionProps) {
 
           .accordion-content-inner {
             padding: 20px 28px;
-          }
-
-          .accordion-text {
-            font-size: 14px;
           }
 
           .accordion-text--list {

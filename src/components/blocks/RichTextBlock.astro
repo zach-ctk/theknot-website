@@ -26,7 +26,7 @@ const sectionStyle = [
 
 <style>
   .block-rich-text {
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
     width: 100%;
   }
 
@@ -34,7 +34,7 @@ const sectionStyle = [
     max-width: 900px;
     margin: 0 auto;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
   }
 
@@ -105,11 +105,7 @@ const sectionStyle = [
 
   @media (max-width: 768px) {
     .block-rich-text {
-      padding: 48px 16px;
-    }
-
-    .block-rich-text__inner {
-      font-size: 16px;
+      padding: 48px var(--page-padding-x);
     }
 
     .block-rich-text__inner :global(h1) {

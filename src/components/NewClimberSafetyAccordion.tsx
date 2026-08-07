@@ -130,9 +130,10 @@ export default function NewClimberSafetyAccordion() {
           background-color: rgba(57, 57, 59, 0.5);
         }
 
+        /* Content type follows the shared --body-size token. */
         .safety-accordion-content-inner h3 {
           font-family: var(--font-heading, 'Uniform Pro', sans-serif);
-          font-size: 16px;
+          font-size: var(--body-size, 16px);
           font-weight: 700;
           color: var(--color-coral, #D89B92);
           margin: 24px 0 12px 0;
@@ -145,7 +146,7 @@ export default function NewClimberSafetyAccordion() {
 
         .safety-accordion-content-inner p {
           font-family: var(--font-body, 'Rubik', sans-serif);
-          font-size: 16px;
+          font-size: var(--body-size, 16px);
           line-height: 1.6;
           margin: 0 0 24px 0;
           color: #ccc;
@@ -159,7 +160,7 @@ export default function NewClimberSafetyAccordion() {
 
         .safety-accordion-content-inner li {
           font-family: var(--font-body, 'Rubik', sans-serif);
-          font-size: 15px;
+          font-size: var(--body-size, 16px);
           line-height: 1.7;
           color: #ccc;
           margin-bottom: 6px;
@@ -204,14 +205,6 @@ export default function NewClimberSafetyAccordion() {
 
           .safety-accordion-content-inner {
             padding: 20px 20px 24px 20px;
-          }
-
-          .safety-accordion-content-inner h3 {
-            font-size: 14px;
-          }
-
-          .safety-accordion-content-inner li {
-            font-size: 14px;
           }
         }
       `}</style>
@@ -262,28 +255,39 @@ function ClimbAtYourOwnRisk() {
 function IndoorClimbingEtiquette() {
   return (
     <>
-      <h3>General Courtesy</h3>
+      <h3>CONSENT</h3>
       <ul>
-        <li>Communicate with other climbers before starting a route</li>
-        <li>Take turns on popular routes - <strong>do not</strong> hog the wall</li>
-        <li>Be aware of your surroundings and other climbers</li>
-        <li>Keep chalk use reasonable - brush holds when done</li>
+        <li>Always get consent! Ask before:
+          <ul>
+            <li>Giving beta or advice to another climber</li>
+            <li>Spotting another climber</li>
+          </ul>
+        </li>
       </ul>
 
-      <h3>Bouldering Etiquette</h3>
+      <h3>ON THE WALL</h3>
       <ul>
-        <li>Wait for the climber above you to finish before starting</li>
-        <li>Call out "FALLING!" loudly when you come off the wall</li>
-        <li>Spot climbers when appropriate - ask if they want a spot first</li>
-        <li>Keep the landing zone clear of bags, shoes, and other items</li>
+        <li>Take turns climbing with others.</li>
+        <li>If someone just brushed a route, let them climb it first.</li>
+        <li>Do your best not to bleed on anything - holds, walls, padding, rentals, friends, family - but let a staff member know if you do.</li>
       </ul>
 
-      <h3>Top-Rope Etiquette</h3>
+      <h3>OFF THE WALL</h3>
       <ul>
-        <li>Double-check your partner's knot and belay device</li>
-        <li>Communicate clearly: "On belay?" "Belay on!" "Climbing!" "Climb on!"</li>
-        <li>Stay attentive while belaying - <strong>do not</strong> use your phone</li>
-        <li>Lower climbers smoothly and at a controlled pace</li>
+        <li>Don't stand, sit, walk, or leave belongings in fall zones.</li>
+        <li>Try to keep your chalk contained to your chalk bag. If you spill, let a staff member know so we can clean it up.</li>
+      </ul>
+
+      <h3>GEAR</h3>
+      <ul>
+        <li>Wear appropriate climbing gear and attire:
+          <ul>
+            <li>Wear climbing shoes while on the wall</li>
+            <li>Take off your harness while bouldering</li>
+            <li>Keep your top on in the gym</li>
+            <li>When top-roping, tie back hair, avoid loose fitting clothes or jewelry, and tuck your shirt into your harness</li>
+          </ul>
+        </li>
       </ul>
     </>
   );
@@ -291,92 +295,64 @@ function IndoorClimbingEtiquette() {
 
 function RouteGrades() {
   return (
-    <>
-      <p>
-        Route grades indicate difficulty level. Our gym uses the V-Scale for bouldering
-        and the Yosemite Decimal System (YDS) for top-rope routes.
-      </p>
-
-      <h3>Bouldering (V-Scale)</h3>
-      <ul>
-        <li><strong>VB - V1:</strong> Beginner - large holds, straightforward movement</li>
-        <li><strong>V2 - V3:</strong> Intermediate - smaller holds, requires technique</li>
-        <li><strong>V4 - V5:</strong> Advanced - challenging moves, good strength required</li>
-        <li><strong>V6+:</strong> Expert - highly technical, significant strength and skill</li>
-      </ul>
-
-      <h3>Top-Rope (YDS)</h3>
-      <ul>
-        <li><strong>5.6 - 5.8:</strong> Beginner - easy climbing, comfortable for new climbers</li>
-        <li><strong>5.9 - 5.10:</strong> Intermediate - steeper terrain, technique matters</li>
-        <li><strong>5.11 - 5.12:</strong> Advanced - demanding routes, experience required</li>
-        <li><strong>5.13+:</strong> Expert - elite-level difficulty</li>
-      </ul>
-
-      <p className="note">
-        Grades are subjective and can vary between setters. Use them as a general guide,
-        not an absolute measure of your ability.
-      </p>
-    </>
+    <ul>
+      <li>
+        At The Knot, we use the V-scale to rate boulder problems (V0 - V10+) and the
+        Yosemite Decimal System (YDS) for top-rope routes (5.5 - 5.13). In both systems,
+        the higher the number, the more difficult the problem will feel.
+      </li>
+      <li>
+        While grades offer a general sense of challenge, they're subjective and may feel
+        different for each climber. You can find route grades on the back of Start Tags or
+        in our climbing app
+      </li>
+    </ul>
   );
 }
 
 function KidsPolicies() {
   return (
-    <>
-      <h3>Age Requirements</h3>
-      <ul>
-        <li>Children under 14 <strong>MUST</strong> be supervised by a parent/guardian at all times</li>
-        <li>Ages 14-17 may climb unsupervised with signed waiver on file</li>
-        <li>Youth belay certification available for ages 12+ (requires test)</li>
-      </ul>
-
-      <h3>Bouldering Rules</h3>
-      <ul>
-        <li>Children under 8 must stay in designated kids zone</li>
-        <li>Climbing height limit of 6 feet for unsupervised children under 14</li>
-        <li>Adult spotter required for children in main bouldering area</li>
-      </ul>
-
-      <h3>Top-Rope Rules</h3>
-      <ul>
-        <li>Children under 40 lbs may have difficulty with auto-belays</li>
-        <li>Adult belayer required for all youth climbing on rope</li>
-        <li>Youth belay test required before belaying other climbers</li>
-      </ul>
-    </>
+    <ul>
+      <li>Each person under 16 needs an adult (18 or older) chaperone.</li>
+      <li>Chaperone-to-child ratio for children under 13 must be 1:1; each child needs their own chaperone.
+        <ul>
+          <li>Chaperones for children under 13 must be in constant visual contact with their child.</li>
+          <li>Chaperones for children 13-15 need not stay in constant visual contact, but must come in and remain in the gym while they are here.</li>
+        </ul>
+      </li>
+      <li>Chaperones-to-child ratio for children 13-15 must be a max of 1:4.</li>
+      <li>No one under 13 is allowed to:
+        <ul>
+          <li>Belay</li>
+          <li>Be in the gym past 6:00PM</li>
+          <li>Use the weightlifting/workout area</li>
+        </ul>
+      </li>
+      <li>No one under 5 may climb anywhere in the facility.</li>
+      <li>Minors (under 18) cannot fill out their own waivers; a parent or guardian must fill it out for them.
+        <ul>
+          <li>All waivers for minors must additionally have a photo of the parent or guardian's ID attached. These can be texted to The Knot at 352-322-2402 with the message: "For [insert minor's name]."</li>
+        </ul>
+      </li>
+    </ul>
   );
 }
 
 function CodeOfConduct() {
   return (
-    <>
-      <p>
-        The Knot is committed to providing a welcoming, inclusive, and safe environment
-        for all climbers. We expect all members and guests to treat each other with respect.
-      </p>
-
-      <h3>Expected Behavior</h3>
-      <ul>
-        <li>Be kind, respectful, and supportive of all climbers</li>
-        <li>Help create a welcoming environment for newcomers</li>
-        <li>Offer encouragement and constructive feedback when appropriate</li>
-        <li>Take responsibility for your actions and their impact on others</li>
-      </ul>
-
-      <h3>Prohibited Behavior</h3>
-      <ul>
-        <li>Harassment, discrimination, or bullying of any kind</li>
-        <li>Unsolicited coaching or "beta spraying" without consent</li>
-        <li>Reckless behavior that endangers yourself or others</li>
-        <li>Damage to equipment, holds, or facility property</li>
-      </ul>
-
-      <p>
-        Violations may result in membership suspension or termination.
-        Report concerns to staff or email{' '}
-        <a href="mailto:info@climbtheknot.com">info@climbtheknot.com</a>
-      </p>
-    </>
+    <ul>
+      <li>
+        At The Knot Climbing Gym, we are committed to providing a welcoming, inclusive,
+        and safe environment for all of our climbers and staff. We believe that everyone
+        deserves to feel respected and valued while enjoying their time in our facility.
+      </li>
+      <li>
+        As such, we have a zero-tolerance policy for any form of harassment,
+        discrimination, violence, suggestion of violence, hate speech, or any other
+        unwanted behavior that makes others feel uncomfortable. This policy may (at
+        management's sole discretion) be applied to behavior both inside and outside The
+        Knot Climbing Gym.
+      </li>
+    </ul>
   );
 }

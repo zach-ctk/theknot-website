@@ -105,8 +105,16 @@ const aboutHeroImage =
   <!-- Core Values Section -->
   <section class="core-values-section">
     <h2 class="section-heading">{aboutPage?.coreValuesHeadline || 'CORE VALUES'}</h2>
+    {aboutPage?.missionStatement?.text && (
+      <div class="mission-statement">
+        {aboutPage.missionStatement.subheading && (
+          <h3 class="mission-statement-heading">{aboutPage.missionStatement.subheading}</h3>
+        )}
+        <p class="mission-statement-text">{aboutPage.missionStatement.text}</p>
+      </div>
+    )}
     <div class="accordion-container">
-      <Accordion client:visible items={coreValuesItems} />
+      <Accordion client:visible items={coreValuesItems} align="left" />
     </div>
   </section>
 
@@ -189,7 +197,7 @@ const aboutHeroImage =
   }
 
   .about-intro-section {
-    padding: 48px 24px;
+    padding: 48px var(--page-padding-x);
     background-color: #000;
   }
 
@@ -198,13 +206,13 @@ const aboutHeroImage =
     margin: 0 auto;
     color: #fff;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     text-align: left;
   }
 
   .core-values-section {
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
     background-color: #000;
   }
 
@@ -220,6 +228,31 @@ const aboutHeroImage =
     letter-spacing: 2px;
   }
 
+  /* Sits between the CORE VALUES title and the values accordion. Spans the full
+     1200px section column (like the title) rather than the narrower accordion. */
+  .mission-statement {
+    max-width: 1200px;
+    margin: -16px auto 40px;
+  }
+
+  .mission-statement-heading {
+    font-family: var(--font-heading, 'Uniform Pro', sans-serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px;
+  }
+
+  .mission-statement-text {
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: var(--body-size);
+    line-height: 1.6;
+    margin: 0;
+  }
+
   .accordion-container {
     max-width: 900px;
     margin: 0 auto;
@@ -231,7 +264,7 @@ const aboutHeroImage =
   }
 
   .meet-the-team-section {
-    padding: 64px 24px 0;
+    padding: 64px var(--page-padding-x) 0;
     background-color: #000;
   }
 
@@ -252,13 +285,13 @@ const aboutHeroImage =
     margin: 0 auto;
     color: #ccc;
     font-family: var(--font-body);
-    font-size: 18px;
+    font-size: var(--body-size);
     line-height: 1.6;
     text-align: left;
   }
 
   .team-section {
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
     background-color: #000;
   }
 
@@ -302,7 +335,7 @@ const aboutHeroImage =
   }
 
   .faq-section {
-    padding: 64px 24px;
+    padding: 64px var(--page-padding-x);
     background-color: #000;
   }
 
@@ -311,38 +344,38 @@ const aboutHeroImage =
     margin: 0 auto 32px;
     color: #ccc;
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: var(--body-size);
     line-height: 1.5;
     text-align: left;
   }
 
   @media (max-width: 768px) {
     .about-intro-section {
-      padding: 32px 16px;
-    }
-
-    .about-intro-text {
-      font-size: 16px;
+      padding: 32px var(--page-padding-x);
     }
 
     .core-values-section {
-      padding: 48px 16px;
+      padding: 48px var(--page-padding-x);
     }
 
     .section-heading {
       margin-bottom: 32px;
     }
 
-    .meet-the-team-section {
-      padding: 48px 16px 0;
+    .mission-statement {
+      margin: -8px auto 32px;
     }
 
-    .meet-the-team-intro {
+    .mission-statement-heading {
       font-size: 16px;
     }
 
+    .meet-the-team-section {
+      padding: 48px var(--page-padding-x) 0;
+    }
+
     .team-section {
-      padding: 48px 16px;
+      padding: 48px var(--page-padding-x);
     }
 
     .team-section-heading {
@@ -359,7 +392,7 @@ const aboutHeroImage =
     }
 
     .faq-section {
-      padding: 48px 16px;
+      padding: 48px var(--page-padding-x);
     }
   }
 </style>

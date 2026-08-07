@@ -2,6 +2,7 @@
   "name": "Katey Brown",
   "role": "Social Media",
   "teamGroup": "coordinator",
+  "photoLibraryPath": "public/images/canva-final/canva-hills-background.jpg",
   "order": 99,
   "isLeadership": false
 }
