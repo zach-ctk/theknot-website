@@ -8,7 +8,7 @@ export default {
         'tkcg-rust': 'var(--color-rust, #B94237)',
         'tkcg-limestone': 'var(--color-limestone, #D0D96F)',
         'tkcg-manatee': 'var(--color-manatee, #84BABF)',
-        'tkcg-coral': 'var(--color-coral, #D89B92)',
+        'tkcg-coral': 'var(--color-coral, #C97065)',
         'tkcg-surf': 'var(--color-surf, #0B4F6C)',
         'tkcg-deep-water': 'var(--color-deep-water, #073447)',
         'tkcg-milkweed': 'var(--color-milkweed, #F2F3AE)',
@@ -17,10 +17,10 @@ export default {
         // Semantic aliases
         primary: 'var(--color-rust, #B94237)',
         secondary: 'var(--color-manatee, #84BABF)',
-        accent: 'var(--color-coral, #D89B92)',
+        accent: 'var(--color-coral, #C97065)',
         // Legacy aliases
         rust: 'var(--color-rust, #B94237)',
-        coral: 'var(--color-coral, #D89B92)',
+        coral: 'var(--color-coral, #C97065)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'Zing Rust', 'Uniform Pro', 'sans-serif'],

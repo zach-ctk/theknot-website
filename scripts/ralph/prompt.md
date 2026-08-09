@@ -81,7 +81,7 @@ import Modal from '../components/Modal.tsx';
 var(--color-rust)        /* #B94237 */
 var(--color-teal)        /* #84BABF */
 var(--color-limestone)   /* #D0D96F */
-var(--color-coral)       /* #D89B92 */
+var(--color-coral)       /* #C97065 */
 var(--color-graphite)    /* #39393B */
 var(--color-sand)        /* #FAF9F5 */
 ```

@@ -42,6 +42,7 @@ source-photos/
 
 # Local working docs (not part of the deployed site)
 DEPLOYMENT.md
+DEPLOYMENT-BRIEFING.md
 KEYSTATIC-CLEANUP.md
 Oddities.txt
 WEBSITE-EDITS.md

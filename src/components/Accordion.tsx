@@ -274,7 +274,7 @@ export default function Accordion({ items, align = 'center' }: AccordionProps) {
           font-family: var(--font-heading, 'Uniform Pro', sans-serif);
           font-size: var(--body-size, 16px);
           font-weight: 700;
-          color: var(--color-coral, #D89B92);
+          color: var(--color-coral, #C97065);
           line-height: 1.5;
         }
 

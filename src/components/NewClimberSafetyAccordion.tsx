@@ -135,7 +135,7 @@ export default function NewClimberSafetyAccordion() {
           font-family: var(--font-heading, 'Uniform Pro', sans-serif);
           font-size: var(--body-size, 16px);
           font-weight: 700;
-          color: var(--color-coral, #D89B92);
+          color: var(--color-coral, #C97065);
           margin: 24px 0 12px 0;
           text-transform: uppercase;
         }
@@ -186,7 +186,7 @@ export default function NewClimberSafetyAccordion() {
         }
 
         .safety-accordion-content-inner a {
-          color: var(--color-coral, #D89B92);
+          color: var(--color-coral, #C97065);
           text-decoration: none;
         }
 

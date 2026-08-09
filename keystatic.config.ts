@@ -12,7 +12,7 @@ const BRAND_COLOR_OPTIONS = [
   { label: 'Rust (#B94237)', value: '#B94237' },
   { label: 'Limestone (#D0D96F)', value: '#D0D96F' },
   { label: 'Manatee (#84BABF)', value: '#84BABF' },
-  { label: 'Coral (#D89B92)', value: '#D89B92' },
+  { label: 'Coral (#C97065)', value: '#C97065' },
   { label: 'Surf (#0B4F6C)', value: '#0B4F6C' },
   { label: 'Deep Water (#073447)', value: '#073447' },
   { label: 'Milkweed (#F2F3AE)', value: '#F2F3AE' },
@@ -373,7 +373,7 @@ export default config({
               '#84BABF',
               'Secondary color - used for secondary buttons'
             ),
-            coral: colorPaletteField('Coral', '#D89B92', 'Soft accent - Rust at 75%'),
+            coral: colorPaletteField('Coral', '#C97065', 'Soft accent - section headings and date lines'),
             surf: colorPaletteField('Surf', '#0B4F6C', 'Deep blue'),
             deepWater: colorPaletteField('Deep Water', '#073447', 'Darkest blue'),
             milkweed: colorPaletteField('Milkweed', '#F2F3AE', 'Limestone at 50%'),

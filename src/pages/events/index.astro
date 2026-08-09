@@ -16,15 +16,19 @@ const upendingParkinsonsImage =
   "/images/canva-final/photos/events-upending-parkinsons.jpg";
 const redpointEventsUrl = "https://portal.climbtheknot.com/gnv/events";
 
-// Load business info for events email
+// Load business info for the events email and the gym's own street address.
+// Keystatic frames an event's address as "if different from gym", so events
+// that leave it blank fall back to the gym address here.
 let eventsEmail = "events@climbtheknot.com";
+let gymAddress = "704 S Main St";
 try {
   const biPath = path.join(process.cwd(), "src/content/business-info.json");
   const raw = fs.readFileSync(biPath, "utf-8");
   const parsed = JSON.parse(raw);
   if (parsed?.contact?.eventsEmail) eventsEmail = parsed.contact.eventsEmail;
+  if (parsed?.address?.street) gymAddress = parsed.address.street;
 } catch (e) {
-  // Use default
+  // Use defaults
 }
 
 function parseDate(value?: string): Date | null {
@@ -81,6 +85,18 @@ const featuredEvent =
   upcomingEvents.find((event) => event.data.isFeatured) ??
   upcomingEvents[0] ??
   null;
+
+// The next-event button points at the event's own page when it has one, so the
+// visitor lands on the full details rather than the portal's event list. Events
+// without a dedicated page fall back to their registration link, then to the
+// portal.
+const featuredEventUrl = featuredEvent
+  ? (featuredEvent.data.eventPage?.discriminant
+      ? `/events/${featuredEvent.id}`
+      : featuredEvent.data.registrationLink || redpointEventsUrl)
+  : redpointEventsUrl;
+
+const featuredEventIsExternal = !featuredEventUrl.startsWith("/");
 
 const toPublicUrl = (libraryPath?: string | null) =>
   libraryPath && libraryPath.startsWith("public/")
@@ -168,9 +184,9 @@ const eventTypeItems = [
               </p>
 
               <a
-                href={redpointEventsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={featuredEventUrl}
+                target={featuredEventIsExternal ? "_blank" : undefined}
+                rel={featuredEventIsExternal ? "noopener noreferrer" : undefined}
                 class="btn-secondary next-event-button"
               >
                 REGISTRATION & MORE INFO
@@ -260,8 +276,8 @@ const eventTypeItems = [
                 ))}
                 <div class="event-detail-actions">
                   {event.data.eventPage?.discriminant && (
-                    <a href={`/events/${event.id}`} class="btn-secondary">
-                      VIEW EVENT PAGE
+                    <a href={`/events/${event.id}`} class="btn-primary">
+                      REGISTRATION
                     </a>
                   )}
                   {event.data.registrationLink && (
@@ -274,6 +290,12 @@ const eventTypeItems = [
                       REGISTRATION & MORE INFO
                     </a>
                   )}
+                </div>
+                <div class="event-detail-address-block">
+                  <h4 class="event-detail-address-heading">ADDRESS</h4>
+                  <p class="event-detail-address">
+                    {event.data.address || gymAddress}
+                  </p>
                 </div>
               </div>
             </div>
@@ -487,12 +509,15 @@ const eventTypeItems = [
     margin-top: 16px;
   }
 
+  /* Mirrors the owners & managers grid on the about page: same 1200px column,
+     same 24px gap, same wrap behavior, so the cards come out the same size. */
   .calendar-grid {
     max-width: 1200px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
   }
 
   .calendar-card {
@@ -509,7 +534,12 @@ const eventTypeItems = [
   }
 
   button.calendar-card {
-    width: 100%;
+    /* 5 per row: subtract the 4 inter-card gaps (24px) from the grid, split 5
+       ways — the same sizing the team cards use. */
+    width: calc((100% - 4 * 24px) / 5);
+    /* The card's 1px border sits inside that width, so the outer box matches
+       the borderless team card exactly. */
+    box-sizing: border-box;
     padding: 0;
     font: inherit;
     text-align: left;
@@ -527,25 +557,35 @@ const eventTypeItems = [
     margin: 24px auto 0;
   }
 
+  /* Black, not #141414, so any letterbox around the flyer reads as one solid
+     column with the image's own backdrop. */
   .event-detail {
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     overflow: hidden;
-    background: #141414;
+    background: #000;
   }
 
+  /* No gap: the panel background would otherwise show through as a black
+     stripe between the flyer and the white text box. The flyer column is auto
+     so it takes exactly the width its capped height gives it — the text box
+     absorbs the rest. */
   .event-detail-inner {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
+  /* The flyer sets the panel's height. Left to its intrinsic size a portrait
+     poster runs ~750px tall at this width and pushes the panel past a single
+     screen, so the height is capped and the width follows from the aspect
+     ratio — the whole flyer stays visible, uncropped. */
   .event-detail-image {
-    width: 100%;
-    height: 100%;
-    min-height: 220px;
-    object-fit: cover;
+    width: auto;
+    max-width: 100%;
+    height: min(62vh, 545px);
+    object-fit: contain;
+    background: #000;
     display: block;
   }
 
@@ -554,11 +594,12 @@ const eventTypeItems = [
     display: flex;
     flex-direction: column;
     gap: 10px;
+    background: #fff;
   }
 
   .event-detail-title {
     margin: 0;
-    color: #fff;
+    color: #000;
     font-family: var(--font-heading);
     font-size: clamp(20px, 4vw, 28px);
     font-weight: 900;
@@ -568,7 +609,7 @@ const eventTypeItems = [
 
   .event-detail-meta {
     margin: 0;
-    color: var(--color-coral, #d89b92);
+    color: var(--color-coral, #c97065);
     font-family: var(--font-body);
     font-size: 14px;
     font-weight: 700;
@@ -576,17 +617,53 @@ const eventTypeItems = [
 
   .event-detail-description {
     margin: 0;
-    color: #ccc;
+    color: #000;
     font-family: var(--font-body);
     font-size: var(--body-size);
     line-height: 1.6;
   }
 
+  /* auto top margin pins the actions to the bottom of the text box, so the
+     buttons line up with the foot of the flyer regardless of copy length. */
   .event-detail-actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 8px;
+    justify-content: center;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+
+  /* Sits under the centered button but keeps the body's left alignment. The
+     wrapper keeps the label tight to its value instead of taking the body's
+     10px flex gap. */
+  .event-detail-address-block {
+    text-align: left;
+  }
+
+  .event-detail-address-heading {
+    margin: 0 0 2px;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .event-detail-address {
+    margin: 0;
+    color: #000;
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Compact version of the red button — the default padding/size is built for
+     standalone section CTAs and reads oversized inside the panel. */
+  .event-detail-actions .btn-primary {
+    padding: 12px 22px;
+    font-size: 13px;
   }
 
   .event-detail-close {
@@ -612,17 +689,24 @@ const eventTypeItems = [
     .event-detail-inner {
       grid-template-columns: 1fr;
     }
+
+    /* Stacked, the flyer is narrower than the column, so center it and give
+       the shorter viewport a smaller share of the screen. */
+    .event-detail-image {
+      justify-self: center;
+      height: min(52vh, 440px);
+    }
   }
 
   .calendar-card-image {
     width: 100%;
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 180 / 250;
     object-fit: cover;
     display: block;
   }
 
   .calendar-card-body {
-    padding: 12px;
+    padding: 16px 8px;
   }
 
   .calendar-card-title {
@@ -644,6 +728,17 @@ const eventTypeItems = [
     margin: 0;
     color: #ccc;
     font-family: var(--font-body);
+  }
+
+  /* Same breakpoint and single-column drop the team cards use. */
+  @media (max-width: 768px) {
+    .calendar-grid {
+      gap: 16px;
+    }
+
+    button.calendar-card {
+      width: 100%;
+    }
   }
 
   .group-subtitle {

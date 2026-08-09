@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
 import { getCollection } from 'astro:content';
 import { isRecurringSchedule, recurringScheduleLines } from '../../lib/eventSchedule';
 
@@ -29,7 +30,11 @@ const toPublicUrl = (libraryPath?: string | null) =>
     ? `/${libraryPath.slice('public/'.length)}`
     : undefined;
 
-const eventImage = toPublicUrl(eventData.imageLibraryPath) || eventData.image;
+// Events with no image of their own fall back to the Events index hero, so the
+// dedicated page still reads as part of the events section.
+const eventsHeroImage = '/images/canva-final/photos/events-hero.jpg';
+const eventImage =
+  toPublicUrl(eventData.imageLibraryPath) || eventData.image || eventsHeroImage;
 
 const flyerData = eventData.eventPage?.value;
 // The Media Library pick wins. `flyer` is the pre-library upload value, kept
@@ -74,38 +79,13 @@ function renderRichText(text?: string): string {
 ---
 
 <BaseLayout title={eventTitle}>
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-background">
-      {eventImage ? (
-        <img src={eventImage} alt={eventTitle} loading="eager" fetchpriority="high" decoding="async" />
-      ) : (
-        <svg
-          viewBox="0 0 1200 400"
-          preserveAspectRatio="xMidYMid slice"
-          class="placeholder-svg"
-        >
-          <defs>
-            <linearGradient id="eventHeroGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#D6EEF5" />
-              <stop offset="100%" stop-color="#87CEEB" />
-            </linearGradient>
-          </defs>
-          <rect width="1200" height="400" fill="url(#eventHeroGrad)" />
-          <ellipse cx="150" cy="80" rx="80" ry="45" fill="white" opacity="0.9" />
-          <ellipse cx="220" cy="90" rx="60" ry="35" fill="white" opacity="0.9" />
-          <ellipse cx="950" cy="100" rx="100" ry="55" fill="white" opacity="0.9" />
-          <path d="M0 400 Q600 200 1200 400 Z" fill="#8FB339" />
-          <path d="M0 400 Q400 280 800 400 Z" fill="#5C8A2B" />
-        </svg>
-      )}
-    </div>
-    <div class="hero-content">
-      <h1 class="hero-headline">{eventTitle.toUpperCase()}</h1>
-      <p class="hero-date">{formatDateRange(eventData.date, eventEndDate)}</p>
-      {eventData.time && <p class="hero-time">{eventData.time}</p>}
-    </div>
-  </section>
+  <!-- Hero Section: the shared secondary-page hero, so event pages match
+       About, Amenities, Membership, and the Events index exactly. -->
+  <PageHero
+    headline={eventTitle.toUpperCase()}
+    backgroundImage={eventImage}
+    imageAlt={eventTitle}
+  />
 
   <!-- Flyer + Details Block (dedicated-page events with a flyer image) -->
   {flyerImage && (
@@ -343,92 +323,6 @@ function renderRichText(text?: string): string {
 </BaseLayout>
 
 <style>
-  /* Hero Section */
-  .hero-section {
-    position: relative;
-    height: 50vh;
-    min-height: 430px;
-    max-height: 540px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    overflow: hidden;
-    /* Clear the fixed announcement banner + nav header so the hero text
-       (anchored to the bottom) can't slide up underneath them. The background
-       image is absolutely positioned, so it stays full-bleed regardless. */
-    padding-top: 160px;
-  }
-
-  .hero-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 0;
-  }
-
-  .hero-background img,
-  .hero-background .placeholder-svg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .hero-background::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0.3) 50%,
-      transparent 100%
-    );
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    padding: 40px var(--page-padding-x);
-    max-width: 900px;
-  }
-
-  .hero-headline {
-    font-family: var(--font-heading);
-    font-size: 56px;
-    font-weight: 900;
-    color: white;
-    margin: 0 0 16px 0;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-  }
-
-  .hero-date {
-    font-family: var(--font-body);
-    font-size: 20px;
-    font-weight: 600;
-    color: white;
-    margin: 0 0 8px 0;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-  }
-
-  .hero-time {
-    font-family: var(--font-body);
-    font-size: 18px;
-    font-weight: 400;
-    color: white;
-    margin: 0;
-    opacity: 0.9;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-  }
-
   /* Flyer + Details Block */
   .flyer-section {
     padding: 60px var(--page-padding-x);
@@ -686,43 +580,46 @@ function renderRichText(text?: string): string {
     margin: 0 0 24px 0;
   }
 
-  /* Divisions */
+  /* Divisions
+     Borrows the shared Accordion's header/panel look so the page reads as one
+     system, but stays a plain always-open block — no toggle, so no hover state
+     and no chevron. */
   .divisions-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 8px;
   }
 
   .division-card {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
     overflow: hidden;
   }
 
   .division-header {
-    background: #2b2b2b;
-    padding: 14px 24px;
+    background: var(--color-graphite, #39393b);
+    padding: 20px 24px;
   }
 
   .division-name {
-    font-family: var(--font-heading);
-    font-size: 18px;
+    font-family: var(--font-body);
+    font-size: 14px;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
     margin: 0;
   }
 
   .division-body {
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.04);
+    padding: 24px 40px;
+    background: rgba(57, 57, 59, 0.5);
   }
 
   .division-description {
     font-family: var(--font-body);
     font-size: var(--body-size);
-    color: #ddd;
+    color: #fff;
     line-height: 1.6;
     margin: 0;
   }
@@ -753,16 +650,21 @@ function renderRichText(text?: string): string {
     opacity: 0.9;
   }
 
-  /* Schedule (accordion) */
+  /* Schedule (accordion)
+     Mirrors the shared Accordion component (src/components/Accordion.tsx):
+     graphite headers, square corners, 8px stack gap, manatee chevron, and a
+     half-opacity graphite panel. It stays a native <details> rather than the
+     React component because the schedule copy relies on **bold** markup, which
+     the shared accordion doesn't parse. */
   .schedule-accordion {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
   .schedule-section {
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
     overflow: hidden;
   }
 
@@ -771,10 +673,16 @@ function renderRichText(text?: string): string {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 24px;
-    background: #2b2b2b;
+    padding: 20px 24px;
+    background: var(--color-graphite, #39393b);
     cursor: pointer;
     list-style: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .schedule-summary:hover,
+  .schedule-section[open] .schedule-summary {
+    background: #4a4a4c;
   }
 
   .schedule-summary::-webkit-details-marker {
@@ -782,18 +690,19 @@ function renderRichText(text?: string): string {
   }
 
   .schedule-section-title {
-    font-family: var(--font-heading);
-    font-size: 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0;
+    text-align: left;
   }
 
   .schedule-chevron {
     display: flex;
     align-items: center;
-    color: #fff;
+    color: var(--color-manatee, #84babf);
     transition: transform 0.3s ease;
   }
 
@@ -802,25 +711,25 @@ function renderRichText(text?: string): string {
   }
 
   .schedule-section-body {
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.04);
+    padding: 24px 40px;
+    background: rgba(57, 57, 59, 0.5);
     font-family: var(--font-body);
     font-size: var(--body-size);
     color: #fff;
-    line-height: 1.7;
+    line-height: 1.6;
     white-space: pre-line;
   }
 
-  /* FAQ (accordion) */
+  /* FAQ (accordion) — same shared-Accordion treatment as the schedule above. */
   .faq-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
   .faq-item {
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
     overflow: hidden;
   }
 
@@ -829,10 +738,16 @@ function renderRichText(text?: string): string {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 14px 24px;
-    background: #2b2b2b;
+    padding: 20px 24px;
+    background: var(--color-graphite, #39393b);
     cursor: pointer;
     list-style: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .faq-summary:hover,
+  .faq-item[open] .faq-summary {
+    background: #4a4a4c;
   }
 
   .faq-summary::-webkit-details-marker {
@@ -840,17 +755,19 @@ function renderRichText(text?: string): string {
   }
 
   .faq-question {
-    font-family: var(--font-heading);
-    font-size: 16px;
+    font-family: var(--font-body);
+    font-size: 14px;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
+    letter-spacing: 0;
+    text-align: left;
   }
 
   .faq-chevron {
     display: flex;
     align-items: center;
-    color: #fff;
+    color: var(--color-manatee, #84babf);
     transition: transform 0.3s ease;
   }
 
@@ -859,12 +776,12 @@ function renderRichText(text?: string): string {
   }
 
   .faq-answer {
-    padding: 24px;
-    background: rgba(255, 255, 255, 0.04);
+    padding: 24px 40px;
+    background: rgba(57, 57, 59, 0.5);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: var(--body-size);
     color: #fff;
-    line-height: 1.7;
+    line-height: 1.6;
     white-space: pre-line;
   }
 
@@ -943,27 +860,17 @@ function renderRichText(text?: string): string {
   }
 
   @media (max-width: 768px) {
-    .hero-section {
-      height: 45vh;
-      min-height: 360px;
-      padding-top: 130px;
+    /* Same mobile padding step-down the shared Accordion uses. */
+    .schedule-summary,
+    .faq-summary,
+    .division-header {
+      padding: 16px 20px;
     }
 
-    .hero-headline {
-      font-size: 36px;
-      letter-spacing: 1px;
-    }
-
-    .hero-date {
-      font-size: 16px;
-    }
-
-    .hero-time {
-      font-size: 14px;
-    }
-
-    .hero-content {
-      padding: 30px var(--page-padding-x);
+    .schedule-section-body,
+    .faq-answer,
+    .division-body {
+      padding: 20px 28px;
     }
 
     .details-section {
